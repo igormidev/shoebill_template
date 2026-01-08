@@ -1,0 +1,5 @@
+class: TemplatePdf
+extends: ShoebillTemplate
+table: template_pdf
+fields: 
+    pythonGeneratorScript: String

@@ -1,0 +1,6 @@
+class: ChatMessage
+fields:
+    role: ChatActor
+    style: ChatUIStyle
+    timestamp: DateTime, default=now
+    content: String

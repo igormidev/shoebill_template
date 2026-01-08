@@ -1,0 +1,6 @@
+class: ShoebillTemplate
+sealed: true
+fields:
+    id: UuidValue?, defaultPersist=random_v7
+    createdAt: DateTime, default=now
+    updatedAt: DateTime, default=now

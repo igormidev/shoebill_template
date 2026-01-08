@@ -1,0 +1,44 @@
+services:
+  # Development services
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "8090:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: shoebill_template
+      POSTGRES_PASSWORD: "DHuzGk39vlx9yPesMx94AkM_lZmy3XSX"
+    volumes:
+      - shoebill_template_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:6.2.6
+    ports:
+      - "8091:6379"
+    command: redis-server --requirepass "MdkUKSVnUB5QhB7ZNUAdlepX7dOCko3X"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+  # Test services
+  postgres_test:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "9090:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: shoebill_template_test
+      POSTGRES_PASSWORD: "LotdhRxZtFcnEI8vMG6lMUD5GKPbgfaz"
+    volumes:
+      - shoebill_template_test_data:/var/lib/postgresql/data
+
+  redis_test:
+    image: redis:6.2.6
+    ports:
+      - "9091:6379"
+    command: redis-server --requirepass "Aw0UhuaGtTfQ3X4ydbIqo3-B3QzzxECH"
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+volumes:
+  shoebill_template_data:
+  shoebill_template_test_data:

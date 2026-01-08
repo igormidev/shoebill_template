@@ -1,0 +1,6 @@
+enum: ChatUIStyle
+values:
+    - normal
+    - thinkingChunk
+    - success
+    - error

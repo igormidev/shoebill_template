@@ -1,0 +1,4 @@
+exception: ShoebillException
+fields:
+    title: String
+    description: String
