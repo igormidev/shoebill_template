@@ -1,0 +1,9 @@
+class: PdfDeclaration
+table: pdf_declarations
+fields:
+    pdfId: UuidValue
+
+    # The language the pdf was originally created in.
+    referenceLanguage: SupportedLanguages, defaultModel=english
+
+    createdAt: DateTime, default=now

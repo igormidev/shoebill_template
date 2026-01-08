@@ -1,3 +1,5 @@
+chatSession:
+  - sendMessage:
 emailIdp:
   - login:
   - startRegistration:

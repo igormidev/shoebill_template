@@ -1,0 +1,13 @@
+class: PdfPayloadContent
+table: pdf_payload_content
+fields:
+    pdfId: UuidValue
+    stringifiedJson: String
+    language: SupportedLanguages, defaultModel=english
+    createdAt: DateTime, default=now
+indexes:
+    pdf_id_language_unique:
+        fields: pdfId, language
+        unique: true
+    pdf_id_idx:
+        fields: pdfId

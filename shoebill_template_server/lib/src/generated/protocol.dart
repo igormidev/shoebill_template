@@ -20,12 +20,14 @@ import 'api/chat_session_related/messages/chat_actor.dart' as _i5;
 import 'api/chat_session_related/messages/chat_message.dart' as _i6;
 import 'api/chat_session_related/messages/chat_ui_style.dart' as _i7;
 import 'entities/others/shoebill_exception.dart' as _i8;
-import 'entities/template/shoebill_template.dart' as _i9;
-import 'greetings/greeting.dart' as _i10;
+import 'entities/others/supported_languages.dart' as _i9;
+import 'entities/template/shoebill_template.dart' as _i10;
+import 'greetings/greeting.dart' as _i11;
 export 'api/chat_session_related/messages/chat_actor.dart';
 export 'api/chat_session_related/messages/chat_message.dart';
 export 'api/chat_session_related/messages/chat_ui_style.dart';
 export 'entities/others/shoebill_exception.dart';
+export 'entities/others/supported_languages.dart';
 export 'entities/template/shoebill_template.dart';
 export 'greetings/greeting.dart';
 
@@ -133,11 +135,14 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i8.ShoebillException) {
       return _i8.ShoebillException.fromJson(data) as T;
     }
-    if (t == _i9.TemplatePdf) {
-      return _i9.TemplatePdf.fromJson(data) as T;
+    if (t == _i9.SupportedLanguages) {
+      return _i9.SupportedLanguages.fromJson(data) as T;
     }
-    if (t == _i10.Greeting) {
-      return _i10.Greeting.fromJson(data) as T;
+    if (t == _i10.TemplatePdf) {
+      return _i10.TemplatePdf.fromJson(data) as T;
+    }
+    if (t == _i11.Greeting) {
+      return _i11.Greeting.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.ChatActor?>()) {
       return (data != null ? _i5.ChatActor.fromJson(data) : null) as T;
@@ -151,11 +156,14 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i8.ShoebillException?>()) {
       return (data != null ? _i8.ShoebillException.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i9.TemplatePdf?>()) {
-      return (data != null ? _i9.TemplatePdf.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i9.SupportedLanguages?>()) {
+      return (data != null ? _i9.SupportedLanguages.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i10.Greeting?>()) {
-      return (data != null ? _i10.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i10.TemplatePdf?>()) {
+      return (data != null ? _i10.TemplatePdf.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i11.Greeting?>()) {
+      return (data != null ? _i11.Greeting.fromJson(data) : null) as T;
     }
     try {
       return _i3.Protocol().deserialize<T>(data, t);
@@ -175,8 +183,9 @@ class Protocol extends _i1.SerializationManagerServer {
       _i6.ChatMessage => 'ChatMessage',
       _i7.ChatUIStyle => 'ChatUIStyle',
       _i8.ShoebillException => 'ShoebillException',
-      _i9.TemplatePdf => 'TemplatePdf',
-      _i10.Greeting => 'Greeting',
+      _i9.SupportedLanguages => 'SupportedLanguages',
+      _i10.TemplatePdf => 'TemplatePdf',
+      _i11.Greeting => 'Greeting',
       _ => null,
     };
   }
@@ -202,9 +211,11 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'ChatUIStyle';
       case _i8.ShoebillException():
         return 'ShoebillException';
-      case _i9.TemplatePdf():
+      case _i9.SupportedLanguages():
+        return 'SupportedLanguages';
+      case _i10.TemplatePdf():
         return 'TemplatePdf';
-      case _i10.Greeting():
+      case _i11.Greeting():
         return 'Greeting';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -240,11 +251,14 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'ShoebillException') {
       return deserialize<_i8.ShoebillException>(data['data']);
     }
+    if (dataClassName == 'SupportedLanguages') {
+      return deserialize<_i9.SupportedLanguages>(data['data']);
+    }
     if (dataClassName == 'TemplatePdf') {
-      return deserialize<_i9.TemplatePdf>(data['data']);
+      return deserialize<_i10.TemplatePdf>(data['data']);
     }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i10.Greeting>(data['data']);
+      return deserialize<_i11.Greeting>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -282,8 +296,8 @@ class Protocol extends _i1.SerializationManagerServer {
       }
     }
     switch (t) {
-      case _i9.TemplatePdf:
-        return _i9.TemplatePdf.t;
+      case _i10.TemplatePdf:
+        return _i10.TemplatePdf.t;
     }
     return null;
   }

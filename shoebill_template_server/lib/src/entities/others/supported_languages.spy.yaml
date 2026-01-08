@@ -1,0 +1,26 @@
+enum: SupportedLanguages
+values:
+  - english
+  - mandarinChinese
+  - hindi
+  - spanish
+  - french
+  - modernStandardArabic
+  - bengali
+  - brazilianPortuguese
+  - russian
+  - urdu
+  - indonesian
+  - german
+  - dutch
+  - japanese
+  - swahili
+  - marathi
+  - telugu
+  - turkish
+  - tamil
+  - vietnamese
+  - korean
+  - italian
+  - thai
+  - filipino # based mostly on Tagalog
