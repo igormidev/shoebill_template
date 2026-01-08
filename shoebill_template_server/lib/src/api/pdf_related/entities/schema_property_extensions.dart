@@ -37,9 +37,12 @@ extension SchemaPropertyExtension on SchemaProperty {
         json['possibleEnumValues'] = enumValues;
       case SchemaPropertyArray(:final items):
         json['items'] = items.toSchemaJson();
-      case SchemaPropertyStructuredObjectWithDefinedProperties(:final properties):
-        json['properties'] =
-            properties.map((key, value) => MapEntry(key, value.toSchemaJson()));
+      case SchemaPropertyStructuredObjectWithDefinedProperties(
+        :final properties,
+      ):
+        json['properties'] = properties.map(
+          (key, value) => MapEntry(key, value.toSchemaJson()),
+        );
       default:
         // No additional fields for other types
         break;
@@ -48,7 +51,8 @@ extension SchemaPropertyExtension on SchemaProperty {
   }
 
   /// Returns a formatted JSON string representation
-  String toSchemaString() => JsonEncoder.withIndent('  ').convert(toSchemaJson());
+  String toSchemaString() =>
+      JsonEncoder.withIndent('  ').convert(toSchemaJson());
 }
 
 /// Static methods for SchemaProperty that can't be in extension
@@ -82,8 +86,8 @@ class SchemaPropertyParser {
           description: description,
         );
       case 'enum':
-        final enumValues =
-            (json['possibleEnumValues'] as List<dynamic>).cast<String>();
+        final enumValues = (json['possibleEnumValues'] as List<dynamic>)
+            .cast<String>();
         return SchemaPropertyEnum(
           enumValues: enumValues,
           nullable: nullable,
@@ -117,6 +121,15 @@ class SchemaPropertyParser {
       default:
         throw ArgumentError('Unknown SchemaProperty type: $type');
     }
+  }
+}
+
+extension SchemaDefinitionExt on SchemaDefinition {
+  String? validateJsonFollowsSchemaStructure(Map<String, dynamic> model) {
+    return SchemaPropertyStructuredObjectWithDefinedProperties(
+      nullable: false,
+      properties: properties,
+    ).validateJsonFollowsSchemaStructure(model);
   }
 }
 
