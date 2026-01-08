@@ -1,8 +1,18 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:serverpod/serverpod.dart';
+import 'package:shoebill_template_server/src/generated/entities/others/supported_languages.dart';
 
 mixin RouteMixin on Route {
+  SupportedLanguages? getLanguageCode(Request request) {
+    final queryParameters = request.queryParameters.raw;
+    final code = queryParameters['language'];
+    return SupportedLanguages.values.firstWhereOrNull(
+      (lang) => lang.name == code,
+    );
+  }
+
   (String uuid, Response? error) validateUuid(Request request) {
     final queryParameters = request.queryParameters.raw;
     final String? uuid = queryParameters['uuid'];
