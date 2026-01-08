@@ -1,0 +1,4 @@
+class: SchemaPropertyStructuredObjectWithDefinedProperties
+extends: SchemaProperty
+fields:
+    properties: Map<String, SchemaProperty>

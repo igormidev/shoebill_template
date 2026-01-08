@@ -1,12 +1,13 @@
 import 'package:test/test.dart';
-import 'package:shoebill_template_server/src/api/pdf_related/entities/schema_property.dart';
+import 'package:shoebill_template_server/src/generated/protocol.dart';
+import 'package:shoebill_template_server/src/api/pdf_related/entities/schema_property_extensions.dart';
 
 void main() {
   group('SchemaPropertyString', () {
-    group('toJson', () {
+    group('toSchemaJson', () {
       test('serializes non-nullable string without description', () {
-        final prop = SchemaPropertyString(nullable: false);
-        final json = prop.toJson();
+        final prop = SchemaPropertyString(nullable: false, shouldBeTranslated: false);
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'string');
         expect(json['nullable'], false);
@@ -18,8 +19,9 @@ void main() {
         final prop = SchemaPropertyString(
           nullable: true,
           description: 'A test string',
+          shouldBeTranslated: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'string');
         expect(json['nullable'], true);
@@ -31,7 +33,7 @@ void main() {
           nullable: false,
           shouldBeTranslated: true,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['shouldBeTranslated'], true);
       });
@@ -41,7 +43,7 @@ void main() {
           nullable: false,
           shouldBeTranslated: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json.containsKey('shouldBeTranslated'), false);
       });
@@ -52,7 +54,7 @@ void main() {
           description: 'Translatable field',
           shouldBeTranslated: true,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'string');
         expect(json['nullable'], true);
@@ -64,7 +66,7 @@ void main() {
     group('fromJson', () {
       test('deserializes basic non-nullable string', () {
         final json = {'type': 'string', 'nullable': false};
-        final prop = SchemaProperty.fromJson(json);
+        final prop = SchemaPropertyParser.fromJson(json);
 
         expect(prop, isA<SchemaPropertyString>());
         expect(prop.type, 'string');
@@ -79,7 +81,7 @@ void main() {
           'nullable': true,
           'description': 'User name',
         };
-        final prop = SchemaProperty.fromJson(json);
+        final prop = SchemaPropertyParser.fromJson(json);
 
         expect(prop, isA<SchemaPropertyString>());
         expect(prop.nullable, true);
@@ -92,14 +94,14 @@ void main() {
           'nullable': false,
           'shouldBeTranslated': true,
         };
-        final prop = SchemaProperty.fromJson(json) as SchemaPropertyString;
+        final prop = SchemaPropertyParser.fromJson(json) as SchemaPropertyString;
 
         expect(prop.shouldBeTranslated, true);
       });
 
       test('deserializes shouldBeTranslated false when missing', () {
         final json = {'type': 'string', 'nullable': false};
-        final prop = SchemaProperty.fromJson(json) as SchemaPropertyString;
+        final prop = SchemaPropertyParser.fromJson(json) as SchemaPropertyString;
 
         expect(prop.shouldBeTranslated, false);
       });
@@ -111,7 +113,7 @@ void main() {
           'description': 'Full description',
           'shouldBeTranslated': true,
         };
-        final prop = SchemaProperty.fromJson(json) as SchemaPropertyString;
+        final prop = SchemaPropertyParser.fromJson(json) as SchemaPropertyString;
 
         expect(prop.nullable, true);
         expect(prop.description, 'Full description');
@@ -121,8 +123,8 @@ void main() {
 
     group('roundtrip', () {
       test('non-nullable without description', () {
-        final original = SchemaPropertyString(nullable: false);
-        final restored = SchemaProperty.fromJson(original.toJson());
+        final original = SchemaPropertyString(nullable: false, shouldBeTranslated: false);
+        final restored = SchemaPropertyParser.fromJson(original.toSchemaJson());
 
         expect(restored, isA<SchemaPropertyString>());
         expect(restored.nullable, original.nullable);
@@ -140,7 +142,7 @@ void main() {
           shouldBeTranslated: true,
         );
         final restored =
-            SchemaProperty.fromJson(original.toJson()) as SchemaPropertyString;
+            SchemaPropertyParser.fromJson(original.toSchemaJson()) as SchemaPropertyString;
 
         expect(restored.nullable, original.nullable);
         expect(restored.description, original.description);
@@ -150,10 +152,10 @@ void main() {
   });
 
   group('SchemaPropertyInteger', () {
-    group('toJson', () {
+    group('toSchemaJson', () {
       test('serializes non-nullable integer', () {
         final prop = SchemaPropertyInteger(nullable: false);
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'integer');
         expect(json['nullable'], false);
@@ -165,7 +167,7 @@ void main() {
           nullable: true,
           description: 'Count value',
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'integer');
         expect(json['nullable'], true);
@@ -176,7 +178,7 @@ void main() {
     group('fromJson', () {
       test('deserializes basic integer', () {
         final json = {'type': 'integer', 'nullable': false};
-        final prop = SchemaProperty.fromJson(json);
+        final prop = SchemaPropertyParser.fromJson(json);
 
         expect(prop, isA<SchemaPropertyInteger>());
         expect(prop.type, 'integer');
@@ -189,7 +191,7 @@ void main() {
           'nullable': true,
           'description': 'Age field',
         };
-        final prop = SchemaProperty.fromJson(json);
+        final prop = SchemaPropertyParser.fromJson(json);
 
         expect(prop, isA<SchemaPropertyInteger>());
         expect(prop.nullable, true);
@@ -203,7 +205,7 @@ void main() {
           nullable: true,
           description: 'User age',
         );
-        final restored = SchemaProperty.fromJson(original.toJson());
+        final restored = SchemaPropertyParser.fromJson(original.toSchemaJson());
 
         expect(restored, isA<SchemaPropertyInteger>());
         expect(restored.nullable, original.nullable);
@@ -213,10 +215,10 @@ void main() {
   });
 
   group('SchemaPropertyDouble', () {
-    group('toJson', () {
+    group('toSchemaJson', () {
       test('serializes non-nullable double', () {
         final prop = SchemaPropertyDouble(nullable: false);
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'double');
         expect(json['nullable'], false);
@@ -227,7 +229,7 @@ void main() {
           nullable: true,
           description: 'Price value',
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'double');
         expect(json['nullable'], true);
@@ -238,7 +240,7 @@ void main() {
     group('fromJson', () {
       test('deserializes basic double', () {
         final json = {'type': 'double', 'nullable': false};
-        final prop = SchemaProperty.fromJson(json);
+        final prop = SchemaPropertyParser.fromJson(json);
 
         expect(prop, isA<SchemaPropertyDouble>());
         expect(prop.type, 'double');
@@ -251,7 +253,7 @@ void main() {
           'nullable': true,
           'description': 'Temperature',
         };
-        final prop = SchemaProperty.fromJson(json);
+        final prop = SchemaPropertyParser.fromJson(json);
 
         expect(prop, isA<SchemaPropertyDouble>());
         expect(prop.nullable, true);
@@ -265,7 +267,7 @@ void main() {
           nullable: false,
           description: 'Rating score',
         );
-        final restored = SchemaProperty.fromJson(original.toJson());
+        final restored = SchemaPropertyParser.fromJson(original.toSchemaJson());
 
         expect(restored, isA<SchemaPropertyDouble>());
         expect(restored.nullable, original.nullable);
@@ -275,10 +277,10 @@ void main() {
   });
 
   group('SchemaPropertyBoolean', () {
-    group('toJson', () {
+    group('toSchemaJson', () {
       test('serializes non-nullable boolean', () {
         final prop = SchemaPropertyBoolean(nullable: false);
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'boolean');
         expect(json['nullable'], false);
@@ -289,7 +291,7 @@ void main() {
           nullable: true,
           description: 'Is active flag',
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'boolean');
         expect(json['nullable'], true);
@@ -300,7 +302,7 @@ void main() {
     group('fromJson', () {
       test('deserializes basic boolean', () {
         final json = {'type': 'boolean', 'nullable': false};
-        final prop = SchemaProperty.fromJson(json);
+        final prop = SchemaPropertyParser.fromJson(json);
 
         expect(prop, isA<SchemaPropertyBoolean>());
         expect(prop.type, 'boolean');
@@ -313,7 +315,7 @@ void main() {
           'nullable': true,
           'description': 'Enabled status',
         };
-        final prop = SchemaProperty.fromJson(json);
+        final prop = SchemaPropertyParser.fromJson(json);
 
         expect(prop, isA<SchemaPropertyBoolean>());
         expect(prop.nullable, true);
@@ -327,7 +329,7 @@ void main() {
           nullable: true,
           description: 'Has premium',
         );
-        final restored = SchemaProperty.fromJson(original.toJson());
+        final restored = SchemaPropertyParser.fromJson(original.toSchemaJson());
 
         expect(restored, isA<SchemaPropertyBoolean>());
         expect(restored.nullable, original.nullable);
@@ -337,13 +339,13 @@ void main() {
   });
 
   group('SchemaPropertyEnum', () {
-    group('toJson', () {
+    group('toSchemaJson', () {
       test('serializes non-nullable enum', () {
         final prop = SchemaPropertyEnum(
           enumValues: ['RED', 'GREEN', 'BLUE'],
           nullable: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'enum');
         expect(json['nullable'], false);
@@ -356,7 +358,7 @@ void main() {
           nullable: true,
           description: 'Status of the request',
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'enum');
         expect(json['nullable'], true);
@@ -366,14 +368,14 @@ void main() {
 
       test('serializes empty enum values list', () {
         final prop = SchemaPropertyEnum(enumValues: [], nullable: false);
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['possibleEnumValues'], []);
       });
 
       test('serializes single enum value', () {
         final prop = SchemaPropertyEnum(enumValues: ['ONLY'], nullable: false);
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['possibleEnumValues'], ['ONLY']);
       });
@@ -386,7 +388,7 @@ void main() {
           'nullable': false,
           'possibleEnumValues': ['A', 'B', 'C'],
         };
-        final prop = SchemaProperty.fromJson(json);
+        final prop = SchemaPropertyParser.fromJson(json);
 
         expect(prop, isA<SchemaPropertyEnum>());
         expect(prop.type, 'enum');
@@ -401,7 +403,7 @@ void main() {
           'description': 'Priority level',
           'possibleEnumValues': ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
         };
-        final prop = SchemaProperty.fromJson(json) as SchemaPropertyEnum;
+        final prop = SchemaPropertyParser.fromJson(json) as SchemaPropertyEnum;
 
         expect(prop.nullable, true);
         expect(prop.description, 'Priority level');
@@ -414,7 +416,7 @@ void main() {
           'nullable': false,
           'possibleEnumValues': <String>[],
         };
-        final prop = SchemaProperty.fromJson(json) as SchemaPropertyEnum;
+        final prop = SchemaPropertyParser.fromJson(json) as SchemaPropertyEnum;
 
         expect(prop.enumValues, isEmpty);
       });
@@ -428,7 +430,7 @@ void main() {
           description: 'Document status',
         );
         final restored =
-            SchemaProperty.fromJson(original.toJson()) as SchemaPropertyEnum;
+            SchemaPropertyParser.fromJson(original.toSchemaJson()) as SchemaPropertyEnum;
 
         expect(restored.nullable, original.nullable);
         expect(restored.description, original.description);
@@ -441,7 +443,7 @@ void main() {
           nullable: false,
         );
         final restored =
-            SchemaProperty.fromJson(original.toJson()) as SchemaPropertyEnum;
+            SchemaPropertyParser.fromJson(original.toSchemaJson()) as SchemaPropertyEnum;
 
         expect(restored.enumValues, orderedEquals(original.enumValues));
       });
@@ -449,13 +451,13 @@ void main() {
   });
 
   group('SchemaPropertyArray', () {
-    group('toJson', () {
+    group('toSchemaJson', () {
       test('serializes array of strings', () {
         final prop = SchemaPropertyArray(
-          items: SchemaPropertyString(nullable: false),
+          items: SchemaPropertyString(nullable: false, shouldBeTranslated: false),
           nullable: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'array');
         expect(json['nullable'], false);
@@ -469,7 +471,7 @@ void main() {
           nullable: true,
           description: 'List of IDs',
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'array');
         expect(json['nullable'], true);
@@ -486,7 +488,7 @@ void main() {
           ),
           nullable: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['items']['type'], 'enum');
         expect(json['items']['possibleEnumValues'], ['ADMIN', 'USER', 'GUEST']);
@@ -500,7 +502,7 @@ void main() {
           ),
           nullable: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'array');
         expect(json['items']['type'], 'array');
@@ -512,13 +514,13 @@ void main() {
           items: SchemaPropertyStructuredObjectWithDefinedProperties(
             properties: {
               'id': SchemaPropertyInteger(nullable: false),
-              'name': SchemaPropertyString(nullable: false),
+              'name': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
             },
             nullable: false,
           ),
           nullable: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['items']['type'], 'structured_object_with_defined_properties');
         expect(json['items']['properties']['id']['type'], 'integer');
@@ -533,7 +535,7 @@ void main() {
           'nullable': false,
           'items': {'type': 'string', 'nullable': false},
         };
-        final prop = SchemaProperty.fromJson(json) as SchemaPropertyArray;
+        final prop = SchemaPropertyParser.fromJson(json) as SchemaPropertyArray;
 
         expect(prop.type, 'array');
         expect(prop.nullable, false);
@@ -547,7 +549,7 @@ void main() {
           'description': 'Tags list',
           'items': {'type': 'string', 'nullable': true},
         };
-        final prop = SchemaProperty.fromJson(json) as SchemaPropertyArray;
+        final prop = SchemaPropertyParser.fromJson(json) as SchemaPropertyArray;
 
         expect(prop.nullable, true);
         expect(prop.description, 'Tags list');
@@ -560,7 +562,7 @@ void main() {
           'nullable': false,
           'items': {'type': 'boolean', 'nullable': false},
         };
-        final prop = SchemaProperty.fromJson(json) as SchemaPropertyArray;
+        final prop = SchemaPropertyParser.fromJson(json) as SchemaPropertyArray;
 
         expect(prop.items, isA<SchemaPropertyBoolean>());
       });
@@ -571,7 +573,7 @@ void main() {
           'nullable': false,
           'items': {'type': 'double', 'nullable': false},
         };
-        final prop = SchemaProperty.fromJson(json) as SchemaPropertyArray;
+        final prop = SchemaPropertyParser.fromJson(json) as SchemaPropertyArray;
 
         expect(prop.items, isA<SchemaPropertyDouble>());
       });
@@ -586,7 +588,7 @@ void main() {
             'items': {'type': 'string', 'nullable': false},
           },
         };
-        final prop = SchemaProperty.fromJson(json) as SchemaPropertyArray;
+        final prop = SchemaPropertyParser.fromJson(json) as SchemaPropertyArray;
         final innerArray = prop.items as SchemaPropertyArray;
 
         expect(innerArray.items, isA<SchemaPropertyString>());
@@ -606,7 +608,7 @@ void main() {
             },
           },
         };
-        final prop = SchemaProperty.fromJson(json) as SchemaPropertyArray;
+        final prop = SchemaPropertyParser.fromJson(json) as SchemaPropertyArray;
         final level2 = prop.items as SchemaPropertyArray;
         final level3 = level2.items as SchemaPropertyArray;
 
@@ -617,12 +619,12 @@ void main() {
     group('roundtrip', () {
       test('preserves array of strings', () {
         final original = SchemaPropertyArray(
-          items: SchemaPropertyString(nullable: true, description: 'Item name'),
+          items: SchemaPropertyString(nullable: true, description: 'Item name', shouldBeTranslated: false),
           nullable: false,
           description: 'Names list',
         );
         final restored =
-            SchemaProperty.fromJson(original.toJson()) as SchemaPropertyArray;
+            SchemaPropertyParser.fromJson(original.toSchemaJson()) as SchemaPropertyArray;
 
         expect(restored.nullable, original.nullable);
         expect(restored.description, original.description);
@@ -642,7 +644,7 @@ void main() {
           nullable: false,
         );
         final restored =
-            SchemaProperty.fromJson(original.toJson()) as SchemaPropertyArray;
+            SchemaPropertyParser.fromJson(original.toSchemaJson()) as SchemaPropertyArray;
         final innerArray = restored.items as SchemaPropertyArray;
         final enumProp = innerArray.items as SchemaPropertyEnum;
 
@@ -653,10 +655,10 @@ void main() {
   });
 
   group('SchemaPropertyObjectWithUndefinedProperties', () {
-    group('toJson', () {
+    group('toSchemaJson', () {
       test('serializes non-nullable object', () {
         final prop = SchemaPropertyObjectWithUndefinedProperties(nullable: false);
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'dynamic_object_with_undefined_properties');
         expect(json['nullable'], false);
@@ -667,7 +669,7 @@ void main() {
           nullable: true,
           description: 'Arbitrary metadata',
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'dynamic_object_with_undefined_properties');
         expect(json['nullable'], true);
@@ -681,7 +683,7 @@ void main() {
           'type': 'dynamic_object_with_undefined_properties',
           'nullable': false,
         };
-        final prop = SchemaProperty.fromJson(json);
+        final prop = SchemaPropertyParser.fromJson(json);
 
         expect(prop, isA<SchemaPropertyObjectWithUndefinedProperties>());
         expect(prop.nullable, false);
@@ -693,7 +695,7 @@ void main() {
           'nullable': true,
           'description': 'Extra data',
         };
-        final prop = SchemaProperty.fromJson(json);
+        final prop = SchemaPropertyParser.fromJson(json);
 
         expect(prop, isA<SchemaPropertyObjectWithUndefinedProperties>());
         expect(prop.nullable, true);
@@ -707,7 +709,7 @@ void main() {
           nullable: true,
           description: 'Dynamic config',
         );
-        final restored = SchemaProperty.fromJson(original.toJson());
+        final restored = SchemaPropertyParser.fromJson(original.toSchemaJson());
 
         expect(restored, isA<SchemaPropertyObjectWithUndefinedProperties>());
         expect(restored.nullable, original.nullable);
@@ -717,15 +719,15 @@ void main() {
   });
 
   group('SchemaPropertyStructuredObjectWithDefinedProperties', () {
-    group('toJson', () {
+    group('toSchemaJson', () {
       test('serializes object with single property', () {
         final prop = SchemaPropertyStructuredObjectWithDefinedProperties(
           properties: {
-            'name': SchemaPropertyString(nullable: false),
+            'name': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
           },
           nullable: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['type'], 'structured_object_with_defined_properties');
         expect(json['nullable'], false);
@@ -737,13 +739,13 @@ void main() {
         final prop = SchemaPropertyStructuredObjectWithDefinedProperties(
           properties: {
             'id': SchemaPropertyInteger(nullable: false),
-            'name': SchemaPropertyString(nullable: false),
-            'email': SchemaPropertyString(nullable: true),
+            'name': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
+            'email': SchemaPropertyString(nullable: true, shouldBeTranslated: false),
             'isActive': SchemaPropertyBoolean(nullable: false),
           },
           nullable: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['properties'].keys, containsAll(['id', 'name', 'email', 'isActive']));
         expect(json['properties']['id']['type'], 'integer');
@@ -759,7 +761,7 @@ void main() {
               properties: {
                 'profile': SchemaPropertyStructuredObjectWithDefinedProperties(
                   properties: {
-                    'bio': SchemaPropertyString(nullable: true),
+                    'bio': SchemaPropertyString(nullable: true, shouldBeTranslated: false),
                   },
                   nullable: false,
                 ),
@@ -769,7 +771,7 @@ void main() {
           },
           nullable: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['properties']['user']['properties']['profile']['properties']['bio']['type'], 'string');
       });
@@ -778,13 +780,13 @@ void main() {
         final prop = SchemaPropertyStructuredObjectWithDefinedProperties(
           properties: {
             'tags': SchemaPropertyArray(
-              items: SchemaPropertyString(nullable: false),
+              items: SchemaPropertyString(nullable: false, shouldBeTranslated: false),
               nullable: false,
             ),
           },
           nullable: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['properties']['tags']['type'], 'array');
         expect(json['properties']['tags']['items']['type'], 'string');
@@ -800,7 +802,7 @@ void main() {
           },
           nullable: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['properties']['status']['type'], 'enum');
         expect(json['properties']['status']['possibleEnumValues'], ['ACTIVE', 'INACTIVE']);
@@ -811,7 +813,7 @@ void main() {
           properties: {},
           nullable: false,
         );
-        final json = prop.toJson();
+        final json = prop.toSchemaJson();
 
         expect(json['properties'], isEmpty);
       });
@@ -826,7 +828,7 @@ void main() {
             'title': {'type': 'string', 'nullable': false},
           },
         };
-        final prop = SchemaProperty.fromJson(json)
+        final prop = SchemaPropertyParser.fromJson(json)
             as SchemaPropertyStructuredObjectWithDefinedProperties;
 
         expect(prop.properties.keys, contains('title'));
@@ -850,7 +852,7 @@ void main() {
             },
           },
         };
-        final prop = SchemaProperty.fromJson(json)
+        final prop = SchemaPropertyParser.fromJson(json)
             as SchemaPropertyStructuredObjectWithDefinedProperties;
 
         expect(prop.nullable, true);
@@ -878,7 +880,7 @@ void main() {
             },
           },
         };
-        final prop = SchemaProperty.fromJson(json)
+        final prop = SchemaPropertyParser.fromJson(json)
             as SchemaPropertyStructuredObjectWithDefinedProperties;
         final address = prop.properties['address']
             as SchemaPropertyStructuredObjectWithDefinedProperties;
@@ -907,7 +909,7 @@ void main() {
             },
           },
         };
-        final prop = SchemaProperty.fromJson(json)
+        final prop = SchemaPropertyParser.fromJson(json)
             as SchemaPropertyStructuredObjectWithDefinedProperties;
         final items = prop.properties['items'] as SchemaPropertyArray;
         final itemSchema =
@@ -923,7 +925,7 @@ void main() {
           'nullable': false,
           'properties': <String, dynamic>{},
         };
-        final prop = SchemaProperty.fromJson(json)
+        final prop = SchemaPropertyParser.fromJson(json)
             as SchemaPropertyStructuredObjectWithDefinedProperties;
 
         expect(prop.properties, isEmpty);
@@ -934,13 +936,13 @@ void main() {
       test('preserves simple object', () {
         final original = SchemaPropertyStructuredObjectWithDefinedProperties(
           properties: {
-            'field1': SchemaPropertyString(nullable: false),
+            'field1': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
             'field2': SchemaPropertyInteger(nullable: true, description: 'A number'),
           },
           nullable: true,
           description: 'Test object',
         );
-        final restored = SchemaProperty.fromJson(original.toJson())
+        final restored = SchemaPropertyParser.fromJson(original.toSchemaJson())
             as SchemaPropertyStructuredObjectWithDefinedProperties;
 
         expect(restored.nullable, original.nullable);
@@ -971,8 +973,8 @@ void main() {
           },
           nullable: false,
         );
-        final json = original.toJson();
-        final restored = SchemaProperty.fromJson(json)
+        final json = original.toSchemaJson();
+        final restored = SchemaPropertyParser.fromJson(json)
             as SchemaPropertyStructuredObjectWithDefinedProperties;
 
         expect(restored.properties['metadata'],
@@ -989,19 +991,19 @@ void main() {
   });
 
   group('SchemaDefinition', () {
-    group('toJson', () {
+    group('toSchemaJson', () {
       test('serializes empty definition', () {
         final def = SchemaDefinition(properties: {});
-        final json = def.toJson();
+        final json = def.toSchemaJson();
 
         expect(json, isEmpty);
       });
 
       test('serializes single property', () {
         final def = SchemaDefinition(properties: {
-          'name': SchemaPropertyString(nullable: false),
+          'name': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
         });
-        final json = def.toJson();
+        final json = def.toSchemaJson();
 
         expect(json['name']['type'], 'string');
       });
@@ -1009,10 +1011,10 @@ void main() {
       test('serializes multiple properties', () {
         final def = SchemaDefinition(properties: {
           'id': SchemaPropertyInteger(nullable: false),
-          'name': SchemaPropertyString(nullable: false),
+          'name': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
           'active': SchemaPropertyBoolean(nullable: true),
         });
-        final json = def.toJson();
+        final json = def.toSchemaJson();
 
         expect(json.keys, containsAll(['id', 'name', 'active']));
       });
@@ -1021,7 +1023,7 @@ void main() {
     group('fromJson', () {
       test('deserializes empty definition', () {
         final json = <String, dynamic>{};
-        final def = SchemaDefinition.fromJson(json);
+        final def = SchemaDefinitionParser.fromJson(json);
 
         expect(def.properties, isEmpty);
       });
@@ -1030,7 +1032,7 @@ void main() {
         final json = {
           'title': {'type': 'string', 'nullable': false},
         };
-        final def = SchemaDefinition.fromJson(json);
+        final def = SchemaDefinitionParser.fromJson(json);
 
         expect(def.properties['title'], isA<SchemaPropertyString>());
       });
@@ -1053,7 +1055,7 @@ void main() {
             'nullable': true,
           },
         };
-        final def = SchemaDefinition.fromJson(json);
+        final def = SchemaDefinitionParser.fromJson(json);
 
         expect(def.properties['id'], isA<SchemaPropertyInteger>());
         expect((def.properties['name'] as SchemaPropertyString).shouldBeTranslated, true);
@@ -1066,7 +1068,7 @@ void main() {
       test('preserves all properties', () {
         final original = SchemaDefinition(properties: {
           'userId': SchemaPropertyInteger(nullable: false, description: 'Unique ID'),
-          'username': SchemaPropertyString(nullable: false),
+          'username': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
           'email': SchemaPropertyString(nullable: true, shouldBeTranslated: false),
           'roles': SchemaPropertyArray(
             items: SchemaPropertyEnum(
@@ -1083,7 +1085,7 @@ void main() {
             nullable: true,
           ),
         });
-        final restored = SchemaDefinition.fromJson(original.toJson());
+        final restored = SchemaDefinitionParser.fromJson(original.toSchemaJson());
 
         expect(restored.properties.keys, original.properties.keys);
         expect(restored.properties['userId']!.description, 'Unique ID');
@@ -1100,7 +1102,7 @@ void main() {
     group('toSchemaProperty', () {
       test('converts definition to structured object property', () {
         final def = SchemaDefinition(properties: {
-          'field': SchemaPropertyString(nullable: false),
+          'field': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
         });
         final prop = def.toSchemaProperty();
 
@@ -1111,12 +1113,12 @@ void main() {
     });
   });
 
-  group('SchemaProperty.fromJson error handling', () {
+  group('SchemaPropertyParser.fromJson error handling', () {
     test('throws on unknown type', () {
       final json = {'type': 'unknown_type', 'nullable': false};
 
       expect(
-        () => SchemaProperty.fromJson(json),
+        () => SchemaPropertyParser.fromJson(json),
         throwsA(isA<ArgumentError>().having(
           (e) => e.message,
           'message',
@@ -1128,37 +1130,37 @@ void main() {
     test('throws on missing type field', () {
       final json = {'nullable': false};
 
-      expect(() => SchemaProperty.fromJson(json), throwsA(isA<TypeError>()));
+      expect(() => SchemaPropertyParser.fromJson(json), throwsA(isA<TypeError>()));
     });
 
     test('throws on missing nullable field', () {
       final json = {'type': 'string'};
 
-      expect(() => SchemaProperty.fromJson(json), throwsA(isA<TypeError>()));
+      expect(() => SchemaPropertyParser.fromJson(json), throwsA(isA<TypeError>()));
     });
 
     test('throws on null type', () {
       final json = {'type': null, 'nullable': false};
 
-      expect(() => SchemaProperty.fromJson(json), throwsA(isA<TypeError>()));
+      expect(() => SchemaPropertyParser.fromJson(json), throwsA(isA<TypeError>()));
     });
 
     test('throws on invalid nullable type', () {
       final json = {'type': 'string', 'nullable': 'yes'};
 
-      expect(() => SchemaProperty.fromJson(json), throwsA(isA<TypeError>()));
+      expect(() => SchemaPropertyParser.fromJson(json), throwsA(isA<TypeError>()));
     });
 
     test('throws on missing enum values for enum type', () {
       final json = {'type': 'enum', 'nullable': false};
 
-      expect(() => SchemaProperty.fromJson(json), throwsA(isA<TypeError>()));
+      expect(() => SchemaPropertyParser.fromJson(json), throwsA(isA<TypeError>()));
     });
 
     test('throws on missing items for array type', () {
       final json = {'type': 'array', 'nullable': false};
 
-      expect(() => SchemaProperty.fromJson(json), throwsA(isA<TypeError>()));
+      expect(() => SchemaPropertyParser.fromJson(json), throwsA(isA<TypeError>()));
     });
 
     test('throws on missing properties for structured object type', () {
@@ -1167,50 +1169,50 @@ void main() {
         'nullable': false,
       };
 
-      expect(() => SchemaProperty.fromJson(json), throwsA(isA<TypeError>()));
+      expect(() => SchemaPropertyParser.fromJson(json), throwsA(isA<TypeError>()));
     });
   });
 
-  group('validateIdJsonFollowsSchemaStructure', () {
+  group('validateJsonFollowsSchemaStructure', () {
     group('string validation', () {
       test('accepts valid string', () {
         final schema = SchemaPropertyStructuredObjectWithDefinedProperties(
-          properties: {'name': SchemaPropertyString(nullable: false)},
+          properties: {'name': SchemaPropertyString(nullable: false, shouldBeTranslated: false)},
           nullable: false,
         );
 
-        expect(schema.validateIdJsonFollowsSchemaStructure({'name': 'John'}), isNull);
+        expect(schema.validateJsonFollowsSchemaStructure({'name': 'John'}), isNull);
       });
 
       test('rejects non-string value', () {
         final schema = SchemaPropertyStructuredObjectWithDefinedProperties(
-          properties: {'name': SchemaPropertyString(nullable: false)},
+          properties: {'name': SchemaPropertyString(nullable: false, shouldBeTranslated: false)},
           nullable: false,
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'name': 123}),
+          schema.validateJsonFollowsSchemaStructure({'name': 123}),
           contains('Expected String'),
         );
       });
 
       test('accepts null for nullable string', () {
         final schema = SchemaPropertyStructuredObjectWithDefinedProperties(
-          properties: {'name': SchemaPropertyString(nullable: true)},
+          properties: {'name': SchemaPropertyString(nullable: true, shouldBeTranslated: false)},
           nullable: false,
         );
 
-        expect(schema.validateIdJsonFollowsSchemaStructure({'name': null}), isNull);
+        expect(schema.validateJsonFollowsSchemaStructure({'name': null}), isNull);
       });
 
       test('rejects null for non-nullable string', () {
         final schema = SchemaPropertyStructuredObjectWithDefinedProperties(
-          properties: {'name': SchemaPropertyString(nullable: false)},
+          properties: {'name': SchemaPropertyString(nullable: false, shouldBeTranslated: false)},
           nullable: false,
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'name': null}),
+          schema.validateJsonFollowsSchemaStructure({'name': null}),
           contains('not nullable'),
         );
       });
@@ -1223,7 +1225,7 @@ void main() {
           nullable: false,
         );
 
-        expect(schema.validateIdJsonFollowsSchemaStructure({'count': 42}), isNull);
+        expect(schema.validateJsonFollowsSchemaStructure({'count': 42}), isNull);
       });
 
       test('rejects non-integer value', () {
@@ -1233,7 +1235,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'count': 'not a number'}),
+          schema.validateJsonFollowsSchemaStructure({'count': 'not a number'}),
           contains('Expected int'),
         );
       });
@@ -1245,7 +1247,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'count': 3.14}),
+          schema.validateJsonFollowsSchemaStructure({'count': 3.14}),
           contains('Expected int'),
         );
       });
@@ -1258,7 +1260,7 @@ void main() {
           nullable: false,
         );
 
-        expect(schema.validateIdJsonFollowsSchemaStructure({'price': 19.99}), isNull);
+        expect(schema.validateJsonFollowsSchemaStructure({'price': 19.99}), isNull);
       });
 
       test('accepts integer for double field', () {
@@ -1267,7 +1269,7 @@ void main() {
           nullable: false,
         );
 
-        expect(schema.validateIdJsonFollowsSchemaStructure({'price': 20}), isNull);
+        expect(schema.validateJsonFollowsSchemaStructure({'price': 20}), isNull);
       });
 
       test('rejects non-numeric value', () {
@@ -1277,7 +1279,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'price': 'expensive'}),
+          schema.validateJsonFollowsSchemaStructure({'price': 'expensive'}),
           contains('Expected num'),
         );
       });
@@ -1290,7 +1292,7 @@ void main() {
           nullable: false,
         );
 
-        expect(schema.validateIdJsonFollowsSchemaStructure({'active': true}), isNull);
+        expect(schema.validateJsonFollowsSchemaStructure({'active': true}), isNull);
       });
 
       test('accepts false', () {
@@ -1299,7 +1301,7 @@ void main() {
           nullable: false,
         );
 
-        expect(schema.validateIdJsonFollowsSchemaStructure({'active': false}), isNull);
+        expect(schema.validateJsonFollowsSchemaStructure({'active': false}), isNull);
       });
 
       test('rejects non-boolean value', () {
@@ -1309,7 +1311,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'active': 'yes'}),
+          schema.validateJsonFollowsSchemaStructure({'active': 'yes'}),
           contains('Expected bool'),
         );
       });
@@ -1321,7 +1323,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'active': 1}),
+          schema.validateJsonFollowsSchemaStructure({'active': 1}),
           contains('Expected bool'),
         );
       });
@@ -1339,7 +1341,7 @@ void main() {
           nullable: false,
         );
 
-        expect(schema.validateIdJsonFollowsSchemaStructure({'status': 'PENDING'}), isNull);
+        expect(schema.validateJsonFollowsSchemaStructure({'status': 'PENDING'}), isNull);
       });
 
       test('rejects invalid enum value', () {
@@ -1354,7 +1356,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'status': 'UNKNOWN'}),
+          schema.validateJsonFollowsSchemaStructure({'status': 'UNKNOWN'}),
           allOf(contains('Invalid enum value'), contains('UNKNOWN')),
         );
       });
@@ -1371,7 +1373,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'status': 0}),
+          schema.validateJsonFollowsSchemaStructure({'status': 0}),
           contains('Expected String'),
         );
       });
@@ -1382,7 +1384,7 @@ void main() {
         final schema = SchemaPropertyStructuredObjectWithDefinedProperties(
           properties: {
             'tags': SchemaPropertyArray(
-              items: SchemaPropertyString(nullable: false),
+              items: SchemaPropertyString(nullable: false, shouldBeTranslated: false),
               nullable: false,
             ),
           },
@@ -1390,7 +1392,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'tags': ['a', 'b', 'c']}),
+          schema.validateJsonFollowsSchemaStructure({'tags': ['a', 'b', 'c']}),
           isNull,
         );
       });
@@ -1399,7 +1401,7 @@ void main() {
         final schema = SchemaPropertyStructuredObjectWithDefinedProperties(
           properties: {
             'tags': SchemaPropertyArray(
-              items: SchemaPropertyString(nullable: false),
+              items: SchemaPropertyString(nullable: false, shouldBeTranslated: false),
               nullable: false,
             ),
           },
@@ -1407,7 +1409,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'tags': <String>[]}),
+          schema.validateJsonFollowsSchemaStructure({'tags': <String>[]}),
           isNull,
         );
       });
@@ -1416,7 +1418,7 @@ void main() {
         final schema = SchemaPropertyStructuredObjectWithDefinedProperties(
           properties: {
             'tags': SchemaPropertyArray(
-              items: SchemaPropertyString(nullable: false),
+              items: SchemaPropertyString(nullable: false, shouldBeTranslated: false),
               nullable: false,
             ),
           },
@@ -1424,7 +1426,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'tags': 'not an array'}),
+          schema.validateJsonFollowsSchemaStructure({'tags': 'not an array'}),
           contains('Expected List'),
         );
       });
@@ -1441,7 +1443,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'numbers': [1, 'two', 3]}),
+          schema.validateJsonFollowsSchemaStructure({'numbers': [1, 'two', 3]}),
           allOf(contains('Expected int'), contains('[1]')),
         );
       });
@@ -1461,7 +1463,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({
+          schema.validateJsonFollowsSchemaStructure({
             'matrix': [
               [1, 2],
               [3, 'invalid'],
@@ -1478,7 +1480,7 @@ void main() {
           properties: {
             'user': SchemaPropertyStructuredObjectWithDefinedProperties(
               properties: {
-                'name': SchemaPropertyString(nullable: false),
+                'name': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
                 'age': SchemaPropertyInteger(nullable: true),
               },
               nullable: false,
@@ -1488,7 +1490,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({
+          schema.validateJsonFollowsSchemaStructure({
             'user': {'name': 'John', 'age': 30}
           }),
           isNull,
@@ -1507,7 +1509,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'config': 'not an object'}),
+          schema.validateJsonFollowsSchemaStructure({'config': 'not an object'}),
           contains('Expected Map<String, dynamic>'),
         );
       });
@@ -1526,7 +1528,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({
+          schema.validateJsonFollowsSchemaStructure({
             'user': {'id': 'not-an-int'}
           }),
           allOf(contains('Expected int'), contains('.user.id')),
@@ -1538,14 +1540,14 @@ void main() {
       test('rejects missing required field', () {
         final schema = SchemaPropertyStructuredObjectWithDefinedProperties(
           properties: {
-            'required': SchemaPropertyString(nullable: false),
-            'optional': SchemaPropertyString(nullable: true),
+            'required': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
+            'optional': SchemaPropertyString(nullable: true, shouldBeTranslated: false),
           },
           nullable: false,
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'optional': 'value'}),
+          schema.validateJsonFollowsSchemaStructure({'optional': 'value'}),
           allOf(contains('Missing required field'), contains('required')),
         );
       });
@@ -1553,14 +1555,14 @@ void main() {
       test('accepts missing nullable field', () {
         final schema = SchemaPropertyStructuredObjectWithDefinedProperties(
           properties: {
-            'required': SchemaPropertyString(nullable: false),
-            'optional': SchemaPropertyString(nullable: true),
+            'required': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
+            'optional': SchemaPropertyString(nullable: true, shouldBeTranslated: false),
           },
           nullable: false,
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'required': 'value'}),
+          schema.validateJsonFollowsSchemaStructure({'required': 'value'}),
           isNull,
         );
       });
@@ -1576,7 +1578,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({
+          schema.validateJsonFollowsSchemaStructure({
             'data': {'anything': 'goes', 'nested': {'also': 'works'}}
           }),
           isNull,
@@ -1592,7 +1594,7 @@ void main() {
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({'data': 'not a map'}),
+          schema.validateJsonFollowsSchemaStructure({'data': 'not a map'}),
           contains('Expected Map<String, dynamic>'),
         );
       });
@@ -1603,21 +1605,21 @@ void main() {
         final schema = SchemaPropertyStructuredObjectWithDefinedProperties(
           properties: {
             'id': SchemaPropertyInteger(nullable: false),
-            'username': SchemaPropertyString(nullable: false),
-            'email': SchemaPropertyString(nullable: false),
+            'username': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
+            'email': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
             'status': SchemaPropertyEnum(
               enumValues: ['ACTIVE', 'INACTIVE', 'BANNED'],
               nullable: false,
             ),
             'roles': SchemaPropertyArray(
-              items: SchemaPropertyString(nullable: false),
+              items: SchemaPropertyString(nullable: false, shouldBeTranslated: false),
               nullable: false,
             ),
             'profile': SchemaPropertyStructuredObjectWithDefinedProperties(
               properties: {
-                'firstName': SchemaPropertyString(nullable: false),
-                'lastName': SchemaPropertyString(nullable: false),
-                'bio': SchemaPropertyString(nullable: true),
+                'firstName': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
+                'lastName': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
+                'bio': SchemaPropertyString(nullable: true, shouldBeTranslated: false),
                 'age': SchemaPropertyInteger(nullable: true),
               },
               nullable: true,
@@ -1642,20 +1644,20 @@ void main() {
           'settings': {'theme': 'dark', 'notifications': true},
         };
 
-        expect(schema.validateIdJsonFollowsSchemaStructure(validData), isNull);
+        expect(schema.validateJsonFollowsSchemaStructure(validData), isNull);
       });
 
       test('reports first error in complex validation', () {
         final schema = SchemaPropertyStructuredObjectWithDefinedProperties(
           properties: {
             'id': SchemaPropertyInteger(nullable: false),
-            'name': SchemaPropertyString(nullable: false),
+            'name': SchemaPropertyString(nullable: false, shouldBeTranslated: false),
           },
           nullable: false,
         );
 
         expect(
-          schema.validateIdJsonFollowsSchemaStructure({
+          schema.validateJsonFollowsSchemaStructure({
             'id': 'not-int',
             'name': 123,
           }),
@@ -1665,14 +1667,14 @@ void main() {
     });
   });
 
-  group('toString', () {
-    test('SchemaProperty toString returns formatted JSON', () {
+  group('toSchemaString', () {
+    test('SchemaProperty toSchemaString returns formatted JSON', () {
       final prop = SchemaPropertyString(
         nullable: true,
         description: 'Test',
         shouldBeTranslated: true,
       );
-      final str = prop.toString();
+      final str = prop.toSchemaString();
 
       expect(str, contains('"type": "string"'));
       expect(str, contains('"nullable": true'));
@@ -1680,77 +1682,14 @@ void main() {
       expect(str, contains('"shouldBeTranslated": true'));
     });
 
-    test('SchemaDefinition toString returns formatted JSON', () {
+    test('SchemaDefinition toSchemaString returns formatted JSON', () {
       final def = SchemaDefinition(properties: {
         'field': SchemaPropertyInteger(nullable: false),
       });
-      final str = def.toString();
+      final str = def.toSchemaString();
 
       expect(str, contains('"field"'));
       expect(str, contains('"type": "integer"'));
-    });
-  });
-
-  group('factory constructors', () {
-    test('SchemaProperty.text creates SchemaPropertyString', () {
-      final prop = SchemaProperty.text(nullable: false, shouldBeTranslated: true);
-
-      expect(prop, isA<SchemaPropertyString>());
-      expect((prop as SchemaPropertyString).shouldBeTranslated, true);
-    });
-
-    test('SchemaProperty.integer creates SchemaPropertyInteger', () {
-      final prop = SchemaProperty.integer(nullable: true, description: 'Count');
-
-      expect(prop, isA<SchemaPropertyInteger>());
-      expect(prop.nullable, true);
-      expect(prop.description, 'Count');
-    });
-
-    test('SchemaProperty.double creates SchemaPropertyDouble', () {
-      final prop = SchemaProperty.double(nullable: false);
-
-      expect(prop, isA<SchemaPropertyDouble>());
-    });
-
-    test('SchemaProperty.boolean creates SchemaPropertyBoolean', () {
-      final prop = SchemaProperty.boolean(nullable: true);
-
-      expect(prop, isA<SchemaPropertyBoolean>());
-    });
-
-    test('SchemaProperty.enumeration creates SchemaPropertyEnum', () {
-      final prop = SchemaProperty.enumeration(
-        enumValues: ['A', 'B'],
-        nullable: false,
-      );
-
-      expect(prop, isA<SchemaPropertyEnum>());
-      expect((prop as SchemaPropertyEnum).enumValues, ['A', 'B']);
-    });
-
-    test('SchemaProperty.array creates SchemaPropertyArray', () {
-      final prop = SchemaProperty.array(
-        items: SchemaPropertyString(nullable: false),
-        nullable: false,
-      );
-
-      expect(prop, isA<SchemaPropertyArray>());
-    });
-
-    test('SchemaProperty.structuredObject creates structured object', () {
-      final prop = SchemaProperty.structuredObject(
-        properties: {'id': SchemaPropertyInteger(nullable: false)},
-        nullable: false,
-      );
-
-      expect(prop, isA<SchemaPropertyStructuredObjectWithDefinedProperties>());
-    });
-
-    test('SchemaProperty.objectWithUndefinedProperties creates dynamic object', () {
-      final prop = SchemaProperty.objectWithUndefinedProperties(nullable: true);
-
-      expect(prop, isA<SchemaPropertyObjectWithUndefinedProperties>());
     });
   });
 }

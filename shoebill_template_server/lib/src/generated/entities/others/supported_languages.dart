@@ -25,6 +25,7 @@ enum SupportedLanguages implements _i1.SerializableModel {
   urdu,
   indonesian,
   german,
+  dutch,
   japanese,
   swahili,
   marathi,
@@ -37,63 +38,65 @@ enum SupportedLanguages implements _i1.SerializableModel {
   thai,
   filipino;
 
-  static SupportedLanguages fromJson(int index) {
-    switch (index) {
-      case 0:
+  static SupportedLanguages fromJson(String name) {
+    switch (name) {
+      case 'english':
         return SupportedLanguages.english;
-      case 1:
+      case 'mandarinChinese':
         return SupportedLanguages.mandarinChinese;
-      case 2:
+      case 'hindi':
         return SupportedLanguages.hindi;
-      case 3:
+      case 'spanish':
         return SupportedLanguages.spanish;
-      case 4:
+      case 'french':
         return SupportedLanguages.french;
-      case 5:
+      case 'modernStandardArabic':
         return SupportedLanguages.modernStandardArabic;
-      case 6:
+      case 'bengali':
         return SupportedLanguages.bengali;
-      case 7:
+      case 'brazilianPortuguese':
         return SupportedLanguages.brazilianPortuguese;
-      case 8:
+      case 'russian':
         return SupportedLanguages.russian;
-      case 9:
+      case 'urdu':
         return SupportedLanguages.urdu;
-      case 10:
+      case 'indonesian':
         return SupportedLanguages.indonesian;
-      case 11:
+      case 'german':
         return SupportedLanguages.german;
-      case 12:
+      case 'dutch':
+        return SupportedLanguages.dutch;
+      case 'japanese':
         return SupportedLanguages.japanese;
-      case 13:
+      case 'swahili':
         return SupportedLanguages.swahili;
-      case 14:
+      case 'marathi':
         return SupportedLanguages.marathi;
-      case 15:
+      case 'telugu':
         return SupportedLanguages.telugu;
-      case 16:
+      case 'turkish':
         return SupportedLanguages.turkish;
-      case 17:
+      case 'tamil':
         return SupportedLanguages.tamil;
-      case 18:
+      case 'vietnamese':
         return SupportedLanguages.vietnamese;
-      case 19:
+      case 'korean':
         return SupportedLanguages.korean;
-      case 20:
+      case 'italian':
         return SupportedLanguages.italian;
-      case 21:
+      case 'thai':
         return SupportedLanguages.thai;
-      case 22:
+      case 'filipino':
         return SupportedLanguages.filipino;
       default:
         throw ArgumentError(
-          'Value "$index" cannot be converted to "SupportedLanguages"',
+          'Value "$name" cannot be converted to "SupportedLanguages"',
         );
     }
   }
 
   @override
-  int toJson() => index;
+  String toJson() => name;
 
   @override
   String toString() => name;

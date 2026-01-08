@@ -1,0 +1,5 @@
+class: PdfContent
+table: pdf_content
+fields:
+    name: String
+    description: String

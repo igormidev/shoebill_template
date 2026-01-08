@@ -1,0 +1,4 @@
+class: SchemaPropertyEnum
+extends: SchemaProperty
+fields:
+    enumValues: List<String>

@@ -1,5 +1,5 @@
-class: PdfPayloadContent
-table: pdf_payload_content
+class: PdfImplementationPayload
+table: pdf_implementation_payload
 fields:
     pdfId: UuidValue
     stringifiedJson: String

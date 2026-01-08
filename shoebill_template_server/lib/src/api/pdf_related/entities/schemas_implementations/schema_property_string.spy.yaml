@@ -1,0 +1,4 @@
+class: SchemaPropertyString
+extends: SchemaProperty
+fields:
+    shouldBeTranslated: bool
