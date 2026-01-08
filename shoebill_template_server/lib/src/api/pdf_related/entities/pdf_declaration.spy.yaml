@@ -11,3 +11,8 @@ fields:
     referenceLanguage: SupportedLanguages, defaultModel=english
 
     createdAt: DateTime, default=now
+
+indexes:
+    pdf_id_unique:
+        fields: pdfId
+        unique: true

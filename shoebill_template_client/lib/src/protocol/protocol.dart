@@ -14,10 +14,11 @@ import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'api/chat_session_related/messages/chat_actor.dart' as _i2;
 import 'api/chat_session_related/messages/chat_message.dart' as _i3;
 import 'api/chat_session_related/messages/chat_ui_style.dart' as _i4;
-import 'api/pdf_related/entities/pdf_declaration.dart' as _i5;
-import 'api/pdf_related/entities/pdf_payload_content.dart' as _i6;
+import 'api/pdf_related/entities/pdf_content.dart' as _i5;
+import 'api/pdf_related/entities/pdf_implementation_payload.dart' as _i6;
 import 'api/pdf_related/entities/schema_definition.dart' as _i7;
-import 'api/pdf_related/entities/schema_property.dart' as _i8;
+import 'api/pdf_related/entities/schemas_implementations/schema_property.dart'
+    as _i8;
 import 'entities/others/shoebill_exception.dart' as _i9;
 import 'entities/others/supported_languages.dart' as _i10;
 import 'entities/template/shoebill_template.dart' as _i11;
@@ -29,10 +30,10 @@ import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
 export 'api/chat_session_related/messages/chat_actor.dart';
 export 'api/chat_session_related/messages/chat_message.dart';
 export 'api/chat_session_related/messages/chat_ui_style.dart';
-export 'api/pdf_related/entities/pdf_declaration.dart';
-export 'api/pdf_related/entities/pdf_payload_content.dart';
+export 'api/pdf_related/entities/pdf_content.dart';
+export 'api/pdf_related/entities/pdf_implementation_payload.dart';
 export 'api/pdf_related/entities/schema_definition.dart';
-export 'api/pdf_related/entities/schema_property.dart';
+export 'api/pdf_related/entities/schemas_implementations/schema_property.dart';
 export 'entities/others/shoebill_exception.dart';
 export 'entities/others/supported_languages.dart';
 export 'entities/template/shoebill_template.dart';
@@ -82,11 +83,11 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i4.ChatUIStyle) {
       return _i4.ChatUIStyle.fromJson(data) as T;
     }
-    if (t == _i5.PdfDeclaration) {
-      return _i5.PdfDeclaration.fromJson(data) as T;
+    if (t == _i5.PdfContent) {
+      return _i5.PdfContent.fromJson(data) as T;
     }
-    if (t == _i6.PdfPayloadContent) {
-      return _i6.PdfPayloadContent.fromJson(data) as T;
+    if (t == _i6.PdfImplementationPayload) {
+      return _i6.PdfImplementationPayload.fromJson(data) as T;
     }
     if (t == _i7.SchemaDefinition) {
       return _i7.SchemaDefinition.fromJson(data) as T;
@@ -140,11 +141,12 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i4.ChatUIStyle?>()) {
       return (data != null ? _i4.ChatUIStyle.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i5.PdfDeclaration?>()) {
-      return (data != null ? _i5.PdfDeclaration.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i5.PdfContent?>()) {
+      return (data != null ? _i5.PdfContent.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i6.PdfPayloadContent?>()) {
-      return (data != null ? _i6.PdfPayloadContent.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i6.PdfImplementationPayload?>()) {
+      return (data != null ? _i6.PdfImplementationPayload.fromJson(data) : null)
+          as T;
     }
     if (t == _i1.getType<_i7.SchemaDefinition?>()) {
       return (data != null ? _i7.SchemaDefinition.fromJson(data) : null) as T;
@@ -229,8 +231,8 @@ class Protocol extends _i1.SerializationManager {
       _i2.ChatActor => 'ChatActor',
       _i3.ChatMessage => 'ChatMessage',
       _i4.ChatUIStyle => 'ChatUIStyle',
-      _i5.PdfDeclaration => 'PdfDeclaration',
-      _i6.PdfPayloadContent => 'PdfPayloadContent',
+      _i5.PdfContent => 'PdfContent',
+      _i6.PdfImplementationPayload => 'PdfImplementationPayload',
       _i7.SchemaDefinition => 'SchemaDefinition',
       _i8.SchemaPropertyArray => 'SchemaPropertyArray',
       _i8.SchemaPropertyBoolean => 'SchemaPropertyBoolean',
@@ -269,10 +271,10 @@ class Protocol extends _i1.SerializationManager {
         return 'ChatMessage';
       case _i4.ChatUIStyle():
         return 'ChatUIStyle';
-      case _i5.PdfDeclaration():
-        return 'PdfDeclaration';
-      case _i6.PdfPayloadContent():
-        return 'PdfPayloadContent';
+      case _i5.PdfContent():
+        return 'PdfContent';
+      case _i6.PdfImplementationPayload():
+        return 'PdfImplementationPayload';
       case _i7.SchemaDefinition():
         return 'SchemaDefinition';
       case _i8.SchemaPropertyArray():
@@ -326,11 +328,11 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'ChatUIStyle') {
       return deserialize<_i4.ChatUIStyle>(data['data']);
     }
-    if (dataClassName == 'PdfDeclaration') {
-      return deserialize<_i5.PdfDeclaration>(data['data']);
+    if (dataClassName == 'PdfContent') {
+      return deserialize<_i5.PdfContent>(data['data']);
     }
-    if (dataClassName == 'PdfPayloadContent') {
-      return deserialize<_i6.PdfPayloadContent>(data['data']);
+    if (dataClassName == 'PdfImplementationPayload') {
+      return deserialize<_i6.PdfImplementationPayload>(data['data']);
     }
     if (dataClassName == 'SchemaDefinition') {
       return deserialize<_i7.SchemaDefinition>(data['data']);

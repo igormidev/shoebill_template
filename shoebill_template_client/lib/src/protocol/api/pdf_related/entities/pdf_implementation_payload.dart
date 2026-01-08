@@ -13,8 +13,8 @@
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import '../../../entities/others/supported_languages.dart' as _i2;
 
-abstract class PdfPayloadContent implements _i1.SerializableModel {
-  PdfPayloadContent._({
+abstract class PdfImplementationPayload implements _i1.SerializableModel {
+  PdfImplementationPayload._({
     this.id,
     required this.pdfId,
     required this.stringifiedJson,
@@ -23,16 +23,18 @@ abstract class PdfPayloadContent implements _i1.SerializableModel {
   }) : language = language ?? _i2.SupportedLanguages.english,
        createdAt = createdAt ?? DateTime.now();
 
-  factory PdfPayloadContent({
+  factory PdfImplementationPayload({
     int? id,
     required _i1.UuidValue pdfId,
     required String stringifiedJson,
     _i2.SupportedLanguages? language,
     DateTime? createdAt,
-  }) = _PdfPayloadContentImpl;
+  }) = _PdfImplementationPayloadImpl;
 
-  factory PdfPayloadContent.fromJson(Map<String, dynamic> jsonSerialization) {
-    return PdfPayloadContent(
+  factory PdfImplementationPayload.fromJson(
+    Map<String, dynamic> jsonSerialization,
+  ) {
+    return PdfImplementationPayload(
       id: jsonSerialization['id'] as int?,
       pdfId: _i1.UuidValueJsonExtension.fromJson(jsonSerialization['pdfId']),
       stringifiedJson: jsonSerialization['stringifiedJson'] as String,
@@ -58,10 +60,10 @@ abstract class PdfPayloadContent implements _i1.SerializableModel {
 
   DateTime createdAt;
 
-  /// Returns a shallow copy of this [PdfPayloadContent]
+  /// Returns a shallow copy of this [PdfImplementationPayload]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  PdfPayloadContent copyWith({
+  PdfImplementationPayload copyWith({
     int? id,
     _i1.UuidValue? pdfId,
     String? stringifiedJson,
@@ -71,7 +73,7 @@ abstract class PdfPayloadContent implements _i1.SerializableModel {
   @override
   Map<String, dynamic> toJson() {
     return {
-      '__className__': 'PdfPayloadContent',
+      '__className__': 'PdfImplementationPayload',
       if (id != null) 'id': id,
       'pdfId': pdfId.toJson(),
       'stringifiedJson': stringifiedJson,
@@ -88,8 +90,8 @@ abstract class PdfPayloadContent implements _i1.SerializableModel {
 
 class _Undefined {}
 
-class _PdfPayloadContentImpl extends PdfPayloadContent {
-  _PdfPayloadContentImpl({
+class _PdfImplementationPayloadImpl extends PdfImplementationPayload {
+  _PdfImplementationPayloadImpl({
     int? id,
     required _i1.UuidValue pdfId,
     required String stringifiedJson,
@@ -103,18 +105,18 @@ class _PdfPayloadContentImpl extends PdfPayloadContent {
          createdAt: createdAt,
        );
 
-  /// Returns a shallow copy of this [PdfPayloadContent]
+  /// Returns a shallow copy of this [PdfImplementationPayload]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  PdfPayloadContent copyWith({
+  PdfImplementationPayload copyWith({
     Object? id = _Undefined,
     _i1.UuidValue? pdfId,
     String? stringifiedJson,
     _i2.SupportedLanguages? language,
     DateTime? createdAt,
   }) {
-    return PdfPayloadContent(
+    return PdfImplementationPayload(
       id: id is int? ? id : this.id,
       pdfId: pdfId ?? this.pdfId,
       stringifiedJson: stringifiedJson ?? this.stringifiedJson,

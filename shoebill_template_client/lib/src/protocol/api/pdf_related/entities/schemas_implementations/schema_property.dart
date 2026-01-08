@@ -10,10 +10,10 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import '../../../protocol.dart' as _i1;
-import 'package:serverpod/serverpod.dart' as _i2;
+import '../../../../protocol.dart' as _i1;
+import 'package:serverpod_client/serverpod_client.dart' as _i2;
 import 'schema_property.dart' as _i3;
-import 'package:shoebill_template_server/src/generated/protocol.dart' as _i4;
+import 'package:shoebill_template_client/src/protocol/protocol.dart' as _i4;
 part 'schema_property_array.dart';
 part 'schema_property_boolean.dart';
 part 'schema_property_double.dart';
@@ -23,8 +23,7 @@ part 'schema_property_object_with_undefined_properties.dart';
 part 'schema_property_string.dart';
 part 'schema_property_structured_object.dart';
 
-sealed class SchemaProperty
-    implements _i2.SerializableModel, _i2.ProtocolSerialization {
+sealed class SchemaProperty implements _i2.SerializableModel {
   SchemaProperty({
     required this.nullable,
     this.description,

@@ -13,9 +13,9 @@
 import 'package:serverpod/serverpod.dart' as _i1;
 import '../../../entities/others/supported_languages.dart' as _i2;
 
-abstract class PdfPayloadContent
+abstract class PdfImplementationPayload
     implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
-  PdfPayloadContent._({
+  PdfImplementationPayload._({
     this.id,
     required this.pdfId,
     required this.stringifiedJson,
@@ -24,16 +24,18 @@ abstract class PdfPayloadContent
   }) : language = language ?? _i2.SupportedLanguages.english,
        createdAt = createdAt ?? DateTime.now();
 
-  factory PdfPayloadContent({
+  factory PdfImplementationPayload({
     int? id,
     required _i1.UuidValue pdfId,
     required String stringifiedJson,
     _i2.SupportedLanguages? language,
     DateTime? createdAt,
-  }) = _PdfPayloadContentImpl;
+  }) = _PdfImplementationPayloadImpl;
 
-  factory PdfPayloadContent.fromJson(Map<String, dynamic> jsonSerialization) {
-    return PdfPayloadContent(
+  factory PdfImplementationPayload.fromJson(
+    Map<String, dynamic> jsonSerialization,
+  ) {
+    return PdfImplementationPayload(
       id: jsonSerialization['id'] as int?,
       pdfId: _i1.UuidValueJsonExtension.fromJson(jsonSerialization['pdfId']),
       stringifiedJson: jsonSerialization['stringifiedJson'] as String,
@@ -46,9 +48,9 @@ abstract class PdfPayloadContent
     );
   }
 
-  static final t = PdfPayloadContentTable();
+  static final t = PdfImplementationPayloadTable();
 
-  static const db = PdfPayloadContentRepository._();
+  static const db = PdfImplementationPayloadRepository._();
 
   @override
   int? id;
@@ -64,10 +66,10 @@ abstract class PdfPayloadContent
   @override
   _i1.Table<int?> get table => t;
 
-  /// Returns a shallow copy of this [PdfPayloadContent]
+  /// Returns a shallow copy of this [PdfImplementationPayload]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  PdfPayloadContent copyWith({
+  PdfImplementationPayload copyWith({
     int? id,
     _i1.UuidValue? pdfId,
     String? stringifiedJson,
@@ -77,7 +79,7 @@ abstract class PdfPayloadContent
   @override
   Map<String, dynamic> toJson() {
     return {
-      '__className__': 'PdfPayloadContent',
+      '__className__': 'PdfImplementationPayload',
       if (id != null) 'id': id,
       'pdfId': pdfId.toJson(),
       'stringifiedJson': stringifiedJson,
@@ -89,7 +91,7 @@ abstract class PdfPayloadContent
   @override
   Map<String, dynamic> toJsonForProtocol() {
     return {
-      '__className__': 'PdfPayloadContent',
+      '__className__': 'PdfImplementationPayload',
       if (id != null) 'id': id,
       'pdfId': pdfId.toJson(),
       'stringifiedJson': stringifiedJson,
@@ -98,26 +100,26 @@ abstract class PdfPayloadContent
     };
   }
 
-  static PdfPayloadContentInclude include() {
-    return PdfPayloadContentInclude._();
+  static PdfImplementationPayloadInclude include() {
+    return PdfImplementationPayloadInclude._();
   }
 
-  static PdfPayloadContentIncludeList includeList({
-    _i1.WhereExpressionBuilder<PdfPayloadContentTable>? where,
+  static PdfImplementationPayloadIncludeList includeList({
+    _i1.WhereExpressionBuilder<PdfImplementationPayloadTable>? where,
     int? limit,
     int? offset,
-    _i1.OrderByBuilder<PdfPayloadContentTable>? orderBy,
+    _i1.OrderByBuilder<PdfImplementationPayloadTable>? orderBy,
     bool orderDescending = false,
-    _i1.OrderByListBuilder<PdfPayloadContentTable>? orderByList,
-    PdfPayloadContentInclude? include,
+    _i1.OrderByListBuilder<PdfImplementationPayloadTable>? orderByList,
+    PdfImplementationPayloadInclude? include,
   }) {
-    return PdfPayloadContentIncludeList._(
+    return PdfImplementationPayloadIncludeList._(
       where: where,
       limit: limit,
       offset: offset,
-      orderBy: orderBy?.call(PdfPayloadContent.t),
+      orderBy: orderBy?.call(PdfImplementationPayload.t),
       orderDescending: orderDescending,
-      orderByList: orderByList?.call(PdfPayloadContent.t),
+      orderByList: orderByList?.call(PdfImplementationPayload.t),
       include: include,
     );
   }
@@ -130,8 +132,8 @@ abstract class PdfPayloadContent
 
 class _Undefined {}
 
-class _PdfPayloadContentImpl extends PdfPayloadContent {
-  _PdfPayloadContentImpl({
+class _PdfImplementationPayloadImpl extends PdfImplementationPayload {
+  _PdfImplementationPayloadImpl({
     int? id,
     required _i1.UuidValue pdfId,
     required String stringifiedJson,
@@ -145,18 +147,18 @@ class _PdfPayloadContentImpl extends PdfPayloadContent {
          createdAt: createdAt,
        );
 
-  /// Returns a shallow copy of this [PdfPayloadContent]
+  /// Returns a shallow copy of this [PdfImplementationPayload]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  PdfPayloadContent copyWith({
+  PdfImplementationPayload copyWith({
     Object? id = _Undefined,
     _i1.UuidValue? pdfId,
     String? stringifiedJson,
     _i2.SupportedLanguages? language,
     DateTime? createdAt,
   }) {
-    return PdfPayloadContent(
+    return PdfImplementationPayload(
       id: id is int? ? id : this.id,
       pdfId: pdfId ?? this.pdfId,
       stringifiedJson: stringifiedJson ?? this.stringifiedJson,
@@ -166,9 +168,9 @@ class _PdfPayloadContentImpl extends PdfPayloadContent {
   }
 }
 
-class PdfPayloadContentUpdateTable
-    extends _i1.UpdateTable<PdfPayloadContentTable> {
-  PdfPayloadContentUpdateTable(super.table);
+class PdfImplementationPayloadUpdateTable
+    extends _i1.UpdateTable<PdfImplementationPayloadTable> {
+  PdfImplementationPayloadUpdateTable(super.table);
 
   _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> pdfId(_i1.UuidValue value) =>
       _i1.ColumnValue(
@@ -196,10 +198,10 @@ class PdfPayloadContentUpdateTable
       );
 }
 
-class PdfPayloadContentTable extends _i1.Table<int?> {
-  PdfPayloadContentTable({super.tableRelation})
-    : super(tableName: 'pdf_payload_content') {
-    updateTable = PdfPayloadContentUpdateTable(this);
+class PdfImplementationPayloadTable extends _i1.Table<int?> {
+  PdfImplementationPayloadTable({super.tableRelation})
+    : super(tableName: 'pdf_implementation_payload') {
+    updateTable = PdfImplementationPayloadUpdateTable(this);
     pdfId = _i1.ColumnUuid(
       'pdfId',
       this,
@@ -220,7 +222,7 @@ class PdfPayloadContentTable extends _i1.Table<int?> {
     );
   }
 
-  late final PdfPayloadContentUpdateTable updateTable;
+  late final PdfImplementationPayloadUpdateTable updateTable;
 
   late final _i1.ColumnUuid pdfId;
 
@@ -240,19 +242,19 @@ class PdfPayloadContentTable extends _i1.Table<int?> {
   ];
 }
 
-class PdfPayloadContentInclude extends _i1.IncludeObject {
-  PdfPayloadContentInclude._();
+class PdfImplementationPayloadInclude extends _i1.IncludeObject {
+  PdfImplementationPayloadInclude._();
 
   @override
   Map<String, _i1.Include?> get includes => {};
 
   @override
-  _i1.Table<int?> get table => PdfPayloadContent.t;
+  _i1.Table<int?> get table => PdfImplementationPayload.t;
 }
 
-class PdfPayloadContentIncludeList extends _i1.IncludeList {
-  PdfPayloadContentIncludeList._({
-    _i1.WhereExpressionBuilder<PdfPayloadContentTable>? where,
+class PdfImplementationPayloadIncludeList extends _i1.IncludeList {
+  PdfImplementationPayloadIncludeList._({
+    _i1.WhereExpressionBuilder<PdfImplementationPayloadTable>? where,
     super.limit,
     super.offset,
     super.orderBy,
@@ -260,20 +262,20 @@ class PdfPayloadContentIncludeList extends _i1.IncludeList {
     super.orderByList,
     super.include,
   }) {
-    super.where = where?.call(PdfPayloadContent.t);
+    super.where = where?.call(PdfImplementationPayload.t);
   }
 
   @override
   Map<String, _i1.Include?> get includes => include?.includes ?? {};
 
   @override
-  _i1.Table<int?> get table => PdfPayloadContent.t;
+  _i1.Table<int?> get table => PdfImplementationPayload.t;
 }
 
-class PdfPayloadContentRepository {
-  const PdfPayloadContentRepository._();
+class PdfImplementationPayloadRepository {
+  const PdfImplementationPayloadRepository._();
 
-  /// Returns a list of [PdfPayloadContent]s matching the given query parameters.
+  /// Returns a list of [PdfImplementationPayload]s matching the given query parameters.
   ///
   /// Use [where] to specify which items to include in the return value.
   /// If none is specified, all items will be returned.
@@ -295,20 +297,20 @@ class PdfPayloadContentRepository {
   ///   limit: 100,
   /// );
   /// ```
-  Future<List<PdfPayloadContent>> find(
+  Future<List<PdfImplementationPayload>> find(
     _i1.Session session, {
-    _i1.WhereExpressionBuilder<PdfPayloadContentTable>? where,
+    _i1.WhereExpressionBuilder<PdfImplementationPayloadTable>? where,
     int? limit,
     int? offset,
-    _i1.OrderByBuilder<PdfPayloadContentTable>? orderBy,
+    _i1.OrderByBuilder<PdfImplementationPayloadTable>? orderBy,
     bool orderDescending = false,
-    _i1.OrderByListBuilder<PdfPayloadContentTable>? orderByList,
+    _i1.OrderByListBuilder<PdfImplementationPayloadTable>? orderByList,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.find<PdfPayloadContent>(
-      where: where?.call(PdfPayloadContent.t),
-      orderBy: orderBy?.call(PdfPayloadContent.t),
-      orderByList: orderByList?.call(PdfPayloadContent.t),
+    return session.db.find<PdfImplementationPayload>(
+      where: where?.call(PdfImplementationPayload.t),
+      orderBy: orderBy?.call(PdfImplementationPayload.t),
+      orderByList: orderByList?.call(PdfImplementationPayload.t),
       orderDescending: orderDescending,
       limit: limit,
       offset: offset,
@@ -316,7 +318,7 @@ class PdfPayloadContentRepository {
     );
   }
 
-  /// Returns the first matching [PdfPayloadContent] matching the given query parameters.
+  /// Returns the first matching [PdfImplementationPayload] matching the given query parameters.
   ///
   /// Use [where] to specify which items to include in the return value.
   /// If none is specified, all items will be returned.
@@ -333,178 +335,178 @@ class PdfPayloadContentRepository {
   ///   orderBy: (t) => t.age,
   /// );
   /// ```
-  Future<PdfPayloadContent?> findFirstRow(
+  Future<PdfImplementationPayload?> findFirstRow(
     _i1.Session session, {
-    _i1.WhereExpressionBuilder<PdfPayloadContentTable>? where,
+    _i1.WhereExpressionBuilder<PdfImplementationPayloadTable>? where,
     int? offset,
-    _i1.OrderByBuilder<PdfPayloadContentTable>? orderBy,
+    _i1.OrderByBuilder<PdfImplementationPayloadTable>? orderBy,
     bool orderDescending = false,
-    _i1.OrderByListBuilder<PdfPayloadContentTable>? orderByList,
+    _i1.OrderByListBuilder<PdfImplementationPayloadTable>? orderByList,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.findFirstRow<PdfPayloadContent>(
-      where: where?.call(PdfPayloadContent.t),
-      orderBy: orderBy?.call(PdfPayloadContent.t),
-      orderByList: orderByList?.call(PdfPayloadContent.t),
+    return session.db.findFirstRow<PdfImplementationPayload>(
+      where: where?.call(PdfImplementationPayload.t),
+      orderBy: orderBy?.call(PdfImplementationPayload.t),
+      orderByList: orderByList?.call(PdfImplementationPayload.t),
       orderDescending: orderDescending,
       offset: offset,
       transaction: transaction,
     );
   }
 
-  /// Finds a single [PdfPayloadContent] by its [id] or null if no such row exists.
-  Future<PdfPayloadContent?> findById(
+  /// Finds a single [PdfImplementationPayload] by its [id] or null if no such row exists.
+  Future<PdfImplementationPayload?> findById(
     _i1.Session session,
     int id, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.findById<PdfPayloadContent>(
+    return session.db.findById<PdfImplementationPayload>(
       id,
       transaction: transaction,
     );
   }
 
-  /// Inserts all [PdfPayloadContent]s in the list and returns the inserted rows.
+  /// Inserts all [PdfImplementationPayload]s in the list and returns the inserted rows.
   ///
-  /// The returned [PdfPayloadContent]s will have their `id` fields set.
+  /// The returned [PdfImplementationPayload]s will have their `id` fields set.
   ///
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// insert, none of the rows will be inserted.
-  Future<List<PdfPayloadContent>> insert(
+  Future<List<PdfImplementationPayload>> insert(
     _i1.Session session,
-    List<PdfPayloadContent> rows, {
+    List<PdfImplementationPayload> rows, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.insert<PdfPayloadContent>(
+    return session.db.insert<PdfImplementationPayload>(
       rows,
       transaction: transaction,
     );
   }
 
-  /// Inserts a single [PdfPayloadContent] and returns the inserted row.
+  /// Inserts a single [PdfImplementationPayload] and returns the inserted row.
   ///
-  /// The returned [PdfPayloadContent] will have its `id` field set.
-  Future<PdfPayloadContent> insertRow(
+  /// The returned [PdfImplementationPayload] will have its `id` field set.
+  Future<PdfImplementationPayload> insertRow(
     _i1.Session session,
-    PdfPayloadContent row, {
+    PdfImplementationPayload row, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.insertRow<PdfPayloadContent>(
+    return session.db.insertRow<PdfImplementationPayload>(
       row,
       transaction: transaction,
     );
   }
 
-  /// Updates all [PdfPayloadContent]s in the list and returns the updated rows. If
+  /// Updates all [PdfImplementationPayload]s in the list and returns the updated rows. If
   /// [columns] is provided, only those columns will be updated. Defaults to
   /// all columns.
   /// This is an atomic operation, meaning that if one of the rows fails to
   /// update, none of the rows will be updated.
-  Future<List<PdfPayloadContent>> update(
+  Future<List<PdfImplementationPayload>> update(
     _i1.Session session,
-    List<PdfPayloadContent> rows, {
-    _i1.ColumnSelections<PdfPayloadContentTable>? columns,
+    List<PdfImplementationPayload> rows, {
+    _i1.ColumnSelections<PdfImplementationPayloadTable>? columns,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.update<PdfPayloadContent>(
+    return session.db.update<PdfImplementationPayload>(
       rows,
-      columns: columns?.call(PdfPayloadContent.t),
+      columns: columns?.call(PdfImplementationPayload.t),
       transaction: transaction,
     );
   }
 
-  /// Updates a single [PdfPayloadContent]. The row needs to have its id set.
+  /// Updates a single [PdfImplementationPayload]. The row needs to have its id set.
   /// Optionally, a list of [columns] can be provided to only update those
   /// columns. Defaults to all columns.
-  Future<PdfPayloadContent> updateRow(
+  Future<PdfImplementationPayload> updateRow(
     _i1.Session session,
-    PdfPayloadContent row, {
-    _i1.ColumnSelections<PdfPayloadContentTable>? columns,
+    PdfImplementationPayload row, {
+    _i1.ColumnSelections<PdfImplementationPayloadTable>? columns,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.updateRow<PdfPayloadContent>(
+    return session.db.updateRow<PdfImplementationPayload>(
       row,
-      columns: columns?.call(PdfPayloadContent.t),
+      columns: columns?.call(PdfImplementationPayload.t),
       transaction: transaction,
     );
   }
 
-  /// Updates a single [PdfPayloadContent] by its [id] with the specified [columnValues].
+  /// Updates a single [PdfImplementationPayload] by its [id] with the specified [columnValues].
   /// Returns the updated row or null if no row with the given id exists.
-  Future<PdfPayloadContent?> updateById(
+  Future<PdfImplementationPayload?> updateById(
     _i1.Session session,
     int id, {
-    required _i1.ColumnValueListBuilder<PdfPayloadContentUpdateTable>
+    required _i1.ColumnValueListBuilder<PdfImplementationPayloadUpdateTable>
     columnValues,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.updateById<PdfPayloadContent>(
+    return session.db.updateById<PdfImplementationPayload>(
       id,
-      columnValues: columnValues(PdfPayloadContent.t.updateTable),
+      columnValues: columnValues(PdfImplementationPayload.t.updateTable),
       transaction: transaction,
     );
   }
 
-  /// Updates all [PdfPayloadContent]s matching the [where] expression with the specified [columnValues].
+  /// Updates all [PdfImplementationPayload]s matching the [where] expression with the specified [columnValues].
   /// Returns the list of updated rows.
-  Future<List<PdfPayloadContent>> updateWhere(
+  Future<List<PdfImplementationPayload>> updateWhere(
     _i1.Session session, {
-    required _i1.ColumnValueListBuilder<PdfPayloadContentUpdateTable>
+    required _i1.ColumnValueListBuilder<PdfImplementationPayloadUpdateTable>
     columnValues,
-    required _i1.WhereExpressionBuilder<PdfPayloadContentTable> where,
+    required _i1.WhereExpressionBuilder<PdfImplementationPayloadTable> where,
     int? limit,
     int? offset,
-    _i1.OrderByBuilder<PdfPayloadContentTable>? orderBy,
-    _i1.OrderByListBuilder<PdfPayloadContentTable>? orderByList,
+    _i1.OrderByBuilder<PdfImplementationPayloadTable>? orderBy,
+    _i1.OrderByListBuilder<PdfImplementationPayloadTable>? orderByList,
     bool orderDescending = false,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.updateWhere<PdfPayloadContent>(
-      columnValues: columnValues(PdfPayloadContent.t.updateTable),
-      where: where(PdfPayloadContent.t),
+    return session.db.updateWhere<PdfImplementationPayload>(
+      columnValues: columnValues(PdfImplementationPayload.t.updateTable),
+      where: where(PdfImplementationPayload.t),
       limit: limit,
       offset: offset,
-      orderBy: orderBy?.call(PdfPayloadContent.t),
-      orderByList: orderByList?.call(PdfPayloadContent.t),
+      orderBy: orderBy?.call(PdfImplementationPayload.t),
+      orderByList: orderByList?.call(PdfImplementationPayload.t),
       orderDescending: orderDescending,
       transaction: transaction,
     );
   }
 
-  /// Deletes all [PdfPayloadContent]s in the list and returns the deleted rows.
+  /// Deletes all [PdfImplementationPayload]s in the list and returns the deleted rows.
   /// This is an atomic operation, meaning that if one of the rows fail to
   /// be deleted, none of the rows will be deleted.
-  Future<List<PdfPayloadContent>> delete(
+  Future<List<PdfImplementationPayload>> delete(
     _i1.Session session,
-    List<PdfPayloadContent> rows, {
+    List<PdfImplementationPayload> rows, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.delete<PdfPayloadContent>(
+    return session.db.delete<PdfImplementationPayload>(
       rows,
       transaction: transaction,
     );
   }
 
-  /// Deletes a single [PdfPayloadContent].
-  Future<PdfPayloadContent> deleteRow(
+  /// Deletes a single [PdfImplementationPayload].
+  Future<PdfImplementationPayload> deleteRow(
     _i1.Session session,
-    PdfPayloadContent row, {
+    PdfImplementationPayload row, {
     _i1.Transaction? transaction,
   }) async {
-    return session.db.deleteRow<PdfPayloadContent>(
+    return session.db.deleteRow<PdfImplementationPayload>(
       row,
       transaction: transaction,
     );
   }
 
   /// Deletes all rows matching the [where] expression.
-  Future<List<PdfPayloadContent>> deleteWhere(
+  Future<List<PdfImplementationPayload>> deleteWhere(
     _i1.Session session, {
-    required _i1.WhereExpressionBuilder<PdfPayloadContentTable> where,
+    required _i1.WhereExpressionBuilder<PdfImplementationPayloadTable> where,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.deleteWhere<PdfPayloadContent>(
-      where: where(PdfPayloadContent.t),
+    return session.db.deleteWhere<PdfImplementationPayload>(
+      where: where(PdfImplementationPayload.t),
       transaction: transaction,
     );
   }
@@ -513,12 +515,12 @@ class PdfPayloadContentRepository {
   /// will return the count of all rows in the table.
   Future<int> count(
     _i1.Session session, {
-    _i1.WhereExpressionBuilder<PdfPayloadContentTable>? where,
+    _i1.WhereExpressionBuilder<PdfImplementationPayloadTable>? where,
     int? limit,
     _i1.Transaction? transaction,
   }) async {
-    return session.db.count<PdfPayloadContent>(
-      where: where?.call(PdfPayloadContent.t),
+    return session.db.count<PdfImplementationPayload>(
+      where: where?.call(PdfImplementationPayload.t),
       limit: limit,
       transaction: transaction,
     );

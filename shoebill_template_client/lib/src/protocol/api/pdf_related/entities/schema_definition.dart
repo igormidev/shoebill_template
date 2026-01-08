@@ -11,34 +11,49 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
-import '../../../api/pdf_related/entities/schema_property.dart' as _i2;
+import '../../../api/pdf_related/entities/schemas_implementations/schema_property.dart'
+    as _i2;
 import 'package:shoebill_template_client/src/protocol/protocol.dart' as _i3;
 
 abstract class SchemaDefinition implements _i1.SerializableModel {
-  SchemaDefinition._({required this.properties});
+  SchemaDefinition._({
+    this.id,
+    required this.properties,
+  });
 
   factory SchemaDefinition({
+    int? id,
     required Map<String, _i2.SchemaProperty> properties,
   }) = _SchemaDefinitionImpl;
 
   factory SchemaDefinition.fromJson(Map<String, dynamic> jsonSerialization) {
     return SchemaDefinition(
+      id: jsonSerialization['id'] as int?,
       properties: _i3.Protocol().deserialize<Map<String, _i2.SchemaProperty>>(
         jsonSerialization['properties'],
       ),
     );
   }
 
+  /// The database id, set if the object has been inserted into the
+  /// database or if it has been fetched from the database. Otherwise,
+  /// the id will be null.
+  int? id;
+
   Map<String, _i2.SchemaProperty> properties;
 
   /// Returns a shallow copy of this [SchemaDefinition]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  SchemaDefinition copyWith({Map<String, _i2.SchemaProperty>? properties});
+  SchemaDefinition copyWith({
+    int? id,
+    Map<String, _i2.SchemaProperty>? properties,
+  });
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'SchemaDefinition',
+      if (id != null) 'id': id,
       'properties': properties.toJson(valueToJson: (v) => v.toJson()),
     };
   }
@@ -49,16 +64,27 @@ abstract class SchemaDefinition implements _i1.SerializableModel {
   }
 }
 
+class _Undefined {}
+
 class _SchemaDefinitionImpl extends SchemaDefinition {
-  _SchemaDefinitionImpl({required Map<String, _i2.SchemaProperty> properties})
-    : super._(properties: properties);
+  _SchemaDefinitionImpl({
+    int? id,
+    required Map<String, _i2.SchemaProperty> properties,
+  }) : super._(
+         id: id,
+         properties: properties,
+       );
 
   /// Returns a shallow copy of this [SchemaDefinition]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  SchemaDefinition copyWith({Map<String, _i2.SchemaProperty>? properties}) {
+  SchemaDefinition copyWith({
+    Object? id = _Undefined,
+    Map<String, _i2.SchemaProperty>? properties,
+  }) {
     return SchemaDefinition(
+      id: id is int? ? id : this.id,
       properties:
           properties ??
           this.properties.map(
