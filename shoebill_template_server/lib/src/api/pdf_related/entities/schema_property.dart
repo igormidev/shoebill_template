@@ -7,6 +7,16 @@ class SchemaDefinition {
   Map<String, dynamic> toJson() =>
       properties.map((key, value) => MapEntry(key, value.toJson()));
 
+  factory SchemaDefinition.fromJson(Map<String, dynamic> json) {
+    final properties = json.map(
+      (key, value) => MapEntry(
+        key,
+        SchemaProperty.fromJson(value as Map<String, dynamic>),
+      ),
+    );
+    return SchemaDefinition(properties: properties);
+  }
+
   @override
   String toString() => JsonEncoder.withIndent('  ').convert(toJson());
 
@@ -84,6 +94,74 @@ sealed class SchemaProperty {
         break;
     }
     return json;
+  }
+
+  factory SchemaProperty.fromJson(Map<String, dynamic> json) {
+    final type = json['type'] as String;
+    final nullable = json['nullable'] as bool;
+    final description = json['description'] as String?;
+
+    switch (type) {
+      case 'string':
+        return SchemaPropertyString(
+          nullable: nullable,
+          description: description,
+          shouldBeTranslated: json['shouldBeTranslated'] as bool? ?? false,
+        );
+      case 'integer':
+        return SchemaPropertyInteger(
+          nullable: nullable,
+          description: description,
+        );
+      case 'double':
+        return SchemaPropertyDouble(
+          nullable: nullable,
+          description: description,
+        );
+      case 'boolean':
+        return SchemaPropertyBoolean(
+          nullable: nullable,
+          description: description,
+        );
+      case 'enum':
+        final enumValues = (json['possibleEnumValues'] as List<dynamic>)
+            .cast<String>();
+        return SchemaPropertyEnum(
+          enumValues: enumValues,
+          nullable: nullable,
+          description: description,
+        );
+      case 'array':
+        final items = SchemaProperty.fromJson(
+          json['items'] as Map<String, dynamic>,
+        );
+        return SchemaPropertyArray(
+          items: items,
+          nullable: nullable,
+          description: description,
+        );
+      case 'dynamic_object_with_undefined_properties':
+        return SchemaPropertyObjectWithUndefinedProperties(
+          nullable: nullable,
+          description: description,
+        );
+      case 'structured_object_with_defined_properties':
+        final propertiesJson =
+            json['properties'] as Map<String, dynamic>;
+        final properties = propertiesJson.map(
+          (key, value) => MapEntry(
+            key,
+            SchemaProperty.fromJson(value as Map<String, dynamic>),
+          ),
+        );
+        return SchemaPropertyStructuredObjectWithDefinedProperties(
+          properties: properties,
+          nullable: nullable,
+          description: description,
+        );
+      default:
+        throw ArgumentError('Unknown SchemaProperty type: $type');
+    }
   }
 
   @override
