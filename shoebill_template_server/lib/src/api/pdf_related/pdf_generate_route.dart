@@ -5,6 +5,8 @@ import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 
 class PdfGenerateRoute extends Route with RouteMixin {
+  PdfGenerateRoute() : super(methods: {Method.post});
+
   @override
   FutureOr<Result> handleCall(Session session, Request request) async {
     final (uuid, uuidError) = validateUuid(request);
