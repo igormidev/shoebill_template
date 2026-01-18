@@ -1,16 +1,18 @@
 class: PdfDeclaration
 table: pdf_declarations
 fields:
+    id: UuidValue, defaultModel=random_v7
     pdfId: UuidValue
-
-    pdfContent: PdfContent?, relation
 
     schema: SchemaDefinition?, relation
 
     # The language the pdf was originally created in.
     referenceLanguage: SupportedLanguages, defaultModel=english
+    referencePdfContent: PdfContent?, relation
 
     createdAt: DateTime, default=now
+
+    pythonGeneratorScript: String
 
 indexes:
     pdf_id_unique:

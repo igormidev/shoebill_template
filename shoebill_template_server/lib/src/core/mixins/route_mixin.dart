@@ -72,3 +72,18 @@ mixin RouteMixin on Route {
     );
   }
 }
+
+/// Safely decode JSON into a Map.
+/// Returns null if the JSON is invalid or not a JSON object.
+Map<String, dynamic>? tryDecode(String source) {
+  try {
+    final decoded = jsonDecode(source);
+
+    if (decoded is Map<String, dynamic>) {
+      return decoded;
+    }
+    return null; // JSON exists but isn't a Map (e.g. it's a List/int/string)
+  } catch (_) {
+    return null; // Invalid JSON or decode error
+  }
+}
