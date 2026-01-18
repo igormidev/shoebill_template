@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:shoebill_template_server/server.dart' show openAiService;
+import 'package:get_it/get_it.dart';
 import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
 
 /// Gets the global OpenAiService instance.
-OpenAiService _getOpenAiService() => openAiService;
+IOpenAiService _getOpenAiService() => GetIt.instance<IOpenAiService>();
 
 /// Extension to provide `type` getter and custom JSON serialization for SchemaProperty
 extension SchemaPropertyExtension on SchemaProperty {

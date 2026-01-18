@@ -43,9 +43,9 @@ abstract class PdfImplementationPayload implements _i1.SerializableModel {
       language: _i2.SupportedLanguages.fromJson(
         (jsonSerialization['language'] as String),
       ),
-      createdAt: jsonSerialization['createdAt'] == null
-          ? null
-          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      createdAt: _i1.DateTimeJsonExtension.fromJson(
+        jsonSerialization['createdAt'],
+      ),
       pdfDeclarationId: _i1.UuidValueJsonExtension.fromJson(
         jsonSerialization['pdfDeclarationId'],
       ),

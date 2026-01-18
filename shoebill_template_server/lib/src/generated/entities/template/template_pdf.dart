@@ -32,12 +32,12 @@ abstract class TemplatePdf extends _i1.ShoebillTemplate
       id: jsonSerialization['id'] == null
           ? null
           : _i2.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
-      createdAt: jsonSerialization['createdAt'] == null
-          ? null
-          : _i2.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
-      updatedAt: jsonSerialization['updatedAt'] == null
-          ? null
-          : _i2.DateTimeJsonExtension.fromJson(jsonSerialization['updatedAt']),
+      createdAt: _i2.DateTimeJsonExtension.fromJson(
+        jsonSerialization['createdAt'],
+      ),
+      updatedAt: _i2.DateTimeJsonExtension.fromJson(
+        jsonSerialization['updatedAt'],
+      ),
       pythonGeneratorScript:
           jsonSerialization['pythonGeneratorScript'] as String,
     );

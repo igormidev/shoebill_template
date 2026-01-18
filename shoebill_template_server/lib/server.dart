@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:get_it/get_it.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/email.dart';
@@ -10,6 +11,8 @@ import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
 import 'src/web/routes/app_config_route.dart';
 import 'src/web/routes/root.dart';
+
+final getIt = GetIt.instance;
 
 /// The starting point of the Serverpod server.
 void run(List<String> args) async {
@@ -75,10 +78,11 @@ void run(List<String> args) async {
     );
   }
 
-  final openRouterService = pod.getPassword('open_router_service');
-  if (openRouterService == null) throw noOpenAiException;
+  final openRouterApiKey = pod.getPassword('open_router_service');
+  if (openRouterApiKey == null) throw noOpenAiException;
 
-  openAiService = OpenAiService(openRouterService);
+  getIt.registerSingleton<IOpenAiService>(OpenAiService(openRouterApiKey));
+  getIt.registerSingleton<PdfController>(PdfController());
 
   // Start the server.
   await pod.start();
@@ -108,8 +112,6 @@ void _sendPasswordResetCode(
   session.log('[EmailIdp] Password reset code ($email): $verificationCode');
 }
 
-final PdfController pdfController = PdfController();
-late final OpenAiService openAiService;
 final noOpenAiException = Exception(
   'Open Router Service API key is not set in the passwords configuration.',
 );

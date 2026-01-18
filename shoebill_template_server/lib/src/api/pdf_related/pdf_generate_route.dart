@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'package:get_it/get_it.dart';
 import 'package:serverpod/serverpod.dart';
-import 'package:shoebill_template_server/server.dart';
+import 'package:shoebill_template_server/src/api/pdf_related/pdf_controller.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 
 mixin GeneratePdfVersion {
@@ -22,7 +23,7 @@ class PdfGenerateEndpoint extends Endpoint {
     required PdfContent pdfContent,
     required String pythonGeneratorScript,
   }) async {
-    return pdfController.createNewPdf(
+    return GetIt.instance<PdfController>().createNewPdf(
       session: session,
       language: language,
       stringifiedJson: stringifiedJson,

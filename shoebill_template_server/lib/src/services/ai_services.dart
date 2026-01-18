@@ -1,12 +1,24 @@
 import 'dart:convert';
 import 'dart:io';
 
-class OpenAiService {
-  final String apiKey;
-  const OpenAiService(this.apiKey);
+abstract interface class IOpenAiService {
+  Future<String> generatePrompt({String model, required String prompt});
+
+  Future<Map<String, String>> translateTexts({
+    required Map<String, String> textsToTranslate,
+    required String sourceLanguage,
+    required String targetLanguage,
+    String model,
+  });
+}
+
+class OpenAiService implements IOpenAiService {
+  final String _apiKey;
+  const OpenAiService(this._apiKey);
 
   static const _defaultModel = 'openai/gpt-4.1-mini';
 
+  @override
   Future<String> generatePrompt({
     String model = _defaultModel,
     required String prompt,
@@ -17,6 +29,7 @@ class OpenAiService {
   /// Translates a map of key-value pairs from source language to target language.
   /// Returns a map with the same keys but translated values.
   /// Keys are JSON paths (e.g., "root.title", "root.items[0].name").
+  @override
   Future<Map<String, String>> translateTexts({
     required Map<String, String> textsToTranslate,
     required String sourceLanguage,
@@ -68,7 +81,7 @@ Return the translated JSON:''';
         Uri.parse('https://openrouter.ai/api/v1/chat/completions'),
       );
 
-      request.headers.set('Authorization', 'Bearer $apiKey');
+      request.headers.set('Authorization', 'Bearer $_apiKey');
       request.headers.set('Content-Type', 'application/json');
 
       final body = jsonEncode({

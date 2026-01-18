@@ -1,5 +1,7 @@
 chatSession:
   - sendMessage:
+pdfGenerate:
+  - call:
 emailIdp:
   - login:
   - startRegistration:
