@@ -5,11 +5,36 @@ import 'package:shoebill_template_server/src/api/chat_session_related/remote_ai_
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 
 typedef SessionUUID = String;
+typedef TimesRefreshed = int;
+const int kMaxSessionRefreshes = 30;
 
 final Map<SessionUUID, IRemoteAiCodingSession> _activeSessions = {};
+final Map<SessionUUID, Timer> _sessionCleanupTimers = {};
+final Map<SessionUUID, int> _sessionRefresh = {};
 
 class ChatSessionEndpoint extends Endpoint {
   final Uuid uuidClass = Uuid();
+
+  void refreshSession(SessionUUID sessionUuid) {
+    final currentRefreshes = _sessionRefresh[sessionUuid] ?? 0;
+    if (currentRefreshes >= kMaxSessionRefreshes) {
+      _activeSessions.remove(sessionUuid);
+      _sessionCleanupTimers[sessionUuid]?.cancel();
+      _sessionCleanupTimers.remove(sessionUuid);
+      _sessionRefresh.remove(sessionUuid);
+      return;
+    }
+    _sessionRefresh[sessionUuid] = currentRefreshes + 1;
+    _sessionCleanupTimers[sessionUuid]?.cancel();
+    _sessionCleanupTimers[sessionUuid] = Timer(
+      Duration(minutes: 30),
+      () {
+        _activeSessions.remove(sessionUuid);
+        _sessionRefresh.remove(sessionUuid);
+        _sessionCleanupTimers.remove(sessionUuid);
+      },
+    );
+  }
 
   Future<SessionUUID> startChat() async {
     final uuid = uuidClass.v7();
@@ -47,6 +72,7 @@ class ChatSessionEndpoint extends Endpoint {
       );
       return;
     }
+    refreshSession(sessionUUID);
 
     yield* currentSession.sendMessage(
       message: message,

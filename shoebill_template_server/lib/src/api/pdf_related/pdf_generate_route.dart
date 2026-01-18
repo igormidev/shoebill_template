@@ -4,16 +4,6 @@ import 'package:serverpod/serverpod.dart';
 import 'package:shoebill_template_server/src/services/pdf_controller.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 
-mixin GeneratePdfVersion {
-  Future<void> generatePdfVersion(
-    Session session, {
-    required SupportedLanguages language,
-    required String stringifiedJson,
-    required SchemaDefinition schemaDefinition,
-    required PdfContent pdfContent,
-  }) async {}
-}
-
 class PdfGenerateEndpoint extends Endpoint {
   Future<void> call(
     Session session, {
