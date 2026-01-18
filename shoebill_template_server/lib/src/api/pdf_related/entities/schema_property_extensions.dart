@@ -1,7 +1,12 @@
 import 'dart:convert';
 
+import 'package:shoebill_template_server/server.dart' show openAiService;
 import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
+import 'package:shoebill_template_server/src/services/ai_services.dart';
+
+/// Gets the global OpenAiService instance.
+OpenAiService _getOpenAiService() => openAiService;
 
 /// Extension to provide `type` getter and custom JSON serialization for SchemaProperty
 extension SchemaPropertyExtension on SchemaProperty {
@@ -133,18 +138,209 @@ extension SchemaDefinitionExt on SchemaDefinition {
     ).validateJsonFollowsSchemaStructure(model);
   }
 
+  /// Translates all strings marked with `shouldBeTranslated: true` in the JSON
+  /// using AI-powered translation via OpenRouter.
+  ///
+  /// Throws [ShoebillException] if the JSON is invalid or translation fails.
   Future<String> translateBasedOnSchema({
     required String stringifiedJson,
     required SupportedLanguages sourceLanguage,
     required SupportedLanguages targetLanguage,
   }) async {
     final sourceJson = tryDecode(stringifiedJson);
-    final targetJson = <String, dynamic>{};
+    if (sourceJson == null) {
+      throw ShoebillException(
+        title: 'Invalid JSON',
+        description: 'The provided string is not valid JSON.',
+      );
+    }
 
-    // TODO: Implement translation logic - translate with AI and only for strings with shouldBeTranslated = true
+    // Extract all translatable strings with their paths
+    final translatableStrings = <String, String>{};
+    _extractTranslatableStrings(
+      schema: toSchemaProperty(),
+      value: sourceJson,
+      path: 'root',
+      result: translatableStrings,
+    );
+
+    if (translatableStrings.isEmpty) {
+      // No strings to translate, return original
+      return stringifiedJson;
+    }
+
+    // Import the openAiService from server.dart
+    final openAiService = _getOpenAiService();
+
+    // Translate all strings in batch
+    final Map<String, String> translatedStrings;
+    try {
+      translatedStrings = await openAiService.translateTexts(
+        textsToTranslate: translatableStrings,
+        sourceLanguage: _languageToDisplayName(sourceLanguage),
+        targetLanguage: _languageToDisplayName(targetLanguage),
+      );
+    } catch (e) {
+      throw ShoebillException(
+        title: 'Translation API error',
+        description: 'Failed to translate content: $e',
+      );
+    }
+
+    // Reconstruct the JSON with translated values
+    final targetJson = _applyTranslations(
+      schema: toSchemaProperty(),
+      value: sourceJson,
+      path: 'root',
+      translations: translatedStrings,
+    );
 
     return JsonEncoder.withIndent('  ').convert(targetJson);
   }
+}
+
+/// Helper to extract all translatable strings from JSON based on schema.
+void _extractTranslatableStrings({
+  required SchemaProperty schema,
+  required dynamic value,
+  required String path,
+  required Map<String, String> result,
+}) {
+  if (value == null) return;
+
+  switch (schema) {
+    case SchemaPropertyString(:final shouldBeTranslated):
+      if (shouldBeTranslated && value is String && value.isNotEmpty) {
+        result[path] = value;
+      }
+
+    case SchemaPropertyArray(:final items):
+      if (value is List) {
+        for (var i = 0; i < value.length; i++) {
+          _extractTranslatableStrings(
+            schema: items,
+            value: value[i],
+            path: '$path[$i]',
+            result: result,
+          );
+        }
+      }
+
+    case SchemaPropertyStructuredObjectWithDefinedProperties(:final properties):
+      if (value is Map<String, dynamic>) {
+        for (final entry in properties.entries) {
+          final key = entry.key;
+          final propertySchema = entry.value;
+          if (value.containsKey(key)) {
+            _extractTranslatableStrings(
+              schema: propertySchema,
+              value: value[key],
+              path: '$path.$key',
+              result: result,
+            );
+          }
+        }
+      }
+
+    // Other types don't have translatable content
+    case SchemaPropertyInteger():
+    case SchemaPropertyDouble():
+    case SchemaPropertyBoolean():
+    case SchemaPropertyEnum():
+    case SchemaPropertyObjectWithUndefinedProperties():
+      break;
+  }
+}
+
+/// Reconstructs JSON with translated values applied.
+dynamic _applyTranslations({
+  required SchemaProperty schema,
+  required dynamic value,
+  required String path,
+  required Map<String, String> translations,
+}) {
+  if (value == null) return null;
+
+  switch (schema) {
+    case SchemaPropertyString(:final shouldBeTranslated):
+      if (shouldBeTranslated && translations.containsKey(path)) {
+        return translations[path];
+      }
+      return value;
+
+    case SchemaPropertyArray(:final items):
+      if (value is List) {
+        return [
+          for (var i = 0; i < value.length; i++)
+            _applyTranslations(
+              schema: items,
+              value: value[i],
+              path: '$path[$i]',
+              translations: translations,
+            ),
+        ];
+      }
+      return value;
+
+    case SchemaPropertyStructuredObjectWithDefinedProperties(:final properties):
+      if (value is Map<String, dynamic>) {
+        final result = <String, dynamic>{};
+        // Preserve all keys from the original value
+        for (final key in value.keys) {
+          if (properties.containsKey(key)) {
+            result[key] = _applyTranslations(
+              schema: properties[key]!,
+              value: value[key],
+              path: '$path.$key',
+              translations: translations,
+            );
+          } else {
+            // Key not in schema, preserve as-is
+            result[key] = value[key];
+          }
+        }
+        return result;
+      }
+      return value;
+
+    // Other types are passed through unchanged
+    case SchemaPropertyInteger():
+    case SchemaPropertyDouble():
+    case SchemaPropertyBoolean():
+    case SchemaPropertyEnum():
+    case SchemaPropertyObjectWithUndefinedProperties():
+      return value;
+  }
+}
+
+/// Converts SupportedLanguages enum to human-readable language name for AI prompt.
+String _languageToDisplayName(SupportedLanguages language) {
+  return switch (language) {
+    SupportedLanguages.english => 'English',
+    SupportedLanguages.mandarinChinese => 'Mandarin Chinese',
+    SupportedLanguages.hindi => 'Hindi',
+    SupportedLanguages.spanish => 'Spanish',
+    SupportedLanguages.french => 'French',
+    SupportedLanguages.modernStandardArabic => 'Modern Standard Arabic',
+    SupportedLanguages.bengali => 'Bengali',
+    SupportedLanguages.brazilianPortuguese => 'Brazilian Portuguese',
+    SupportedLanguages.russian => 'Russian',
+    SupportedLanguages.urdu => 'Urdu',
+    SupportedLanguages.indonesian => 'Indonesian',
+    SupportedLanguages.german => 'German',
+    SupportedLanguages.dutch => 'Dutch',
+    SupportedLanguages.japanese => 'Japanese',
+    SupportedLanguages.swahili => 'Swahili',
+    SupportedLanguages.marathi => 'Marathi',
+    SupportedLanguages.telugu => 'Telugu',
+    SupportedLanguages.turkish => 'Turkish',
+    SupportedLanguages.tamil => 'Tamil',
+    SupportedLanguages.vietnamese => 'Vietnamese',
+    SupportedLanguages.korean => 'Korean',
+    SupportedLanguages.italian => 'Italian',
+    SupportedLanguages.thai => 'Thai',
+    SupportedLanguages.filipino => 'Filipino',
+  };
 }
 
 /// Extension to provide validation for SchemaPropertyStructuredObjectWithDefinedProperties
