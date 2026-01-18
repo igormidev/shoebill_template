@@ -8,28 +8,32 @@
 // ignore_for_file: type_literal_in_constant_pattern
 // ignore_for_file: use_super_parameters
 // ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: unnecessary_null_comparison
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
 import '../../../entities/others/supported_languages.dart' as _i2;
+import '../../../api/pdf_related/entities/pdf_declaration.dart' as _i3;
+import 'package:shoebill_template_server/src/generated/protocol.dart' as _i4;
 
 abstract class PdfImplementationPayload
     implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
   PdfImplementationPayload._({
     this.id,
-    required this.pdfId,
     required this.stringifiedJson,
-    _i2.SupportedLanguages? language,
+    required this.language,
     DateTime? createdAt,
-  }) : language = language ?? _i2.SupportedLanguages.english,
-       createdAt = createdAt ?? DateTime.now();
+    required this.pdfDeclarationId,
+    this.pdfDeclaration,
+  }) : createdAt = createdAt ?? DateTime.now();
 
   factory PdfImplementationPayload({
     int? id,
-    required _i1.UuidValue pdfId,
     required String stringifiedJson,
-    _i2.SupportedLanguages? language,
+    required _i2.SupportedLanguages language,
     DateTime? createdAt,
+    required _i1.UuidValue pdfDeclarationId,
+    _i3.PdfDeclaration? pdfDeclaration,
   }) = _PdfImplementationPayloadImpl;
 
   factory PdfImplementationPayload.fromJson(
@@ -37,14 +41,21 @@ abstract class PdfImplementationPayload
   ) {
     return PdfImplementationPayload(
       id: jsonSerialization['id'] as int?,
-      pdfId: _i1.UuidValueJsonExtension.fromJson(jsonSerialization['pdfId']),
       stringifiedJson: jsonSerialization['stringifiedJson'] as String,
       language: _i2.SupportedLanguages.fromJson(
         (jsonSerialization['language'] as String),
       ),
-      createdAt: _i1.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      pdfDeclarationId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['pdfDeclarationId'],
       ),
+      pdfDeclaration: jsonSerialization['pdfDeclaration'] == null
+          ? null
+          : _i4.Protocol().deserialize<_i3.PdfDeclaration>(
+              jsonSerialization['pdfDeclaration'],
+            ),
     );
   }
 
@@ -55,13 +66,15 @@ abstract class PdfImplementationPayload
   @override
   int? id;
 
-  _i1.UuidValue pdfId;
-
   String stringifiedJson;
 
   _i2.SupportedLanguages language;
 
   DateTime createdAt;
+
+  _i1.UuidValue pdfDeclarationId;
+
+  _i3.PdfDeclaration? pdfDeclaration;
 
   @override
   _i1.Table<int?> get table => t;
@@ -71,20 +84,22 @@ abstract class PdfImplementationPayload
   @_i1.useResult
   PdfImplementationPayload copyWith({
     int? id,
-    _i1.UuidValue? pdfId,
     String? stringifiedJson,
     _i2.SupportedLanguages? language,
     DateTime? createdAt,
+    _i1.UuidValue? pdfDeclarationId,
+    _i3.PdfDeclaration? pdfDeclaration,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'PdfImplementationPayload',
       if (id != null) 'id': id,
-      'pdfId': pdfId.toJson(),
       'stringifiedJson': stringifiedJson,
       'language': language.toJson(),
       'createdAt': createdAt.toJson(),
+      'pdfDeclarationId': pdfDeclarationId.toJson(),
+      if (pdfDeclaration != null) 'pdfDeclaration': pdfDeclaration?.toJson(),
     };
   }
 
@@ -93,15 +108,19 @@ abstract class PdfImplementationPayload
     return {
       '__className__': 'PdfImplementationPayload',
       if (id != null) 'id': id,
-      'pdfId': pdfId.toJson(),
       'stringifiedJson': stringifiedJson,
       'language': language.toJson(),
       'createdAt': createdAt.toJson(),
+      'pdfDeclarationId': pdfDeclarationId.toJson(),
+      if (pdfDeclaration != null)
+        'pdfDeclaration': pdfDeclaration?.toJsonForProtocol(),
     };
   }
 
-  static PdfImplementationPayloadInclude include() {
-    return PdfImplementationPayloadInclude._();
+  static PdfImplementationPayloadInclude include({
+    _i3.PdfDeclarationInclude? pdfDeclaration,
+  }) {
+    return PdfImplementationPayloadInclude._(pdfDeclaration: pdfDeclaration);
   }
 
   static PdfImplementationPayloadIncludeList includeList({
@@ -135,16 +154,18 @@ class _Undefined {}
 class _PdfImplementationPayloadImpl extends PdfImplementationPayload {
   _PdfImplementationPayloadImpl({
     int? id,
-    required _i1.UuidValue pdfId,
     required String stringifiedJson,
-    _i2.SupportedLanguages? language,
+    required _i2.SupportedLanguages language,
     DateTime? createdAt,
+    required _i1.UuidValue pdfDeclarationId,
+    _i3.PdfDeclaration? pdfDeclaration,
   }) : super._(
          id: id,
-         pdfId: pdfId,
          stringifiedJson: stringifiedJson,
          language: language,
          createdAt: createdAt,
+         pdfDeclarationId: pdfDeclarationId,
+         pdfDeclaration: pdfDeclaration,
        );
 
   /// Returns a shallow copy of this [PdfImplementationPayload]
@@ -153,17 +174,21 @@ class _PdfImplementationPayloadImpl extends PdfImplementationPayload {
   @override
   PdfImplementationPayload copyWith({
     Object? id = _Undefined,
-    _i1.UuidValue? pdfId,
     String? stringifiedJson,
     _i2.SupportedLanguages? language,
     DateTime? createdAt,
+    _i1.UuidValue? pdfDeclarationId,
+    Object? pdfDeclaration = _Undefined,
   }) {
     return PdfImplementationPayload(
       id: id is int? ? id : this.id,
-      pdfId: pdfId ?? this.pdfId,
       stringifiedJson: stringifiedJson ?? this.stringifiedJson,
       language: language ?? this.language,
       createdAt: createdAt ?? this.createdAt,
+      pdfDeclarationId: pdfDeclarationId ?? this.pdfDeclarationId,
+      pdfDeclaration: pdfDeclaration is _i3.PdfDeclaration?
+          ? pdfDeclaration
+          : this.pdfDeclaration?.copyWith(),
     );
   }
 }
@@ -171,12 +196,6 @@ class _PdfImplementationPayloadImpl extends PdfImplementationPayload {
 class PdfImplementationPayloadUpdateTable
     extends _i1.UpdateTable<PdfImplementationPayloadTable> {
   PdfImplementationPayloadUpdateTable(super.table);
-
-  _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> pdfId(_i1.UuidValue value) =>
-      _i1.ColumnValue(
-        table.pdfId,
-        value,
-      );
 
   _i1.ColumnValue<String, String> stringifiedJson(String value) =>
       _i1.ColumnValue(
@@ -196,16 +215,19 @@ class PdfImplementationPayloadUpdateTable
         table.createdAt,
         value,
       );
+
+  _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> pdfDeclarationId(
+    _i1.UuidValue value,
+  ) => _i1.ColumnValue(
+    table.pdfDeclarationId,
+    value,
+  );
 }
 
 class PdfImplementationPayloadTable extends _i1.Table<int?> {
   PdfImplementationPayloadTable({super.tableRelation})
     : super(tableName: 'pdf_implementation_payload') {
     updateTable = PdfImplementationPayloadUpdateTable(this);
-    pdfId = _i1.ColumnUuid(
-      'pdfId',
-      this,
-    );
     stringifiedJson = _i1.ColumnString(
       'stringifiedJson',
       this,
@@ -220,11 +242,13 @@ class PdfImplementationPayloadTable extends _i1.Table<int?> {
       this,
       hasDefault: true,
     );
+    pdfDeclarationId = _i1.ColumnUuid(
+      'pdfDeclarationId',
+      this,
+    );
   }
 
   late final PdfImplementationPayloadUpdateTable updateTable;
-
-  late final _i1.ColumnUuid pdfId;
 
   late final _i1.ColumnString stringifiedJson;
 
@@ -232,21 +256,52 @@ class PdfImplementationPayloadTable extends _i1.Table<int?> {
 
   late final _i1.ColumnDateTime createdAt;
 
+  late final _i1.ColumnUuid pdfDeclarationId;
+
+  _i3.PdfDeclarationTable? _pdfDeclaration;
+
+  _i3.PdfDeclarationTable get pdfDeclaration {
+    if (_pdfDeclaration != null) return _pdfDeclaration!;
+    _pdfDeclaration = _i1.createRelationTable(
+      relationFieldName: 'pdfDeclaration',
+      field: PdfImplementationPayload.t.pdfDeclarationId,
+      foreignField: _i3.PdfDeclaration.t.id,
+      tableRelation: tableRelation,
+      createTable: (foreignTableRelation) =>
+          _i3.PdfDeclarationTable(tableRelation: foreignTableRelation),
+    );
+    return _pdfDeclaration!;
+  }
+
   @override
   List<_i1.Column> get columns => [
     id,
-    pdfId,
     stringifiedJson,
     language,
     createdAt,
+    pdfDeclarationId,
   ];
+
+  @override
+  _i1.Table? getRelationTable(String relationField) {
+    if (relationField == 'pdfDeclaration') {
+      return pdfDeclaration;
+    }
+    return null;
+  }
 }
 
 class PdfImplementationPayloadInclude extends _i1.IncludeObject {
-  PdfImplementationPayloadInclude._();
+  PdfImplementationPayloadInclude._({
+    _i3.PdfDeclarationInclude? pdfDeclaration,
+  }) {
+    _pdfDeclaration = pdfDeclaration;
+  }
+
+  _i3.PdfDeclarationInclude? _pdfDeclaration;
 
   @override
-  Map<String, _i1.Include?> get includes => {};
+  Map<String, _i1.Include?> get includes => {'pdfDeclaration': _pdfDeclaration};
 
   @override
   _i1.Table<int?> get table => PdfImplementationPayload.t;
@@ -274,6 +329,8 @@ class PdfImplementationPayloadIncludeList extends _i1.IncludeList {
 
 class PdfImplementationPayloadRepository {
   const PdfImplementationPayloadRepository._();
+
+  final attachRow = const PdfImplementationPayloadAttachRowRepository._();
 
   /// Returns a list of [PdfImplementationPayload]s matching the given query parameters.
   ///
@@ -306,6 +363,7 @@ class PdfImplementationPayloadRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<PdfImplementationPayloadTable>? orderByList,
     _i1.Transaction? transaction,
+    PdfImplementationPayloadInclude? include,
   }) async {
     return session.db.find<PdfImplementationPayload>(
       where: where?.call(PdfImplementationPayload.t),
@@ -315,6 +373,7 @@ class PdfImplementationPayloadRepository {
       limit: limit,
       offset: offset,
       transaction: transaction,
+      include: include,
     );
   }
 
@@ -343,6 +402,7 @@ class PdfImplementationPayloadRepository {
     bool orderDescending = false,
     _i1.OrderByListBuilder<PdfImplementationPayloadTable>? orderByList,
     _i1.Transaction? transaction,
+    PdfImplementationPayloadInclude? include,
   }) async {
     return session.db.findFirstRow<PdfImplementationPayload>(
       where: where?.call(PdfImplementationPayload.t),
@@ -351,6 +411,7 @@ class PdfImplementationPayloadRepository {
       orderDescending: orderDescending,
       offset: offset,
       transaction: transaction,
+      include: include,
     );
   }
 
@@ -359,10 +420,12 @@ class PdfImplementationPayloadRepository {
     _i1.Session session,
     int id, {
     _i1.Transaction? transaction,
+    PdfImplementationPayloadInclude? include,
   }) async {
     return session.db.findById<PdfImplementationPayload>(
       id,
       transaction: transaction,
+      include: include,
     );
   }
 
@@ -522,6 +585,35 @@ class PdfImplementationPayloadRepository {
     return session.db.count<PdfImplementationPayload>(
       where: where?.call(PdfImplementationPayload.t),
       limit: limit,
+      transaction: transaction,
+    );
+  }
+}
+
+class PdfImplementationPayloadAttachRowRepository {
+  const PdfImplementationPayloadAttachRowRepository._();
+
+  /// Creates a relation between the given [PdfImplementationPayload] and [PdfDeclaration]
+  /// by setting the [PdfImplementationPayload]'s foreign key `pdfDeclarationId` to refer to the [PdfDeclaration].
+  Future<void> pdfDeclaration(
+    _i1.Session session,
+    PdfImplementationPayload pdfImplementationPayload,
+    _i3.PdfDeclaration pdfDeclaration, {
+    _i1.Transaction? transaction,
+  }) async {
+    if (pdfImplementationPayload.id == null) {
+      throw ArgumentError.notNull('pdfImplementationPayload.id');
+    }
+    if (pdfDeclaration.id == null) {
+      throw ArgumentError.notNull('pdfDeclaration.id');
+    }
+
+    var $pdfImplementationPayload = pdfImplementationPayload.copyWith(
+      pdfDeclarationId: pdfDeclaration.id,
+    );
+    await session.db.updateRow<PdfImplementationPayload>(
+      $pdfImplementationPayload,
+      columns: [PdfImplementationPayload.t.pdfDeclarationId],
       transaction: transaction,
     );
   }

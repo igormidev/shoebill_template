@@ -213,6 +213,20 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i13.Greeting?>()) {
       return (data != null ? _i13.Greeting.fromJson(data) : null) as T;
     }
+    if (t == List<_i7.PdfImplementationPayload>) {
+      return (data as List)
+              .map((e) => deserialize<_i7.PdfImplementationPayload>(e))
+              .toList()
+          as T;
+    }
+    if (t == _i1.getType<List<_i7.PdfImplementationPayload>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_i7.PdfImplementationPayload>(e))
+                    .toList()
+              : null)
+          as T;
+    }
     if (t == Map<String, _i9.SchemaProperty>) {
       return (data as Map).map(
             (k, v) => MapEntry(
@@ -401,5 +415,23 @@ class Protocol extends _i1.SerializationManager {
       return _i15.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
+  }
+
+  /// Maps any `Record`s known to this [Protocol] to their JSON representation
+  ///
+  /// Throws in case the record type is not known.
+  ///
+  /// This method will return `null` (only) for `null` inputs.
+  Map<String, dynamic>? mapRecordToJson(Record? record) {
+    if (record == null) {
+      return null;
+    }
+    try {
+      return _i14.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    try {
+      return _i15.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    throw Exception('Unsupported record type ${record.runtimeType}');
   }
 }

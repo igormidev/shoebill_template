@@ -102,22 +102,10 @@ class Protocol extends _i1.SerializationManagerServer {
       columns: [
         _i2.ColumnDefinition(
           name: 'id',
-          columnType: _i2.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int?',
-          columnDefault: 'nextval(\'pdf_declarations_id_seq\'::regclass)',
-        ),
-        _i2.ColumnDefinition(
-          name: 'pdfId',
           columnType: _i2.ColumnType.uuid,
           isNullable: false,
           dartType: 'UuidValue',
-        ),
-        _i2.ColumnDefinition(
-          name: 'pdfContentId',
-          columnType: _i2.ColumnType.bigint,
-          isNullable: false,
-          dartType: 'int',
+          columnDefault: 'gen_random_uuid_v7()',
         ),
         _i2.ColumnDefinition(
           name: 'schemaId',
@@ -132,18 +120,30 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'protocol:SupportedLanguages',
         ),
         _i2.ColumnDefinition(
+          name: 'referencePdfContentId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
           name: 'createdAt',
           columnType: _i2.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
           dartType: 'DateTime',
           columnDefault: 'CURRENT_TIMESTAMP',
         ),
+        _i2.ColumnDefinition(
+          name: 'pythonGeneratorScript',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
       ],
       foreignKeys: [
         _i2.ForeignKeyDefinition(
           constraintName: 'pdf_declarations_fk_0',
-          columns: ['pdfContentId'],
-          referenceTable: 'pdf_content',
+          columns: ['schemaId'],
+          referenceTable: 'schema_definitions',
           referenceTableSchema: 'public',
           referenceColumns: ['id'],
           onUpdate: _i2.ForeignKeyAction.noAction,
@@ -152,8 +152,8 @@ class Protocol extends _i1.SerializationManagerServer {
         ),
         _i2.ForeignKeyDefinition(
           constraintName: 'pdf_declarations_fk_1',
-          columns: ['schemaId'],
-          referenceTable: 'schema_definitions',
+          columns: ['referencePdfContentId'],
+          referenceTable: 'pdf_content',
           referenceTableSchema: 'public',
           referenceColumns: ['id'],
           onUpdate: _i2.ForeignKeyAction.noAction,
@@ -175,19 +175,6 @@ class Protocol extends _i1.SerializationManagerServer {
           isUnique: true,
           isPrimary: true,
         ),
-        _i2.IndexDefinition(
-          indexName: 'pdf_id_unique',
-          tableSpace: null,
-          elements: [
-            _i2.IndexElementDefinition(
-              type: _i2.IndexElementDefinitionType.column,
-              definition: 'pdfId',
-            ),
-          ],
-          type: 'btree',
-          isUnique: true,
-          isPrimary: false,
-        ),
       ],
       managed: true,
     ),
@@ -204,12 +191,6 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'int?',
           columnDefault:
               'nextval(\'pdf_implementation_payload_id_seq\'::regclass)',
-        ),
-        _i2.ColumnDefinition(
-          name: 'pdfId',
-          columnType: _i2.ColumnType.uuid,
-          isNullable: false,
-          dartType: 'UuidValue',
         ),
         _i2.ColumnDefinition(
           name: 'stringifiedJson',
@@ -230,8 +211,25 @@ class Protocol extends _i1.SerializationManagerServer {
           dartType: 'DateTime',
           columnDefault: 'CURRENT_TIMESTAMP',
         ),
+        _i2.ColumnDefinition(
+          name: 'pdfDeclarationId',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
       ],
-      foreignKeys: [],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'pdf_implementation_payload_fk_0',
+          columns: ['pdfDeclarationId'],
+          referenceTable: 'pdf_declarations',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
       indexes: [
         _i2.IndexDefinition(
           indexName: 'pdf_implementation_payload_pkey',
@@ -245,36 +243,6 @@ class Protocol extends _i1.SerializationManagerServer {
           type: 'btree',
           isUnique: true,
           isPrimary: true,
-        ),
-        _i2.IndexDefinition(
-          indexName: 'pdf_id_language_unique',
-          tableSpace: null,
-          elements: [
-            _i2.IndexElementDefinition(
-              type: _i2.IndexElementDefinitionType.column,
-              definition: 'pdfId',
-            ),
-            _i2.IndexElementDefinition(
-              type: _i2.IndexElementDefinitionType.column,
-              definition: 'language',
-            ),
-          ],
-          type: 'btree',
-          isUnique: true,
-          isPrimary: false,
-        ),
-        _i2.IndexDefinition(
-          indexName: 'pdf_id_idx',
-          tableSpace: null,
-          elements: [
-            _i2.IndexElementDefinition(
-              type: _i2.IndexElementDefinitionType.column,
-              definition: 'pdfId',
-            ),
-          ],
-          type: 'btree',
-          isUnique: false,
-          isPrimary: false,
         ),
       ],
       managed: true,
@@ -541,6 +509,20 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i16.Greeting?>()) {
       return (data != null ? _i16.Greeting.fromJson(data) : null) as T;
     }
+    if (t == List<_i10.PdfImplementationPayload>) {
+      return (data as List)
+              .map((e) => deserialize<_i10.PdfImplementationPayload>(e))
+              .toList()
+          as T;
+    }
+    if (t == _i1.getType<List<_i10.PdfImplementationPayload>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_i10.PdfImplementationPayload>(e))
+                    .toList()
+              : null)
+          as T;
+    }
     if (t == Map<String, _i12.SchemaProperty>) {
       return (data as Map).map(
             (k, v) => MapEntry(
@@ -783,4 +765,22 @@ class Protocol extends _i1.SerializationManagerServer {
 
   @override
   String getModuleName() => 'shoebill_template';
+
+  /// Maps any `Record`s known to this [Protocol] to their JSON representation
+  ///
+  /// Throws in case the record type is not known.
+  ///
+  /// This method will return `null` (only) for `null` inputs.
+  Map<String, dynamic>? mapRecordToJson(Record? record) {
+    if (record == null) {
+      return null;
+    }
+    try {
+      return _i3.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    try {
+      return _i4.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    throw Exception('Unsupported record type ${record.runtimeType}');
+  }
 }

@@ -12,103 +12,125 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import '../../../entities/others/supported_languages.dart' as _i2;
-import '../../../api/pdf_related/entities/pdf_content.dart' as _i3;
-import '../../../api/pdf_related/entities/schema_definition.dart' as _i4;
-import 'package:shoebill_template_client/src/protocol/protocol.dart' as _i5;
+import '../../../api/pdf_related/entities/schema_definition.dart' as _i3;
+import '../../../api/pdf_related/entities/pdf_content.dart' as _i4;
+import '../../../api/pdf_related/entities/pdf_implementation_payload.dart'
+    as _i5;
+import 'package:shoebill_template_client/src/protocol/protocol.dart' as _i6;
 
 abstract class PdfDeclaration implements _i1.SerializableModel {
   PdfDeclaration._({
-    this.id,
-    required this.pdfId,
-    required this.pdfContentId,
-    this.pdfContent,
+    _i1.UuidValue? id,
     required this.schemaId,
     this.schema,
     _i2.SupportedLanguages? referenceLanguage,
+    required this.referencePdfContentId,
+    this.referencePdfContent,
     DateTime? createdAt,
-  }) : referenceLanguage = referenceLanguage ?? _i2.SupportedLanguages.english,
+    required this.pythonGeneratorScript,
+    this.pdfImplementationsPayloads,
+  }) : id = id ?? _i1.Uuid().v7obj(),
+       referenceLanguage = referenceLanguage ?? _i2.SupportedLanguages.english,
        createdAt = createdAt ?? DateTime.now();
 
   factory PdfDeclaration({
-    int? id,
-    required _i1.UuidValue pdfId,
-    required int pdfContentId,
-    _i3.PdfContent? pdfContent,
+    _i1.UuidValue? id,
     required int schemaId,
-    _i4.SchemaDefinition? schema,
+    _i3.SchemaDefinition? schema,
     _i2.SupportedLanguages? referenceLanguage,
+    required int referencePdfContentId,
+    _i4.PdfContent? referencePdfContent,
     DateTime? createdAt,
+    required String pythonGeneratorScript,
+    List<_i5.PdfImplementationPayload>? pdfImplementationsPayloads,
   }) = _PdfDeclarationImpl;
 
   factory PdfDeclaration.fromJson(Map<String, dynamic> jsonSerialization) {
     return PdfDeclaration(
-      id: jsonSerialization['id'] as int?,
-      pdfId: _i1.UuidValueJsonExtension.fromJson(jsonSerialization['pdfId']),
-      pdfContentId: jsonSerialization['pdfContentId'] as int,
-      pdfContent: jsonSerialization['pdfContent'] == null
+      id: jsonSerialization['id'] == null
           ? null
-          : _i5.Protocol().deserialize<_i3.PdfContent>(
-              jsonSerialization['pdfContent'],
-            ),
+          : _i1.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
       schemaId: jsonSerialization['schemaId'] as int,
       schema: jsonSerialization['schema'] == null
           ? null
-          : _i5.Protocol().deserialize<_i4.SchemaDefinition>(
+          : _i6.Protocol().deserialize<_i3.SchemaDefinition>(
               jsonSerialization['schema'],
             ),
-      referenceLanguage: _i2.SupportedLanguages.fromJson(
-        (jsonSerialization['referenceLanguage'] as String),
-      ),
-      createdAt: _i1.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
-      ),
+      referenceLanguage: jsonSerialization['referenceLanguage'] == null
+          ? null
+          : _i2.SupportedLanguages.fromJson(
+              (jsonSerialization['referenceLanguage'] as String),
+            ),
+      referencePdfContentId: jsonSerialization['referencePdfContentId'] as int,
+      referencePdfContent: jsonSerialization['referencePdfContent'] == null
+          ? null
+          : _i6.Protocol().deserialize<_i4.PdfContent>(
+              jsonSerialization['referencePdfContent'],
+            ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      pythonGeneratorScript:
+          jsonSerialization['pythonGeneratorScript'] as String,
+      pdfImplementationsPayloads:
+          jsonSerialization['pdfImplementationsPayloads'] == null
+          ? null
+          : _i6.Protocol().deserialize<List<_i5.PdfImplementationPayload>>(
+              jsonSerialization['pdfImplementationsPayloads'],
+            ),
     );
   }
 
-  /// The database id, set if the object has been inserted into the
-  /// database or if it has been fetched from the database. Otherwise,
-  /// the id will be null.
-  int? id;
-
-  _i1.UuidValue pdfId;
-
-  int pdfContentId;
-
-  _i3.PdfContent? pdfContent;
+  /// The id of the object.
+  _i1.UuidValue id;
 
   int schemaId;
 
-  _i4.SchemaDefinition? schema;
+  _i3.SchemaDefinition? schema;
 
   _i2.SupportedLanguages referenceLanguage;
 
+  int referencePdfContentId;
+
+  _i4.PdfContent? referencePdfContent;
+
   DateTime createdAt;
+
+  String pythonGeneratorScript;
+
+  List<_i5.PdfImplementationPayload>? pdfImplementationsPayloads;
 
   /// Returns a shallow copy of this [PdfDeclaration]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   PdfDeclaration copyWith({
-    int? id,
-    _i1.UuidValue? pdfId,
-    int? pdfContentId,
-    _i3.PdfContent? pdfContent,
+    _i1.UuidValue? id,
     int? schemaId,
-    _i4.SchemaDefinition? schema,
+    _i3.SchemaDefinition? schema,
     _i2.SupportedLanguages? referenceLanguage,
+    int? referencePdfContentId,
+    _i4.PdfContent? referencePdfContent,
     DateTime? createdAt,
+    String? pythonGeneratorScript,
+    List<_i5.PdfImplementationPayload>? pdfImplementationsPayloads,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'PdfDeclaration',
-      if (id != null) 'id': id,
-      'pdfId': pdfId.toJson(),
-      'pdfContentId': pdfContentId,
-      if (pdfContent != null) 'pdfContent': pdfContent?.toJson(),
+      'id': id.toJson(),
       'schemaId': schemaId,
       if (schema != null) 'schema': schema?.toJson(),
       'referenceLanguage': referenceLanguage.toJson(),
+      'referencePdfContentId': referencePdfContentId,
+      if (referencePdfContent != null)
+        'referencePdfContent': referencePdfContent?.toJson(),
       'createdAt': createdAt.toJson(),
+      'pythonGeneratorScript': pythonGeneratorScript,
+      if (pdfImplementationsPayloads != null)
+        'pdfImplementationsPayloads': pdfImplementationsPayloads?.toJson(
+          valueToJson: (v) => v.toJson(),
+        ),
     };
   }
 
@@ -122,23 +144,25 @@ class _Undefined {}
 
 class _PdfDeclarationImpl extends PdfDeclaration {
   _PdfDeclarationImpl({
-    int? id,
-    required _i1.UuidValue pdfId,
-    required int pdfContentId,
-    _i3.PdfContent? pdfContent,
+    _i1.UuidValue? id,
     required int schemaId,
-    _i4.SchemaDefinition? schema,
+    _i3.SchemaDefinition? schema,
     _i2.SupportedLanguages? referenceLanguage,
+    required int referencePdfContentId,
+    _i4.PdfContent? referencePdfContent,
     DateTime? createdAt,
+    required String pythonGeneratorScript,
+    List<_i5.PdfImplementationPayload>? pdfImplementationsPayloads,
   }) : super._(
          id: id,
-         pdfId: pdfId,
-         pdfContentId: pdfContentId,
-         pdfContent: pdfContent,
          schemaId: schemaId,
          schema: schema,
          referenceLanguage: referenceLanguage,
+         referencePdfContentId: referencePdfContentId,
+         referencePdfContent: referencePdfContent,
          createdAt: createdAt,
+         pythonGeneratorScript: pythonGeneratorScript,
+         pdfImplementationsPayloads: pdfImplementationsPayloads,
        );
 
   /// Returns a shallow copy of this [PdfDeclaration]
@@ -146,28 +170,37 @@ class _PdfDeclarationImpl extends PdfDeclaration {
   @_i1.useResult
   @override
   PdfDeclaration copyWith({
-    Object? id = _Undefined,
-    _i1.UuidValue? pdfId,
-    int? pdfContentId,
-    Object? pdfContent = _Undefined,
+    _i1.UuidValue? id,
     int? schemaId,
     Object? schema = _Undefined,
     _i2.SupportedLanguages? referenceLanguage,
+    int? referencePdfContentId,
+    Object? referencePdfContent = _Undefined,
     DateTime? createdAt,
+    String? pythonGeneratorScript,
+    Object? pdfImplementationsPayloads = _Undefined,
   }) {
     return PdfDeclaration(
-      id: id is int? ? id : this.id,
-      pdfId: pdfId ?? this.pdfId,
-      pdfContentId: pdfContentId ?? this.pdfContentId,
-      pdfContent: pdfContent is _i3.PdfContent?
-          ? pdfContent
-          : this.pdfContent?.copyWith(),
+      id: id ?? this.id,
       schemaId: schemaId ?? this.schemaId,
-      schema: schema is _i4.SchemaDefinition?
+      schema: schema is _i3.SchemaDefinition?
           ? schema
           : this.schema?.copyWith(),
       referenceLanguage: referenceLanguage ?? this.referenceLanguage,
+      referencePdfContentId:
+          referencePdfContentId ?? this.referencePdfContentId,
+      referencePdfContent: referencePdfContent is _i4.PdfContent?
+          ? referencePdfContent
+          : this.referencePdfContent?.copyWith(),
       createdAt: createdAt ?? this.createdAt,
+      pythonGeneratorScript:
+          pythonGeneratorScript ?? this.pythonGeneratorScript,
+      pdfImplementationsPayloads:
+          pdfImplementationsPayloads is List<_i5.PdfImplementationPayload>?
+          ? pdfImplementationsPayloads
+          : this.pdfImplementationsPayloads
+                ?.map((e0) => e0.copyWith())
+                .toList(),
     );
   }
 }

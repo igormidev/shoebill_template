@@ -12,23 +12,26 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import '../../../entities/others/supported_languages.dart' as _i2;
+import '../../../api/pdf_related/entities/pdf_declaration.dart' as _i3;
+import 'package:shoebill_template_client/src/protocol/protocol.dart' as _i4;
 
 abstract class PdfImplementationPayload implements _i1.SerializableModel {
   PdfImplementationPayload._({
     this.id,
-    required this.pdfId,
     required this.stringifiedJson,
-    _i2.SupportedLanguages? language,
+    required this.language,
     DateTime? createdAt,
-  }) : language = language ?? _i2.SupportedLanguages.english,
-       createdAt = createdAt ?? DateTime.now();
+    required this.pdfDeclarationId,
+    this.pdfDeclaration,
+  }) : createdAt = createdAt ?? DateTime.now();
 
   factory PdfImplementationPayload({
     int? id,
-    required _i1.UuidValue pdfId,
     required String stringifiedJson,
-    _i2.SupportedLanguages? language,
+    required _i2.SupportedLanguages language,
     DateTime? createdAt,
+    required _i1.UuidValue pdfDeclarationId,
+    _i3.PdfDeclaration? pdfDeclaration,
   }) = _PdfImplementationPayloadImpl;
 
   factory PdfImplementationPayload.fromJson(
@@ -36,14 +39,21 @@ abstract class PdfImplementationPayload implements _i1.SerializableModel {
   ) {
     return PdfImplementationPayload(
       id: jsonSerialization['id'] as int?,
-      pdfId: _i1.UuidValueJsonExtension.fromJson(jsonSerialization['pdfId']),
       stringifiedJson: jsonSerialization['stringifiedJson'] as String,
       language: _i2.SupportedLanguages.fromJson(
         (jsonSerialization['language'] as String),
       ),
-      createdAt: _i1.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      pdfDeclarationId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['pdfDeclarationId'],
       ),
+      pdfDeclaration: jsonSerialization['pdfDeclaration'] == null
+          ? null
+          : _i4.Protocol().deserialize<_i3.PdfDeclaration>(
+              jsonSerialization['pdfDeclaration'],
+            ),
     );
   }
 
@@ -52,33 +62,37 @@ abstract class PdfImplementationPayload implements _i1.SerializableModel {
   /// the id will be null.
   int? id;
 
-  _i1.UuidValue pdfId;
-
   String stringifiedJson;
 
   _i2.SupportedLanguages language;
 
   DateTime createdAt;
 
+  _i1.UuidValue pdfDeclarationId;
+
+  _i3.PdfDeclaration? pdfDeclaration;
+
   /// Returns a shallow copy of this [PdfImplementationPayload]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   PdfImplementationPayload copyWith({
     int? id,
-    _i1.UuidValue? pdfId,
     String? stringifiedJson,
     _i2.SupportedLanguages? language,
     DateTime? createdAt,
+    _i1.UuidValue? pdfDeclarationId,
+    _i3.PdfDeclaration? pdfDeclaration,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'PdfImplementationPayload',
       if (id != null) 'id': id,
-      'pdfId': pdfId.toJson(),
       'stringifiedJson': stringifiedJson,
       'language': language.toJson(),
       'createdAt': createdAt.toJson(),
+      'pdfDeclarationId': pdfDeclarationId.toJson(),
+      if (pdfDeclaration != null) 'pdfDeclaration': pdfDeclaration?.toJson(),
     };
   }
 
@@ -93,16 +107,18 @@ class _Undefined {}
 class _PdfImplementationPayloadImpl extends PdfImplementationPayload {
   _PdfImplementationPayloadImpl({
     int? id,
-    required _i1.UuidValue pdfId,
     required String stringifiedJson,
-    _i2.SupportedLanguages? language,
+    required _i2.SupportedLanguages language,
     DateTime? createdAt,
+    required _i1.UuidValue pdfDeclarationId,
+    _i3.PdfDeclaration? pdfDeclaration,
   }) : super._(
          id: id,
-         pdfId: pdfId,
          stringifiedJson: stringifiedJson,
          language: language,
          createdAt: createdAt,
+         pdfDeclarationId: pdfDeclarationId,
+         pdfDeclaration: pdfDeclaration,
        );
 
   /// Returns a shallow copy of this [PdfImplementationPayload]
@@ -111,17 +127,21 @@ class _PdfImplementationPayloadImpl extends PdfImplementationPayload {
   @override
   PdfImplementationPayload copyWith({
     Object? id = _Undefined,
-    _i1.UuidValue? pdfId,
     String? stringifiedJson,
     _i2.SupportedLanguages? language,
     DateTime? createdAt,
+    _i1.UuidValue? pdfDeclarationId,
+    Object? pdfDeclaration = _Undefined,
   }) {
     return PdfImplementationPayload(
       id: id is int? ? id : this.id,
-      pdfId: pdfId ?? this.pdfId,
       stringifiedJson: stringifiedJson ?? this.stringifiedJson,
       language: language ?? this.language,
       createdAt: createdAt ?? this.createdAt,
+      pdfDeclarationId: pdfDeclarationId ?? this.pdfDeclarationId,
+      pdfDeclaration: pdfDeclaration is _i3.PdfDeclaration?
+          ? pdfDeclaration
+          : this.pdfDeclaration?.copyWith(),
     );
   }
 }

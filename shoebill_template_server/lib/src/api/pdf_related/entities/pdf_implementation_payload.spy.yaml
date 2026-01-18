@@ -1,13 +1,7 @@
 class: PdfImplementationPayload
 table: pdf_implementation_payload
 fields:
-    pdfId: UuidValue
     stringifiedJson: String
-    language: SupportedLanguages, defaultModel=english
+    language: SupportedLanguages
     createdAt: DateTime, default=now
-indexes:
-    pdf_id_language_unique:
-        fields: pdfId, language
-        unique: true
-    pdf_id_idx:
-        fields: pdfId
+    pdfDeclaration: PdfDeclaration?, relation(name=pdf_declaration_implementations)

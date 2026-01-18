@@ -2,7 +2,6 @@ class: PdfDeclaration
 table: pdf_declarations
 fields:
     id: UuidValue, defaultModel=random_v7
-    pdfId: UuidValue
 
     schema: SchemaDefinition?, relation
 
@@ -14,7 +13,4 @@ fields:
 
     pythonGeneratorScript: String
 
-indexes:
-    pdf_id_unique:
-        fields: pdfId
-        unique: true
+    pdfImplementationsPayloads: List<PdfImplementationPayload>?, relation(name=pdf_declaration_implementations)

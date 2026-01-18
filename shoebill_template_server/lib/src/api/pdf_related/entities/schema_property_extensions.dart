@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 
 /// Extension to provide `type` getter and custom JSON serialization for SchemaProperty
@@ -130,6 +131,19 @@ extension SchemaDefinitionExt on SchemaDefinition {
       nullable: false,
       properties: properties,
     ).validateJsonFollowsSchemaStructure(model);
+  }
+
+  Future<String> translateBasedOnSchema({
+    required String stringifiedJson,
+    required SupportedLanguages sourceLanguage,
+    required SupportedLanguages targetLanguage,
+  }) async {
+    final sourceJson = tryDecode(stringifiedJson);
+    final targetJson = <String, dynamic>{};
+
+    // TODO: Implement translation logic - translate with AI and only for strings with shouldBeTranslated = true
+
+    return JsonEncoder.withIndent('  ').convert(targetJson);
   }
 }
 

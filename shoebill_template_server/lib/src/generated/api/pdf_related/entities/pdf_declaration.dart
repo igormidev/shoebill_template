@@ -8,63 +8,78 @@
 // ignore_for_file: type_literal_in_constant_pattern
 // ignore_for_file: use_super_parameters
 // ignore_for_file: invalid_use_of_internal_member
-
 // ignore_for_file: unnecessary_null_comparison
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
 import '../../../entities/others/supported_languages.dart' as _i2;
-import '../../../api/pdf_related/entities/pdf_content.dart' as _i3;
-import '../../../api/pdf_related/entities/schema_definition.dart' as _i4;
-import 'package:shoebill_template_server/src/generated/protocol.dart' as _i5;
+import '../../../api/pdf_related/entities/schema_definition.dart' as _i3;
+import '../../../api/pdf_related/entities/pdf_content.dart' as _i4;
+import '../../../api/pdf_related/entities/pdf_implementation_payload.dart'
+    as _i5;
+import 'package:shoebill_template_server/src/generated/protocol.dart' as _i6;
 
 abstract class PdfDeclaration
-    implements _i1.TableRow<int?>, _i1.ProtocolSerialization {
+    implements _i1.TableRow<_i1.UuidValue>, _i1.ProtocolSerialization {
   PdfDeclaration._({
-    this.id,
-    required this.pdfId,
-    required this.pdfContentId,
-    this.pdfContent,
+    _i1.UuidValue? id,
     required this.schemaId,
     this.schema,
     _i2.SupportedLanguages? referenceLanguage,
+    required this.referencePdfContentId,
+    this.referencePdfContent,
     DateTime? createdAt,
-  }) : referenceLanguage = referenceLanguage ?? _i2.SupportedLanguages.english,
+    required this.pythonGeneratorScript,
+    this.pdfImplementationsPayloads,
+  }) : id = id ?? _i1.Uuid().v7obj(),
+       referenceLanguage = referenceLanguage ?? _i2.SupportedLanguages.english,
        createdAt = createdAt ?? DateTime.now();
 
   factory PdfDeclaration({
-    int? id,
-    required _i1.UuidValue pdfId,
-    required int pdfContentId,
-    _i3.PdfContent? pdfContent,
+    _i1.UuidValue? id,
     required int schemaId,
-    _i4.SchemaDefinition? schema,
+    _i3.SchemaDefinition? schema,
     _i2.SupportedLanguages? referenceLanguage,
+    required int referencePdfContentId,
+    _i4.PdfContent? referencePdfContent,
     DateTime? createdAt,
+    required String pythonGeneratorScript,
+    List<_i5.PdfImplementationPayload>? pdfImplementationsPayloads,
   }) = _PdfDeclarationImpl;
 
   factory PdfDeclaration.fromJson(Map<String, dynamic> jsonSerialization) {
     return PdfDeclaration(
-      id: jsonSerialization['id'] as int?,
-      pdfId: _i1.UuidValueJsonExtension.fromJson(jsonSerialization['pdfId']),
-      pdfContentId: jsonSerialization['pdfContentId'] as int,
-      pdfContent: jsonSerialization['pdfContent'] == null
+      id: jsonSerialization['id'] == null
           ? null
-          : _i5.Protocol().deserialize<_i3.PdfContent>(
-              jsonSerialization['pdfContent'],
-            ),
+          : _i1.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
       schemaId: jsonSerialization['schemaId'] as int,
       schema: jsonSerialization['schema'] == null
           ? null
-          : _i5.Protocol().deserialize<_i4.SchemaDefinition>(
+          : _i6.Protocol().deserialize<_i3.SchemaDefinition>(
               jsonSerialization['schema'],
             ),
-      referenceLanguage: _i2.SupportedLanguages.fromJson(
-        (jsonSerialization['referenceLanguage'] as String),
-      ),
-      createdAt: _i1.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
-      ),
+      referenceLanguage: jsonSerialization['referenceLanguage'] == null
+          ? null
+          : _i2.SupportedLanguages.fromJson(
+              (jsonSerialization['referenceLanguage'] as String),
+            ),
+      referencePdfContentId: jsonSerialization['referencePdfContentId'] as int,
+      referencePdfContent: jsonSerialization['referencePdfContent'] == null
+          ? null
+          : _i6.Protocol().deserialize<_i4.PdfContent>(
+              jsonSerialization['referencePdfContent'],
+            ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
+      pythonGeneratorScript:
+          jsonSerialization['pythonGeneratorScript'] as String,
+      pdfImplementationsPayloads:
+          jsonSerialization['pdfImplementationsPayloads'] == null
+          ? null
+          : _i6.Protocol().deserialize<List<_i5.PdfImplementationPayload>>(
+              jsonSerialization['pdfImplementationsPayloads'],
+            ),
     );
   }
 
@@ -73,50 +88,58 @@ abstract class PdfDeclaration
   static const db = PdfDeclarationRepository._();
 
   @override
-  int? id;
-
-  _i1.UuidValue pdfId;
-
-  int pdfContentId;
-
-  _i3.PdfContent? pdfContent;
+  _i1.UuidValue id;
 
   int schemaId;
 
-  _i4.SchemaDefinition? schema;
+  _i3.SchemaDefinition? schema;
 
   _i2.SupportedLanguages referenceLanguage;
 
+  int referencePdfContentId;
+
+  _i4.PdfContent? referencePdfContent;
+
   DateTime createdAt;
 
+  String pythonGeneratorScript;
+
+  List<_i5.PdfImplementationPayload>? pdfImplementationsPayloads;
+
   @override
-  _i1.Table<int?> get table => t;
+  _i1.Table<_i1.UuidValue> get table => t;
 
   /// Returns a shallow copy of this [PdfDeclaration]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   PdfDeclaration copyWith({
-    int? id,
-    _i1.UuidValue? pdfId,
-    int? pdfContentId,
-    _i3.PdfContent? pdfContent,
+    _i1.UuidValue? id,
     int? schemaId,
-    _i4.SchemaDefinition? schema,
+    _i3.SchemaDefinition? schema,
     _i2.SupportedLanguages? referenceLanguage,
+    int? referencePdfContentId,
+    _i4.PdfContent? referencePdfContent,
     DateTime? createdAt,
+    String? pythonGeneratorScript,
+    List<_i5.PdfImplementationPayload>? pdfImplementationsPayloads,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
       '__className__': 'PdfDeclaration',
-      if (id != null) 'id': id,
-      'pdfId': pdfId.toJson(),
-      'pdfContentId': pdfContentId,
-      if (pdfContent != null) 'pdfContent': pdfContent?.toJson(),
+      'id': id.toJson(),
       'schemaId': schemaId,
       if (schema != null) 'schema': schema?.toJson(),
       'referenceLanguage': referenceLanguage.toJson(),
+      'referencePdfContentId': referencePdfContentId,
+      if (referencePdfContent != null)
+        'referencePdfContent': referencePdfContent?.toJson(),
       'createdAt': createdAt.toJson(),
+      'pythonGeneratorScript': pythonGeneratorScript,
+      if (pdfImplementationsPayloads != null)
+        'pdfImplementationsPayloads': pdfImplementationsPayloads?.toJson(
+          valueToJson: (v) => v.toJson(),
+        ),
     };
   }
 
@@ -124,24 +147,31 @@ abstract class PdfDeclaration
   Map<String, dynamic> toJsonForProtocol() {
     return {
       '__className__': 'PdfDeclaration',
-      if (id != null) 'id': id,
-      'pdfId': pdfId.toJson(),
-      'pdfContentId': pdfContentId,
-      if (pdfContent != null) 'pdfContent': pdfContent?.toJsonForProtocol(),
+      'id': id.toJson(),
       'schemaId': schemaId,
       if (schema != null) 'schema': schema?.toJsonForProtocol(),
       'referenceLanguage': referenceLanguage.toJson(),
+      'referencePdfContentId': referencePdfContentId,
+      if (referencePdfContent != null)
+        'referencePdfContent': referencePdfContent?.toJsonForProtocol(),
       'createdAt': createdAt.toJson(),
+      'pythonGeneratorScript': pythonGeneratorScript,
+      if (pdfImplementationsPayloads != null)
+        'pdfImplementationsPayloads': pdfImplementationsPayloads?.toJson(
+          valueToJson: (v) => v.toJsonForProtocol(),
+        ),
     };
   }
 
   static PdfDeclarationInclude include({
-    _i3.PdfContentInclude? pdfContent,
-    _i4.SchemaDefinitionInclude? schema,
+    _i3.SchemaDefinitionInclude? schema,
+    _i4.PdfContentInclude? referencePdfContent,
+    _i5.PdfImplementationPayloadIncludeList? pdfImplementationsPayloads,
   }) {
     return PdfDeclarationInclude._(
-      pdfContent: pdfContent,
       schema: schema,
+      referencePdfContent: referencePdfContent,
+      pdfImplementationsPayloads: pdfImplementationsPayloads,
     );
   }
 
@@ -175,23 +205,25 @@ class _Undefined {}
 
 class _PdfDeclarationImpl extends PdfDeclaration {
   _PdfDeclarationImpl({
-    int? id,
-    required _i1.UuidValue pdfId,
-    required int pdfContentId,
-    _i3.PdfContent? pdfContent,
+    _i1.UuidValue? id,
     required int schemaId,
-    _i4.SchemaDefinition? schema,
+    _i3.SchemaDefinition? schema,
     _i2.SupportedLanguages? referenceLanguage,
+    required int referencePdfContentId,
+    _i4.PdfContent? referencePdfContent,
     DateTime? createdAt,
+    required String pythonGeneratorScript,
+    List<_i5.PdfImplementationPayload>? pdfImplementationsPayloads,
   }) : super._(
          id: id,
-         pdfId: pdfId,
-         pdfContentId: pdfContentId,
-         pdfContent: pdfContent,
          schemaId: schemaId,
          schema: schema,
          referenceLanguage: referenceLanguage,
+         referencePdfContentId: referencePdfContentId,
+         referencePdfContent: referencePdfContent,
          createdAt: createdAt,
+         pythonGeneratorScript: pythonGeneratorScript,
+         pdfImplementationsPayloads: pdfImplementationsPayloads,
        );
 
   /// Returns a shallow copy of this [PdfDeclaration]
@@ -199,45 +231,43 @@ class _PdfDeclarationImpl extends PdfDeclaration {
   @_i1.useResult
   @override
   PdfDeclaration copyWith({
-    Object? id = _Undefined,
-    _i1.UuidValue? pdfId,
-    int? pdfContentId,
-    Object? pdfContent = _Undefined,
+    _i1.UuidValue? id,
     int? schemaId,
     Object? schema = _Undefined,
     _i2.SupportedLanguages? referenceLanguage,
+    int? referencePdfContentId,
+    Object? referencePdfContent = _Undefined,
     DateTime? createdAt,
+    String? pythonGeneratorScript,
+    Object? pdfImplementationsPayloads = _Undefined,
   }) {
     return PdfDeclaration(
-      id: id is int? ? id : this.id,
-      pdfId: pdfId ?? this.pdfId,
-      pdfContentId: pdfContentId ?? this.pdfContentId,
-      pdfContent: pdfContent is _i3.PdfContent?
-          ? pdfContent
-          : this.pdfContent?.copyWith(),
+      id: id ?? this.id,
       schemaId: schemaId ?? this.schemaId,
-      schema: schema is _i4.SchemaDefinition?
+      schema: schema is _i3.SchemaDefinition?
           ? schema
           : this.schema?.copyWith(),
       referenceLanguage: referenceLanguage ?? this.referenceLanguage,
+      referencePdfContentId:
+          referencePdfContentId ?? this.referencePdfContentId,
+      referencePdfContent: referencePdfContent is _i4.PdfContent?
+          ? referencePdfContent
+          : this.referencePdfContent?.copyWith(),
       createdAt: createdAt ?? this.createdAt,
+      pythonGeneratorScript:
+          pythonGeneratorScript ?? this.pythonGeneratorScript,
+      pdfImplementationsPayloads:
+          pdfImplementationsPayloads is List<_i5.PdfImplementationPayload>?
+          ? pdfImplementationsPayloads
+          : this.pdfImplementationsPayloads
+                ?.map((e0) => e0.copyWith())
+                .toList(),
     );
   }
 }
 
 class PdfDeclarationUpdateTable extends _i1.UpdateTable<PdfDeclarationTable> {
   PdfDeclarationUpdateTable(super.table);
-
-  _i1.ColumnValue<_i1.UuidValue, _i1.UuidValue> pdfId(_i1.UuidValue value) =>
-      _i1.ColumnValue(
-        table.pdfId,
-        value,
-      );
-
-  _i1.ColumnValue<int, int> pdfContentId(int value) => _i1.ColumnValue(
-    table.pdfContentId,
-    value,
-  );
 
   _i1.ColumnValue<int, int> schemaId(int value) => _i1.ColumnValue(
     table.schemaId,
@@ -250,25 +280,28 @@ class PdfDeclarationUpdateTable extends _i1.UpdateTable<PdfDeclarationTable> {
     value,
   );
 
+  _i1.ColumnValue<int, int> referencePdfContentId(int value) => _i1.ColumnValue(
+    table.referencePdfContentId,
+    value,
+  );
+
   _i1.ColumnValue<DateTime, DateTime> createdAt(DateTime value) =>
       _i1.ColumnValue(
         table.createdAt,
         value,
       );
+
+  _i1.ColumnValue<String, String> pythonGeneratorScript(String value) =>
+      _i1.ColumnValue(
+        table.pythonGeneratorScript,
+        value,
+      );
 }
 
-class PdfDeclarationTable extends _i1.Table<int?> {
+class PdfDeclarationTable extends _i1.Table<_i1.UuidValue> {
   PdfDeclarationTable({super.tableRelation})
     : super(tableName: 'pdf_declarations') {
     updateTable = PdfDeclarationUpdateTable(this);
-    pdfId = _i1.ColumnUuid(
-      'pdfId',
-      this,
-    );
-    pdfContentId = _i1.ColumnInt(
-      'pdfContentId',
-      this,
-    );
     schemaId = _i1.ColumnInt(
       'schemaId',
       this,
@@ -278,72 +311,126 @@ class PdfDeclarationTable extends _i1.Table<int?> {
       this,
       _i1.EnumSerialization.byName,
     );
+    referencePdfContentId = _i1.ColumnInt(
+      'referencePdfContentId',
+      this,
+    );
     createdAt = _i1.ColumnDateTime(
       'createdAt',
       this,
       hasDefault: true,
     );
+    pythonGeneratorScript = _i1.ColumnString(
+      'pythonGeneratorScript',
+      this,
+    );
   }
 
   late final PdfDeclarationUpdateTable updateTable;
 
-  late final _i1.ColumnUuid pdfId;
-
-  late final _i1.ColumnInt pdfContentId;
-
-  _i3.PdfContentTable? _pdfContent;
-
   late final _i1.ColumnInt schemaId;
 
-  _i4.SchemaDefinitionTable? _schema;
+  _i3.SchemaDefinitionTable? _schema;
 
   late final _i1.ColumnEnum<_i2.SupportedLanguages> referenceLanguage;
 
+  late final _i1.ColumnInt referencePdfContentId;
+
+  _i4.PdfContentTable? _referencePdfContent;
+
   late final _i1.ColumnDateTime createdAt;
 
-  _i3.PdfContentTable get pdfContent {
-    if (_pdfContent != null) return _pdfContent!;
-    _pdfContent = _i1.createRelationTable(
-      relationFieldName: 'pdfContent',
-      field: PdfDeclaration.t.pdfContentId,
-      foreignField: _i3.PdfContent.t.id,
-      tableRelation: tableRelation,
-      createTable: (foreignTableRelation) =>
-          _i3.PdfContentTable(tableRelation: foreignTableRelation),
-    );
-    return _pdfContent!;
-  }
+  late final _i1.ColumnString pythonGeneratorScript;
 
-  _i4.SchemaDefinitionTable get schema {
+  _i5.PdfImplementationPayloadTable? ___pdfImplementationsPayloads;
+
+  _i1.ManyRelation<_i5.PdfImplementationPayloadTable>?
+  _pdfImplementationsPayloads;
+
+  _i3.SchemaDefinitionTable get schema {
     if (_schema != null) return _schema!;
     _schema = _i1.createRelationTable(
       relationFieldName: 'schema',
       field: PdfDeclaration.t.schemaId,
-      foreignField: _i4.SchemaDefinition.t.id,
+      foreignField: _i3.SchemaDefinition.t.id,
       tableRelation: tableRelation,
       createTable: (foreignTableRelation) =>
-          _i4.SchemaDefinitionTable(tableRelation: foreignTableRelation),
+          _i3.SchemaDefinitionTable(tableRelation: foreignTableRelation),
     );
     return _schema!;
+  }
+
+  _i4.PdfContentTable get referencePdfContent {
+    if (_referencePdfContent != null) return _referencePdfContent!;
+    _referencePdfContent = _i1.createRelationTable(
+      relationFieldName: 'referencePdfContent',
+      field: PdfDeclaration.t.referencePdfContentId,
+      foreignField: _i4.PdfContent.t.id,
+      tableRelation: tableRelation,
+      createTable: (foreignTableRelation) =>
+          _i4.PdfContentTable(tableRelation: foreignTableRelation),
+    );
+    return _referencePdfContent!;
+  }
+
+  _i5.PdfImplementationPayloadTable get __pdfImplementationsPayloads {
+    if (___pdfImplementationsPayloads != null)
+      return ___pdfImplementationsPayloads!;
+    ___pdfImplementationsPayloads = _i1.createRelationTable(
+      relationFieldName: '__pdfImplementationsPayloads',
+      field: PdfDeclaration.t.id,
+      foreignField: _i5.PdfImplementationPayload.t.pdfDeclarationId,
+      tableRelation: tableRelation,
+      createTable: (foreignTableRelation) => _i5.PdfImplementationPayloadTable(
+        tableRelation: foreignTableRelation,
+      ),
+    );
+    return ___pdfImplementationsPayloads!;
+  }
+
+  _i1.ManyRelation<_i5.PdfImplementationPayloadTable>
+  get pdfImplementationsPayloads {
+    if (_pdfImplementationsPayloads != null)
+      return _pdfImplementationsPayloads!;
+    var relationTable = _i1.createRelationTable(
+      relationFieldName: 'pdfImplementationsPayloads',
+      field: PdfDeclaration.t.id,
+      foreignField: _i5.PdfImplementationPayload.t.pdfDeclarationId,
+      tableRelation: tableRelation,
+      createTable: (foreignTableRelation) => _i5.PdfImplementationPayloadTable(
+        tableRelation: foreignTableRelation,
+      ),
+    );
+    _pdfImplementationsPayloads =
+        _i1.ManyRelation<_i5.PdfImplementationPayloadTable>(
+          tableWithRelations: relationTable,
+          table: _i5.PdfImplementationPayloadTable(
+            tableRelation: relationTable.tableRelation!.lastRelation,
+          ),
+        );
+    return _pdfImplementationsPayloads!;
   }
 
   @override
   List<_i1.Column> get columns => [
     id,
-    pdfId,
-    pdfContentId,
     schemaId,
     referenceLanguage,
+    referencePdfContentId,
     createdAt,
+    pythonGeneratorScript,
   ];
 
   @override
   _i1.Table? getRelationTable(String relationField) {
-    if (relationField == 'pdfContent') {
-      return pdfContent;
-    }
     if (relationField == 'schema') {
       return schema;
+    }
+    if (relationField == 'referencePdfContent') {
+      return referencePdfContent;
+    }
+    if (relationField == 'pdfImplementationsPayloads') {
+      return __pdfImplementationsPayloads;
     }
     return null;
   }
@@ -351,25 +438,30 @@ class PdfDeclarationTable extends _i1.Table<int?> {
 
 class PdfDeclarationInclude extends _i1.IncludeObject {
   PdfDeclarationInclude._({
-    _i3.PdfContentInclude? pdfContent,
-    _i4.SchemaDefinitionInclude? schema,
+    _i3.SchemaDefinitionInclude? schema,
+    _i4.PdfContentInclude? referencePdfContent,
+    _i5.PdfImplementationPayloadIncludeList? pdfImplementationsPayloads,
   }) {
-    _pdfContent = pdfContent;
     _schema = schema;
+    _referencePdfContent = referencePdfContent;
+    _pdfImplementationsPayloads = pdfImplementationsPayloads;
   }
 
-  _i3.PdfContentInclude? _pdfContent;
+  _i3.SchemaDefinitionInclude? _schema;
 
-  _i4.SchemaDefinitionInclude? _schema;
+  _i4.PdfContentInclude? _referencePdfContent;
+
+  _i5.PdfImplementationPayloadIncludeList? _pdfImplementationsPayloads;
 
   @override
   Map<String, _i1.Include?> get includes => {
-    'pdfContent': _pdfContent,
     'schema': _schema,
+    'referencePdfContent': _referencePdfContent,
+    'pdfImplementationsPayloads': _pdfImplementationsPayloads,
   };
 
   @override
-  _i1.Table<int?> get table => PdfDeclaration.t;
+  _i1.Table<_i1.UuidValue> get table => PdfDeclaration.t;
 }
 
 class PdfDeclarationIncludeList extends _i1.IncludeList {
@@ -389,13 +481,19 @@ class PdfDeclarationIncludeList extends _i1.IncludeList {
   Map<String, _i1.Include?> get includes => include?.includes ?? {};
 
   @override
-  _i1.Table<int?> get table => PdfDeclaration.t;
+  _i1.Table<_i1.UuidValue> get table => PdfDeclaration.t;
 }
 
 class PdfDeclarationRepository {
   const PdfDeclarationRepository._();
 
+  final attach = const PdfDeclarationAttachRepository._();
+
   final attachRow = const PdfDeclarationAttachRowRepository._();
+
+  final detach = const PdfDeclarationDetachRepository._();
+
+  final detachRow = const PdfDeclarationDetachRowRepository._();
 
   /// Returns a list of [PdfDeclaration]s matching the given query parameters.
   ///
@@ -483,7 +581,7 @@ class PdfDeclarationRepository {
   /// Finds a single [PdfDeclaration] by its [id] or null if no such row exists.
   Future<PdfDeclaration?> findById(
     _i1.Session session,
-    int id, {
+    _i1.UuidValue id, {
     _i1.Transaction? transaction,
     PdfDeclarationInclude? include,
   }) async {
@@ -563,7 +661,7 @@ class PdfDeclarationRepository {
   /// Returns the updated row or null if no row with the given id exists.
   Future<PdfDeclaration?> updateById(
     _i1.Session session,
-    int id, {
+    _i1.UuidValue id, {
     required _i1.ColumnValueListBuilder<PdfDeclarationUpdateTable> columnValues,
     _i1.Transaction? transaction,
   }) async {
@@ -653,38 +751,44 @@ class PdfDeclarationRepository {
   }
 }
 
-class PdfDeclarationAttachRowRepository {
-  const PdfDeclarationAttachRowRepository._();
+class PdfDeclarationAttachRepository {
+  const PdfDeclarationAttachRepository._();
 
-  /// Creates a relation between the given [PdfDeclaration] and [PdfContent]
-  /// by setting the [PdfDeclaration]'s foreign key `pdfContentId` to refer to the [PdfContent].
-  Future<void> pdfContent(
+  /// Creates a relation between this [PdfDeclaration] and the given [PdfImplementationPayload]s
+  /// by setting each [PdfImplementationPayload]'s foreign key `pdfDeclarationId` to refer to this [PdfDeclaration].
+  Future<void> pdfImplementationsPayloads(
     _i1.Session session,
     PdfDeclaration pdfDeclaration,
-    _i3.PdfContent pdfContent, {
+    List<_i5.PdfImplementationPayload> pdfImplementationPayload, {
     _i1.Transaction? transaction,
   }) async {
+    if (pdfImplementationPayload.any((e) => e.id == null)) {
+      throw ArgumentError.notNull('pdfImplementationPayload.id');
+    }
     if (pdfDeclaration.id == null) {
       throw ArgumentError.notNull('pdfDeclaration.id');
     }
-    if (pdfContent.id == null) {
-      throw ArgumentError.notNull('pdfContent.id');
-    }
 
-    var $pdfDeclaration = pdfDeclaration.copyWith(pdfContentId: pdfContent.id);
-    await session.db.updateRow<PdfDeclaration>(
-      $pdfDeclaration,
-      columns: [PdfDeclaration.t.pdfContentId],
+    var $pdfImplementationPayload = pdfImplementationPayload
+        .map((e) => e.copyWith(pdfDeclarationId: pdfDeclaration.id))
+        .toList();
+    await session.db.update<_i5.PdfImplementationPayload>(
+      $pdfImplementationPayload,
+      columns: [_i5.PdfImplementationPayload.t.pdfDeclarationId],
       transaction: transaction,
     );
   }
+}
+
+class PdfDeclarationAttachRowRepository {
+  const PdfDeclarationAttachRowRepository._();
 
   /// Creates a relation between the given [PdfDeclaration] and [SchemaDefinition]
   /// by setting the [PdfDeclaration]'s foreign key `schemaId` to refer to the [SchemaDefinition].
   Future<void> schema(
     _i1.Session session,
     PdfDeclaration pdfDeclaration,
-    _i4.SchemaDefinition schema, {
+    _i3.SchemaDefinition schema, {
     _i1.Transaction? transaction,
   }) async {
     if (pdfDeclaration.id == null) {
@@ -698,6 +802,112 @@ class PdfDeclarationAttachRowRepository {
     await session.db.updateRow<PdfDeclaration>(
       $pdfDeclaration,
       columns: [PdfDeclaration.t.schemaId],
+      transaction: transaction,
+    );
+  }
+
+  /// Creates a relation between the given [PdfDeclaration] and [PdfContent]
+  /// by setting the [PdfDeclaration]'s foreign key `referencePdfContentId` to refer to the [PdfContent].
+  Future<void> referencePdfContent(
+    _i1.Session session,
+    PdfDeclaration pdfDeclaration,
+    _i4.PdfContent referencePdfContent, {
+    _i1.Transaction? transaction,
+  }) async {
+    if (pdfDeclaration.id == null) {
+      throw ArgumentError.notNull('pdfDeclaration.id');
+    }
+    if (referencePdfContent.id == null) {
+      throw ArgumentError.notNull('referencePdfContent.id');
+    }
+
+    var $pdfDeclaration = pdfDeclaration.copyWith(
+      referencePdfContentId: referencePdfContent.id,
+    );
+    await session.db.updateRow<PdfDeclaration>(
+      $pdfDeclaration,
+      columns: [PdfDeclaration.t.referencePdfContentId],
+      transaction: transaction,
+    );
+  }
+
+  /// Creates a relation between this [PdfDeclaration] and the given [PdfImplementationPayload]
+  /// by setting the [PdfImplementationPayload]'s foreign key `pdfDeclarationId` to refer to this [PdfDeclaration].
+  Future<void> pdfImplementationsPayloads(
+    _i1.Session session,
+    PdfDeclaration pdfDeclaration,
+    _i5.PdfImplementationPayload pdfImplementationPayload, {
+    _i1.Transaction? transaction,
+  }) async {
+    if (pdfImplementationPayload.id == null) {
+      throw ArgumentError.notNull('pdfImplementationPayload.id');
+    }
+    if (pdfDeclaration.id == null) {
+      throw ArgumentError.notNull('pdfDeclaration.id');
+    }
+
+    var $pdfImplementationPayload = pdfImplementationPayload.copyWith(
+      pdfDeclarationId: pdfDeclaration.id,
+    );
+    await session.db.updateRow<_i5.PdfImplementationPayload>(
+      $pdfImplementationPayload,
+      columns: [_i5.PdfImplementationPayload.t.pdfDeclarationId],
+      transaction: transaction,
+    );
+  }
+}
+
+class PdfDeclarationDetachRepository {
+  const PdfDeclarationDetachRepository._();
+
+  /// Detaches the relation between this [PdfDeclaration] and the given [PdfImplementationPayload]
+  /// by setting the [PdfImplementationPayload]'s foreign key `pdfDeclarationId` to `null`.
+  ///
+  /// This removes the association between the two models without deleting
+  /// the related record.
+  Future<void> pdfImplementationsPayloads(
+    _i1.Session session,
+    List<_i5.PdfImplementationPayload> pdfImplementationPayload, {
+    _i1.Transaction? transaction,
+  }) async {
+    if (pdfImplementationPayload.any((e) => e.id == null)) {
+      throw ArgumentError.notNull('pdfImplementationPayload.id');
+    }
+
+    var $pdfImplementationPayload = pdfImplementationPayload
+        .map((e) => e.copyWith(pdfDeclarationId: null))
+        .toList();
+    await session.db.update<_i5.PdfImplementationPayload>(
+      $pdfImplementationPayload,
+      columns: [_i5.PdfImplementationPayload.t.pdfDeclarationId],
+      transaction: transaction,
+    );
+  }
+}
+
+class PdfDeclarationDetachRowRepository {
+  const PdfDeclarationDetachRowRepository._();
+
+  /// Detaches the relation between this [PdfDeclaration] and the given [PdfImplementationPayload]
+  /// by setting the [PdfImplementationPayload]'s foreign key `pdfDeclarationId` to `null`.
+  ///
+  /// This removes the association between the two models without deleting
+  /// the related record.
+  Future<void> pdfImplementationsPayloads(
+    _i1.Session session,
+    _i5.PdfImplementationPayload pdfImplementationPayload, {
+    _i1.Transaction? transaction,
+  }) async {
+    if (pdfImplementationPayload.id == null) {
+      throw ArgumentError.notNull('pdfImplementationPayload.id');
+    }
+
+    var $pdfImplementationPayload = pdfImplementationPayload.copyWith(
+      pdfDeclarationId: null,
+    );
+    await session.db.updateRow<_i5.PdfImplementationPayload>(
+      $pdfImplementationPayload,
+      columns: [_i5.PdfImplementationPayload.t.pdfDeclarationId],
       transaction: transaction,
     );
   }

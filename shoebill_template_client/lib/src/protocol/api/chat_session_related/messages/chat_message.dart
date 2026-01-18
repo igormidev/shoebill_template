@@ -33,9 +33,9 @@ abstract class ChatMessage implements _i1.SerializableModel {
     return ChatMessage(
       role: _i2.ChatActor.fromJson((jsonSerialization['role'] as String)),
       style: _i3.ChatUIStyle.fromJson((jsonSerialization['style'] as String)),
-      timestamp: _i1.DateTimeJsonExtension.fromJson(
-        jsonSerialization['timestamp'],
-      ),
+      timestamp: jsonSerialization['timestamp'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['timestamp']),
       content: jsonSerialization['content'] as String,
     );
   }

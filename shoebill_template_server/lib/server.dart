@@ -4,6 +4,7 @@ import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/email.dart';
 import 'package:shoebill_template_server/src/api/pdf_related/pdf_controller.dart';
+import 'package:shoebill_template_server/src/services/ai_services.dart';
 
 import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
@@ -74,6 +75,11 @@ void run(List<String> args) async {
     );
   }
 
+  final openRouterService = pod.getPassword('open_router_service');
+  if (openRouterService == null) throw noOpenAiException;
+
+  openAiService = OpenAiService(openRouterService);
+
   // Start the server.
   await pod.start();
 }
@@ -103,3 +109,7 @@ void _sendPasswordResetCode(
 }
 
 final PdfController pdfController = PdfController();
+late final OpenAiService openAiService;
+final noOpenAiException = Exception(
+  'Open Router Service API key is not set in the passwords configuration.',
+);

@@ -20,6 +20,7 @@ class PdfGenerateEndpoint extends Endpoint {
     required String stringifiedJson,
     required SchemaDefinition schemaDefinition,
     required PdfContent pdfContent,
+    required String pythonGeneratorScript,
   }) async {
     return pdfController.createNewPdf(
       session: session,
@@ -27,6 +28,7 @@ class PdfGenerateEndpoint extends Endpoint {
       stringifiedJson: stringifiedJson,
       schemaDefinition: schemaDefinition,
       pdfContent: pdfContent,
+      pythonGeneratorScript: pythonGeneratorScript,
     );
   }
 }
