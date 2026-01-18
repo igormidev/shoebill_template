@@ -4,8 +4,10 @@ import 'package:get_it/get_it.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_idp_server/core.dart';
 import 'package:serverpod_auth_idp_server/providers/email.dart';
-import 'package:shoebill_template_server/src/api/pdf_related/pdf_controller.dart';
+import 'package:shoebill_template_server/src/services/get_locale_of_ip_service.dart';
+import 'package:shoebill_template_server/src/services/pdf_controller.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
+import 'package:shoebill_template_server/src/services/pdf_generator_service.dart';
 
 import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
@@ -82,7 +84,9 @@ void run(List<String> args) async {
   if (openRouterApiKey == null) throw noOpenAiException;
 
   getIt.registerSingleton<IOpenAiService>(OpenAiService(openRouterApiKey));
+  getIt.registerSingleton<IPdfGeneratorService>(DaytonaPdfGeneratorService());
   getIt.registerSingleton<PdfController>(PdfController());
+  getIt.registerSingleton<IGetLocaleOfIpService>(GetLocaleOfIpService());
 
   // Start the server.
   await pod.start();

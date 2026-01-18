@@ -1,6 +1,6 @@
 import 'dart:convert';
-
 import 'package:collection/collection.dart';
+import 'package:crypto/crypto.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:shoebill_template_server/src/generated/entities/others/supported_languages.dart';
 
@@ -86,4 +86,9 @@ Map<String, dynamic>? tryDecode(String source) {
   } catch (_) {
     return null; // Invalid JSON or decode error
   }
+}
+
+String sha1OfString(String input) {
+  final digest = sha1.convert(utf8.encode(input));
+  return digest.toString();
 }

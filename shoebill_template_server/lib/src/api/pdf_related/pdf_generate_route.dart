@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:get_it/get_it.dart';
 import 'package:serverpod/serverpod.dart';
-import 'package:shoebill_template_server/src/api/pdf_related/pdf_controller.dart';
+import 'package:shoebill_template_server/src/services/pdf_controller.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 
 mixin GeneratePdfVersion {

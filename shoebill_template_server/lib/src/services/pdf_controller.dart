@@ -1,9 +1,25 @@
+import 'dart:typed_data';
+
 import 'package:serverpod/serverpod.dart';
+import 'package:shoebill_template_server/server.dart';
 import 'package:shoebill_template_server/src/api/pdf_related/entities/schema_property_extensions.dart';
 import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
+import 'package:shoebill_template_server/src/services/pdf_generator_service.dart';
 
 class PdfController {
+  Future<Uint8List> getPdfFromScript({
+    required Session session,
+    required String script,
+    required String stringifiedPayload,
+    required SupportedLanguages language,
+  }) async {
+    final pdfGeneratorService = getIt<IPdfGeneratorService>();
+    return pdfGeneratorService.fromPythonScript(
+      script: script,
+    );
+  }
+
   Future<PdfImplementationPayload> addNewLanguageToExistingPdf({
     required Session session,
     required UuidValue pdfDeclarationId,
