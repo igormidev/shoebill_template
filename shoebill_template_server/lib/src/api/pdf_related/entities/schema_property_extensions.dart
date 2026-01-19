@@ -476,3 +476,92 @@ class SchemaDefinitionParser {
     return SchemaDefinition(properties: properties);
   }
 }
+
+/// Extension to convert SchemaProperty to OpenRouter JSON Schema format
+extension SchemaPropertyToOpenRouterSchema on SchemaProperty {
+  /// Converts a SchemaProperty to OpenRouter-compatible JSON Schema format.
+  /// This format is used for structured outputs with the response_format parameter.
+  Map<String, dynamic> toOpenRouterJsonSchema() {
+    final schema = <String, dynamic>{};
+
+    // Add description if present
+    if (description != null) {
+      schema['description'] = description;
+    }
+
+    switch (this) {
+      case SchemaPropertyString():
+        schema['type'] = 'string';
+
+      case SchemaPropertyInteger():
+        schema['type'] = 'integer';
+
+      case SchemaPropertyDouble():
+        schema['type'] = 'number';
+
+      case SchemaPropertyBoolean():
+        schema['type'] = 'boolean';
+
+      case SchemaPropertyEnum(:final enumValues):
+        schema['type'] = 'string';
+        schema['enum'] = enumValues;
+
+      case SchemaPropertyArray(:final items):
+        schema['type'] = 'array';
+        schema['items'] = items.toOpenRouterJsonSchema();
+
+      case SchemaPropertyObjectWithUndefinedProperties():
+        schema['type'] = 'object';
+
+      case SchemaPropertyStructuredObjectWithDefinedProperties(
+        :final properties,
+      ):
+        schema['type'] = 'object';
+        final nestedProperties = <String, dynamic>{};
+        final nestedRequired = <String>[];
+
+        for (final entry in properties.entries) {
+          nestedProperties[entry.key] =
+              entry.value.toOpenRouterJsonSchema();
+          if (!entry.value.nullable) {
+            nestedRequired.add(entry.key);
+          }
+        }
+
+        schema['properties'] = nestedProperties;
+        schema['required'] = nestedRequired;
+        schema['additionalProperties'] = false;
+    }
+
+    return schema;
+  }
+}
+
+/// Extension to convert `Map<String, SchemaProperty>` to OpenRouter JSON Schema
+extension SchemaPropertiesMapToOpenRouter on Map<String, SchemaProperty> {
+  /// Converts a map of SchemaProperty to OpenRouter JSON Schema format.
+  /// This produces a complete JSON Schema object suitable for the response_format parameter.
+  Map<String, dynamic> toOpenRouterJsonSchema() {
+    final requiredFields = <String>[];
+    final schemaProperties = <String, dynamic>{};
+
+    for (final entry in entries) {
+      final key = entry.key;
+      final prop = entry.value;
+
+      schemaProperties[key] = prop.toOpenRouterJsonSchema();
+
+      // Non-nullable fields are required
+      if (!prop.nullable) {
+        requiredFields.add(key);
+      }
+    }
+
+    return {
+      'type': 'object',
+      'properties': schemaProperties,
+      'required': requiredFields,
+      'additionalProperties': false,
+    };
+  }
+}

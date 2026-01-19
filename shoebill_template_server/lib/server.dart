@@ -84,7 +84,14 @@ void run(List<String> args) async {
   final openRouterApiKey = pod.getPassword('open_router_service');
   if (openRouterApiKey == null) throw noOpenAiException;
 
+  // Register singleton for stateless operations (like translations)
   getIt.registerSingleton<IOpenAiService>(OpenAiService(openRouterApiKey));
+
+  // Register factory for creating instances with fresh chat history
+  getIt.registerFactory<OpenAiServiceFactory>(
+    () => () => OpenAiService(openRouterApiKey),
+  );
+
   getIt.registerSingleton<IPdfGeneratorService>(DaytonaPdfGeneratorService());
   getIt.registerSingleton<PdfController>(PdfController());
   getIt.registerSingleton<IGetLocaleOfIpService>(GetLocaleOfIpService());
