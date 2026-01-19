@@ -1,15 +1,26 @@
 import 'package:test/test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:shoebill_template_server/src/services/ai_services.dart';
+import 'package:shoebill_template_server/src/services/ai_services.dart'
+    as ai_svc;
 import 'package:shoebill_template_server/src/api/pdf_related/entities/schema_property_extensions.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'dart:convert';
 
-class MockOpenAiService implements IOpenAiService {
+class MockOpenAiService implements ai_svc.IOpenAiService {
   Map<String, String>? mockTranslationResult;
 
   /// Captures the texts that were sent for translation
   Map<String, String>? lastTextsToTranslate;
+
+  final List<ai_svc.ChatMessage> _history = [];
+
+  @override
+  List<ai_svc.ChatMessage> get history => List.unmodifiable(_history);
+
+  @override
+  void clearHistory() {
+    _history.clear();
+  }
 
   @override
   Future<String> generatePrompt({
@@ -33,6 +44,26 @@ class MockOpenAiService implements IOpenAiService {
     // Default: return same keys with "[TRANSLATED]" prefix on values
     return textsToTranslate.map((k, v) => MapEntry(k, '[TRANSLATED] $v'));
   }
+
+  @override
+  Stream<ai_svc.AiStreamResult> streamPromptGeneration({
+    required String prompt,
+    bool shouldUseInternetSearchTool = false,
+    String? model,
+  }) async* {
+    throw UnimplementedError('Not needed for these tests');
+  }
+
+  @override
+  Stream<ai_svc.AiStreamResult> streamPromptGenerationWithSchemaResponse({
+    required String prompt,
+    required Map<String, SchemaProperty> properties,
+    bool shouldUseInternetSearchTool = false,
+    String? model,
+    int maxRetries = 2,
+  }) async* {
+    throw UnimplementedError('Not needed for these tests');
+  }
 }
 
 void main() {
@@ -40,7 +71,7 @@ void main() {
 
   setUp(() {
     mockOpenAiService = MockOpenAiService();
-    GetIt.instance.registerSingleton<IOpenAiService>(mockOpenAiService);
+    GetIt.instance.registerSingleton<ai_svc.IOpenAiService>(mockOpenAiService);
   });
 
   tearDown(() {
