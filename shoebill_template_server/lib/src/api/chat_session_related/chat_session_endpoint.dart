@@ -1,14 +1,15 @@
 import 'dart:async';
 
 import 'package:serverpod/serverpod.dart';
-import 'package:shoebill_template_server/src/api/chat_session_related/remote_ai_coding_session.dart';
+import 'package:shoebill_template_server/src/api/chat_session_related/chat_controller.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
+import 'package:shoebill_template_server/src/services/daytona_claude_streaming.dart';
 
 typedef SessionUUID = String;
 typedef TimesRefreshed = int;
 const int kMaxSessionRefreshes = 30;
 
-final Map<SessionUUID, IRemoteAiCodingSession> _activeSessions = {};
+final Map<SessionUUID, IChatController> _activeSessions = {};
 final Map<SessionUUID, Timer> _sessionCleanupTimers = {};
 final Map<SessionUUID, int> _sessionRefresh = {};
 
@@ -38,7 +39,12 @@ class ChatSessionEndpoint extends Endpoint {
 
   Future<SessionUUID> startChat() async {
     final uuid = uuidClass.v7();
-    _activeSessions[uuid] = DaytonaCodingSession();
+    _activeSessions[uuid] = ChatControllerImpl(
+      codding: DaytonaClaudeCodeService(
+        daytonaApiKey: '',
+        anthropicApiKey: '',
+      ),
+    );
     return uuid;
   }
 
@@ -53,7 +59,7 @@ class ChatSessionEndpoint extends Endpoint {
       style: ChatUIStyle.normal,
     );
 
-    final IRemoteAiCodingSession? currentSession = _activeSessions[sessionUUID];
+    final IChatController? currentSession = _activeSessions[sessionUUID];
 
     if (currentSession == null) {
       yield ChatMessage(

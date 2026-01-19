@@ -20,6 +20,7 @@ final getIt = GetIt.instance;
 void run(List<String> args) async {
   // Initialize Serverpod and connect it with your generated code.
   final pod = Serverpod(args, Protocol(), Endpoints());
+  isLocal = pod.runMode == ServerpodRunMode.development;
 
   // Initialize authentication services for the server.
   // Token managers will be used to validate and issue authentication keys,
@@ -119,3 +120,5 @@ void _sendPasswordResetCode(
 final noOpenAiException = Exception(
   'Open Router Service API key is not set in the passwords configuration.',
 );
+
+late final bool isLocal;
