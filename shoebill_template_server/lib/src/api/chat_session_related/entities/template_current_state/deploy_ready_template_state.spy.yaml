@@ -1,0 +1,8 @@
+class: DeployReadyTemplateState
+extends: TemplateCurrentState
+fields:
+    pdfContent: PdfContent
+    schemaDefinition: SchemaDefinition
+    referenceLanguage: SupportedLanguages
+    pythonGeneratorScript: String
+    referenceStringifiedPayloadJson: String

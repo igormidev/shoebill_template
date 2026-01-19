@@ -11,7 +11,8 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
-import '../api/chat_session_related/chat_session_endpoint.dart' as _i2;
+import '../api/chat_session_related/create_template_essentials_mixins.dart'
+    as _i2;
 import '../api/pdf_related/pdf_generate_route.dart' as _i3;
 import '../auth/email_idp_endpoint.dart' as _i4;
 import '../auth/jwt_refresh_endpoint.dart' as _i5;
@@ -31,10 +32,10 @@ class Endpoints extends _i1.EndpointDispatch {
   @override
   void initializeEndpoints(_i1.Server server) {
     var endpoints = <String, _i1.Endpoint>{
-      'chatSession': _i2.ChatSessionEndpoint()
+      'createTemplateEssentials': _i2.CreateTemplateEssentialsEndpoint()
         ..initialize(
           server,
-          'chatSession',
+          'createTemplateEssentials',
           null,
         ),
       'pdfGenerate': _i3.PdfGenerateEndpoint()
@@ -62,20 +63,15 @@ class Endpoints extends _i1.EndpointDispatch {
           null,
         ),
     };
-    connectors['chatSession'] = _i1.EndpointConnector(
-      name: 'chatSession',
-      endpoint: endpoints['chatSession']!,
+    connectors['createTemplateEssentials'] = _i1.EndpointConnector(
+      name: 'createTemplateEssentials',
+      endpoint: endpoints['createTemplateEssentials']!,
       methodConnectors: {
-        'sendMessage': _i1.MethodStreamConnector(
-          name: 'sendMessage',
+        'call': _i1.MethodStreamConnector(
+          name: 'call',
           params: {
-            'sessionUUID': _i1.ParameterDescription(
-              name: 'sessionUUID',
-              type: _i1.getType<String>(),
-              nullable: false,
-            ),
-            'message': _i1.ParameterDescription(
-              name: 'message',
+            'stringifiedPayload': _i1.ParameterDescription(
+              name: 'stringifiedPayload',
               type: _i1.getType<String>(),
               nullable: false,
             ),
@@ -87,12 +83,13 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
                 Map<String, Stream> streamParams,
-              ) => (endpoints['chatSession'] as _i2.ChatSessionEndpoint)
-                  .sendMessage(
-                    session,
-                    sessionUUID: params['sessionUUID'],
-                    message: params['message'],
-                  ),
+              ) =>
+                  (endpoints['createTemplateEssentials']
+                          as _i2.CreateTemplateEssentialsEndpoint)
+                      .call(
+                        session,
+                        stringifiedPayload: params['stringifiedPayload'],
+                      ),
         ),
       },
     );

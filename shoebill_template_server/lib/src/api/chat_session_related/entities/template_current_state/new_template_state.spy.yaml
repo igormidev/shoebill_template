@@ -1,0 +1,7 @@
+class: NewTemplateState
+extends: TemplateCurrentState
+fields:
+    pdfContent: PdfContent
+    schemaDefinition: SchemaDefinition
+    referenceLanguage: SupportedLanguages
+    referenceStringifiedPayloadJson: String

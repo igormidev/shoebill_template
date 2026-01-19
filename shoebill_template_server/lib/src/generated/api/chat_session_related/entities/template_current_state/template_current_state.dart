@@ -12,33 +12,19 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import '../../../../protocol.dart' as _i1;
 import 'package:serverpod/serverpod.dart' as _i2;
-import 'schema_property.dart' as _i3;
-import 'package:shoebill_template_server/src/generated/protocol.dart' as _i4;
-part 'schema_property_array.dart';
-part 'schema_property_boolean.dart';
-part 'schema_property_double.dart';
-part 'schema_property_enum.dart';
-part 'schema_property_integer.dart';
-part 'schema_property_object_with_undefined_properties.dart';
-part 'schema_property_string.dart';
-part 'schema_property_structured_object.dart';
+import '../../../pdf_related/entities/pdf_content.dart' as _i3;
+import '../../../pdf_related/entities/schema_definition.dart' as _i4;
+import '../../../../entities/others/supported_languages.dart' as _i5;
+import 'package:shoebill_template_server/src/generated/protocol.dart' as _i6;
+part 'deploy_ready_template_state.dart';
+part 'new_template_state.dart';
 
-sealed class SchemaProperty
+sealed class TemplateCurrentState
     implements _i2.SerializableModel, _i2.ProtocolSerialization {
-  SchemaProperty({
-    required this.nullable,
-    this.description,
-  });
+  TemplateCurrentState();
 
-  bool nullable;
-
-  String? description;
-
-  /// Returns a shallow copy of this [SchemaProperty]
+  /// Returns a shallow copy of this [TemplateCurrentState]
   /// with some or all fields replaced by the given arguments.
   @_i2.useResult
-  SchemaProperty copyWith({
-    bool? nullable,
-    String? description,
-  });
+  TemplateCurrentState copyWith();
 }

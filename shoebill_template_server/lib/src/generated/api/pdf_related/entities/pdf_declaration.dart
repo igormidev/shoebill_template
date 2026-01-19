@@ -8,7 +8,6 @@
 // ignore_for_file: type_literal_in_constant_pattern
 // ignore_for_file: use_super_parameters
 // ignore_for_file: invalid_use_of_internal_member
-
 // ignore_for_file: unnecessary_null_comparison
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
@@ -50,25 +49,29 @@ abstract class PdfDeclaration
 
   factory PdfDeclaration.fromJson(Map<String, dynamic> jsonSerialization) {
     return PdfDeclaration(
-      id: _i1.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
+      id: jsonSerialization['id'] == null
+          ? null
+          : _i1.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
       schemaId: jsonSerialization['schemaId'] as int,
       schema: jsonSerialization['schema'] == null
           ? null
           : _i6.Protocol().deserialize<_i3.SchemaDefinition>(
               jsonSerialization['schema'],
             ),
-      referenceLanguage: _i2.SupportedLanguages.fromJson(
-        (jsonSerialization['referenceLanguage'] as String),
-      ),
+      referenceLanguage: jsonSerialization['referenceLanguage'] == null
+          ? null
+          : _i2.SupportedLanguages.fromJson(
+              (jsonSerialization['referenceLanguage'] as String),
+            ),
       referencePdfContentId: jsonSerialization['referencePdfContentId'] as int,
       referencePdfContent: jsonSerialization['referencePdfContent'] == null
           ? null
           : _i6.Protocol().deserialize<_i4.PdfContent>(
               jsonSerialization['referencePdfContent'],
             ),
-      createdAt: _i1.DateTimeJsonExtension.fromJson(
-        jsonSerialization['createdAt'],
-      ),
+      createdAt: jsonSerialization['createdAt'] == null
+          ? null
+          : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
       pythonGeneratorScript:
           jsonSerialization['pythonGeneratorScript'] as String,
       pdfImplementationsPayloads:

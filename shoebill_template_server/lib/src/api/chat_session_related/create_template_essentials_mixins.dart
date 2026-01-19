@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:serverpod/serverpod.dart';
 import 'package:shoebill_template_server/server.dart';
 import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
 
-mixin CreateTemplateEssentialsMixins {
+class CreateTemplateEssentialsEndpoint extends Endpoint {
+  // String generatePromptForChangingSchema() async {}
+
   /// Creates template essentials from a JSON payload.
   /// The AI will analyze the payload and generate:
   /// - A title and description for the template
@@ -18,7 +21,8 @@ mixin CreateTemplateEssentialsMixins {
   /// - `AiThinkingChunk` during AI reasoning
   /// - `TemplateEssential` when the final result is ready
   Stream<({TemplateEssential? template, AiThinkingChunk? aiThinkingChunk})>
-      createTemplateEssentials({
+  call(
+    Session session, {
     required String stringifiedPayload,
   }) async* {
     final Map<String, dynamic>? payload = tryDecode(stringifiedPayload);
@@ -30,8 +34,9 @@ mixin CreateTemplateEssentialsMixins {
       );
     }
 
-    final prettyVersionOfJsonForPrompt =
-        JsonEncoder.withIndent('  ').convert(payload);
+    final prettyVersionOfJsonForPrompt = JsonEncoder.withIndent(
+      '  ',
+    ).convert(payload);
 
     // Create a new AI service instance with its own chat history
     final aiServiceFactory = getIt<OpenAiServiceFactory>();
@@ -41,10 +46,11 @@ mixin CreateTemplateEssentialsMixins {
 
     final schemaProperties = _buildResponseSchemaProperties();
 
-    await for (final result in aiService.streamPromptGenerationWithSchemaResponse(
-      prompt: prompt,
-      properties: schemaProperties,
-    )) {
+    await for (final result
+        in aiService.streamPromptGenerationWithSchemaResponse(
+          prompt: prompt,
+          properties: schemaProperties,
+        )) {
       if (result is AiSchemaThinkItem) {
         yield (
           template: null,
@@ -368,8 +374,8 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
         );
 
       case 'enum':
-        final enumValues =
-            (json['possibleEnumValues'] as List<dynamic>).cast<String>();
+        final enumValues = (json['possibleEnumValues'] as List<dynamic>)
+            .cast<String>();
         return SchemaPropertyEnum(
           nullable: nullable,
           description: description,

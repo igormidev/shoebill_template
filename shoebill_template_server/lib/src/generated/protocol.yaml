@@ -1,5 +1,5 @@
-chatSession:
-  - sendMessage:
+createTemplateEssentials:
+  - call:
 pdfGenerate:
   - call:
 emailIdp:

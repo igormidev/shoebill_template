@@ -19,21 +19,28 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
 import 'api/chat_session_related/entities/messages/chat_actor.dart' as _i5;
 import 'api/chat_session_related/entities/messages/chat_message.dart' as _i6;
 import 'api/chat_session_related/entities/messages/chat_ui_style.dart' as _i7;
-import 'api/chat_session_related/entities/template_essential.dart' as _i8;
-import 'api/pdf_related/entities/pdf_content.dart' as _i9;
-import 'api/pdf_related/entities/pdf_declaration.dart' as _i10;
-import 'api/pdf_related/entities/pdf_implementation_payload.dart' as _i11;
-import 'api/pdf_related/entities/schema_definition.dart' as _i12;
+import 'api/chat_session_related/entities/template_current_state/template_current_state.dart'
+    as _i8;
+import 'api/chat_session_related/entities/template_essential.dart' as _i9;
+import 'api/pdf_related/entities/pdf_content.dart' as _i10;
+import 'api/pdf_related/entities/pdf_declaration.dart' as _i11;
+import 'api/pdf_related/entities/pdf_implementation_payload.dart' as _i12;
+import 'api/pdf_related/entities/schema_definition.dart' as _i13;
 import 'api/pdf_related/entities/schemas_implementations/schema_property.dart'
-    as _i13;
-import 'entities/others/ai_thinking_chunk.dart' as _i14;
-import 'entities/others/shoebill_exception.dart' as _i15;
-import 'entities/others/supported_languages.dart' as _i16;
-import 'entities/template/shoebill_template.dart' as _i17;
-import 'greetings/greeting.dart' as _i18;
+    as _i14;
+import 'entities/others/ai_thinking_chunk.dart' as _i15;
+import 'entities/others/shoebill_exception.dart' as _i16;
+import 'entities/others/supported_languages.dart' as _i17;
+import 'entities/template/shoebill_template.dart' as _i18;
+import 'greetings/greeting.dart' as _i19;
+import 'package:shoebill_template_server/src/generated/entities/others/ai_thinking_chunk.dart'
+    as _i20;
+import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/template_essential.dart'
+    as _i21;
 export 'api/chat_session_related/entities/messages/chat_actor.dart';
 export 'api/chat_session_related/entities/messages/chat_message.dart';
 export 'api/chat_session_related/entities/messages/chat_ui_style.dart';
+export 'api/chat_session_related/entities/template_current_state/template_current_state.dart';
 export 'api/chat_session_related/entities/template_essential.dart';
 export 'api/pdf_related/entities/pdf_content.dart';
 export 'api/pdf_related/entities/pdf_declaration.dart';
@@ -382,63 +389,69 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i7.ChatUIStyle) {
       return _i7.ChatUIStyle.fromJson(data) as T;
     }
-    if (t == _i8.TemplateEssential) {
-      return _i8.TemplateEssential.fromJson(data) as T;
+    if (t == _i8.DeployReadyTemplateState) {
+      return _i8.DeployReadyTemplateState.fromJson(data) as T;
     }
-    if (t == _i9.PdfContent) {
-      return _i9.PdfContent.fromJson(data) as T;
+    if (t == _i8.NewTemplateState) {
+      return _i8.NewTemplateState.fromJson(data) as T;
     }
-    if (t == _i10.PdfDeclaration) {
-      return _i10.PdfDeclaration.fromJson(data) as T;
+    if (t == _i9.TemplateEssential) {
+      return _i9.TemplateEssential.fromJson(data) as T;
     }
-    if (t == _i11.PdfImplementationPayload) {
-      return _i11.PdfImplementationPayload.fromJson(data) as T;
+    if (t == _i10.PdfContent) {
+      return _i10.PdfContent.fromJson(data) as T;
     }
-    if (t == _i12.SchemaDefinition) {
-      return _i12.SchemaDefinition.fromJson(data) as T;
+    if (t == _i11.PdfDeclaration) {
+      return _i11.PdfDeclaration.fromJson(data) as T;
     }
-    if (t == _i13.SchemaPropertyArray) {
-      return _i13.SchemaPropertyArray.fromJson(data) as T;
+    if (t == _i12.PdfImplementationPayload) {
+      return _i12.PdfImplementationPayload.fromJson(data) as T;
     }
-    if (t == _i13.SchemaPropertyBoolean) {
-      return _i13.SchemaPropertyBoolean.fromJson(data) as T;
+    if (t == _i13.SchemaDefinition) {
+      return _i13.SchemaDefinition.fromJson(data) as T;
     }
-    if (t == _i13.SchemaPropertyDouble) {
-      return _i13.SchemaPropertyDouble.fromJson(data) as T;
+    if (t == _i14.SchemaPropertyArray) {
+      return _i14.SchemaPropertyArray.fromJson(data) as T;
     }
-    if (t == _i13.SchemaPropertyEnum) {
-      return _i13.SchemaPropertyEnum.fromJson(data) as T;
+    if (t == _i14.SchemaPropertyBoolean) {
+      return _i14.SchemaPropertyBoolean.fromJson(data) as T;
     }
-    if (t == _i13.SchemaPropertyInteger) {
-      return _i13.SchemaPropertyInteger.fromJson(data) as T;
+    if (t == _i14.SchemaPropertyDouble) {
+      return _i14.SchemaPropertyDouble.fromJson(data) as T;
     }
-    if (t == _i13.SchemaPropertyObjectWithUndefinedProperties) {
-      return _i13.SchemaPropertyObjectWithUndefinedProperties.fromJson(data)
+    if (t == _i14.SchemaPropertyEnum) {
+      return _i14.SchemaPropertyEnum.fromJson(data) as T;
+    }
+    if (t == _i14.SchemaPropertyInteger) {
+      return _i14.SchemaPropertyInteger.fromJson(data) as T;
+    }
+    if (t == _i14.SchemaPropertyObjectWithUndefinedProperties) {
+      return _i14.SchemaPropertyObjectWithUndefinedProperties.fromJson(data)
           as T;
     }
-    if (t == _i13.SchemaPropertyString) {
-      return _i13.SchemaPropertyString.fromJson(data) as T;
+    if (t == _i14.SchemaPropertyString) {
+      return _i14.SchemaPropertyString.fromJson(data) as T;
     }
-    if (t == _i13.SchemaPropertyStructuredObjectWithDefinedProperties) {
-      return _i13.SchemaPropertyStructuredObjectWithDefinedProperties.fromJson(
+    if (t == _i14.SchemaPropertyStructuredObjectWithDefinedProperties) {
+      return _i14.SchemaPropertyStructuredObjectWithDefinedProperties.fromJson(
             data,
           )
           as T;
     }
-    if (t == _i14.AiThinkingChunk) {
-      return _i14.AiThinkingChunk.fromJson(data) as T;
+    if (t == _i15.AiThinkingChunk) {
+      return _i15.AiThinkingChunk.fromJson(data) as T;
     }
-    if (t == _i15.ShoebillException) {
-      return _i15.ShoebillException.fromJson(data) as T;
+    if (t == _i16.ShoebillException) {
+      return _i16.ShoebillException.fromJson(data) as T;
     }
-    if (t == _i16.SupportedLanguages) {
-      return _i16.SupportedLanguages.fromJson(data) as T;
+    if (t == _i17.SupportedLanguages) {
+      return _i17.SupportedLanguages.fromJson(data) as T;
     }
-    if (t == _i17.TemplatePdf) {
-      return _i17.TemplatePdf.fromJson(data) as T;
+    if (t == _i18.TemplatePdf) {
+      return _i18.TemplatePdf.fromJson(data) as T;
     }
-    if (t == _i18.Greeting) {
-      return _i18.Greeting.fromJson(data) as T;
+    if (t == _i19.Greeting) {
+      return _i19.Greeting.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.ChatActor?>()) {
       return (data != null ? _i5.ChatActor.fromJson(data) : null) as T;
@@ -449,107 +462,156 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i7.ChatUIStyle?>()) {
       return (data != null ? _i7.ChatUIStyle.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i8.TemplateEssential?>()) {
-      return (data != null ? _i8.TemplateEssential.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i8.DeployReadyTemplateState?>()) {
+      return (data != null ? _i8.DeployReadyTemplateState.fromJson(data) : null)
+          as T;
     }
-    if (t == _i1.getType<_i9.PdfContent?>()) {
-      return (data != null ? _i9.PdfContent.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i8.NewTemplateState?>()) {
+      return (data != null ? _i8.NewTemplateState.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i10.PdfDeclaration?>()) {
-      return (data != null ? _i10.PdfDeclaration.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i9.TemplateEssential?>()) {
+      return (data != null ? _i9.TemplateEssential.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i11.PdfImplementationPayload?>()) {
+    if (t == _i1.getType<_i10.PdfContent?>()) {
+      return (data != null ? _i10.PdfContent.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i11.PdfDeclaration?>()) {
+      return (data != null ? _i11.PdfDeclaration.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i12.PdfImplementationPayload?>()) {
       return (data != null
-              ? _i11.PdfImplementationPayload.fromJson(data)
+              ? _i12.PdfImplementationPayload.fromJson(data)
               : null)
           as T;
     }
-    if (t == _i1.getType<_i12.SchemaDefinition?>()) {
-      return (data != null ? _i12.SchemaDefinition.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i13.SchemaDefinition?>()) {
+      return (data != null ? _i13.SchemaDefinition.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i13.SchemaPropertyArray?>()) {
-      return (data != null ? _i13.SchemaPropertyArray.fromJson(data) : null)
+    if (t == _i1.getType<_i14.SchemaPropertyArray?>()) {
+      return (data != null ? _i14.SchemaPropertyArray.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i13.SchemaPropertyBoolean?>()) {
-      return (data != null ? _i13.SchemaPropertyBoolean.fromJson(data) : null)
+    if (t == _i1.getType<_i14.SchemaPropertyBoolean?>()) {
+      return (data != null ? _i14.SchemaPropertyBoolean.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i13.SchemaPropertyDouble?>()) {
-      return (data != null ? _i13.SchemaPropertyDouble.fromJson(data) : null)
+    if (t == _i1.getType<_i14.SchemaPropertyDouble?>()) {
+      return (data != null ? _i14.SchemaPropertyDouble.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i13.SchemaPropertyEnum?>()) {
-      return (data != null ? _i13.SchemaPropertyEnum.fromJson(data) : null)
+    if (t == _i1.getType<_i14.SchemaPropertyEnum?>()) {
+      return (data != null ? _i14.SchemaPropertyEnum.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i13.SchemaPropertyInteger?>()) {
-      return (data != null ? _i13.SchemaPropertyInteger.fromJson(data) : null)
+    if (t == _i1.getType<_i14.SchemaPropertyInteger?>()) {
+      return (data != null ? _i14.SchemaPropertyInteger.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i13.SchemaPropertyObjectWithUndefinedProperties?>()) {
+    if (t == _i1.getType<_i14.SchemaPropertyObjectWithUndefinedProperties?>()) {
       return (data != null
-              ? _i13.SchemaPropertyObjectWithUndefinedProperties.fromJson(data)
+              ? _i14.SchemaPropertyObjectWithUndefinedProperties.fromJson(data)
               : null)
           as T;
     }
-    if (t == _i1.getType<_i13.SchemaPropertyString?>()) {
-      return (data != null ? _i13.SchemaPropertyString.fromJson(data) : null)
+    if (t == _i1.getType<_i14.SchemaPropertyString?>()) {
+      return (data != null ? _i14.SchemaPropertyString.fromJson(data) : null)
           as T;
     }
     if (t ==
         _i1
             .getType<
-              _i13.SchemaPropertyStructuredObjectWithDefinedProperties?
+              _i14.SchemaPropertyStructuredObjectWithDefinedProperties?
             >()) {
       return (data != null
-              ? _i13.SchemaPropertyStructuredObjectWithDefinedProperties.fromJson(
+              ? _i14.SchemaPropertyStructuredObjectWithDefinedProperties.fromJson(
                   data,
                 )
               : null)
           as T;
     }
-    if (t == _i1.getType<_i14.AiThinkingChunk?>()) {
-      return (data != null ? _i14.AiThinkingChunk.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i15.AiThinkingChunk?>()) {
+      return (data != null ? _i15.AiThinkingChunk.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i15.ShoebillException?>()) {
-      return (data != null ? _i15.ShoebillException.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i16.ShoebillException?>()) {
+      return (data != null ? _i16.ShoebillException.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i16.SupportedLanguages?>()) {
-      return (data != null ? _i16.SupportedLanguages.fromJson(data) : null)
+    if (t == _i1.getType<_i17.SupportedLanguages?>()) {
+      return (data != null ? _i17.SupportedLanguages.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i17.TemplatePdf?>()) {
-      return (data != null ? _i17.TemplatePdf.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i18.TemplatePdf?>()) {
+      return (data != null ? _i18.TemplatePdf.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i18.Greeting?>()) {
-      return (data != null ? _i18.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i19.Greeting?>()) {
+      return (data != null ? _i19.Greeting.fromJson(data) : null) as T;
     }
-    if (t == List<_i11.PdfImplementationPayload>) {
+    if (t == List<_i12.PdfImplementationPayload>) {
       return (data as List)
-              .map((e) => deserialize<_i11.PdfImplementationPayload>(e))
+              .map((e) => deserialize<_i12.PdfImplementationPayload>(e))
               .toList()
           as T;
     }
-    if (t == _i1.getType<List<_i11.PdfImplementationPayload>?>()) {
+    if (t == _i1.getType<List<_i12.PdfImplementationPayload>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i11.PdfImplementationPayload>(e))
+                    .map((e) => deserialize<_i12.PdfImplementationPayload>(e))
                     .toList()
               : null)
           as T;
     }
-    if (t == Map<String, _i13.SchemaProperty>) {
+    if (t == Map<String, _i14.SchemaProperty>) {
       return (data as Map).map(
             (k, v) => MapEntry(
               deserialize<String>(k),
-              deserialize<_i13.SchemaProperty>(v),
+              deserialize<_i14.SchemaProperty>(v),
             ),
           )
           as T;
     }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
+    }
+    if (t ==
+        _i1
+            .getType<
+              ({
+                _i20.AiThinkingChunk? aiThinkingChunk,
+                _i21.TemplateEssential? template,
+              })
+            >()) {
+      return (
+            aiThinkingChunk:
+                ((data as Map)['n'] as Map)['aiThinkingChunk'] == null
+                ? null
+                : deserialize<_i20.AiThinkingChunk>(
+                    data['n']['aiThinkingChunk'],
+                  ),
+            template: ((data)['n'] as Map)['template'] == null
+                ? null
+                : deserialize<_i21.TemplateEssential>(data['n']['template']),
+          )
+          as T;
+    }
+    if (t ==
+        _i1
+            .getType<
+              ({
+                _i20.AiThinkingChunk? aiThinkingChunk,
+                _i21.TemplateEssential? template,
+              })
+            >()) {
+      return (
+            aiThinkingChunk:
+                ((data as Map)['n'] as Map)['aiThinkingChunk'] == null
+                ? null
+                : deserialize<_i20.AiThinkingChunk>(
+                    data['n']['aiThinkingChunk'],
+                  ),
+            template: ((data)['n'] as Map)['template'] == null
+                ? null
+                : deserialize<_i21.TemplateEssential>(data['n']['template']),
+          )
+          as T;
     }
     try {
       return _i3.Protocol().deserialize<T>(data, t);
@@ -568,26 +630,28 @@ class Protocol extends _i1.SerializationManagerServer {
       _i5.ChatActor => 'ChatActor',
       _i6.ChatMessage => 'ChatMessage',
       _i7.ChatUIStyle => 'ChatUIStyle',
-      _i8.TemplateEssential => 'TemplateEssential',
-      _i9.PdfContent => 'PdfContent',
-      _i10.PdfDeclaration => 'PdfDeclaration',
-      _i11.PdfImplementationPayload => 'PdfImplementationPayload',
-      _i12.SchemaDefinition => 'SchemaDefinition',
-      _i13.SchemaPropertyArray => 'SchemaPropertyArray',
-      _i13.SchemaPropertyBoolean => 'SchemaPropertyBoolean',
-      _i13.SchemaPropertyDouble => 'SchemaPropertyDouble',
-      _i13.SchemaPropertyEnum => 'SchemaPropertyEnum',
-      _i13.SchemaPropertyInteger => 'SchemaPropertyInteger',
-      _i13.SchemaPropertyObjectWithUndefinedProperties =>
+      _i8.DeployReadyTemplateState => 'DeployReadyTemplateState',
+      _i8.NewTemplateState => 'NewTemplateState',
+      _i9.TemplateEssential => 'TemplateEssential',
+      _i10.PdfContent => 'PdfContent',
+      _i11.PdfDeclaration => 'PdfDeclaration',
+      _i12.PdfImplementationPayload => 'PdfImplementationPayload',
+      _i13.SchemaDefinition => 'SchemaDefinition',
+      _i14.SchemaPropertyArray => 'SchemaPropertyArray',
+      _i14.SchemaPropertyBoolean => 'SchemaPropertyBoolean',
+      _i14.SchemaPropertyDouble => 'SchemaPropertyDouble',
+      _i14.SchemaPropertyEnum => 'SchemaPropertyEnum',
+      _i14.SchemaPropertyInteger => 'SchemaPropertyInteger',
+      _i14.SchemaPropertyObjectWithUndefinedProperties =>
         'SchemaPropertyObjectWithUndefinedProperties',
-      _i13.SchemaPropertyString => 'SchemaPropertyString',
-      _i13.SchemaPropertyStructuredObjectWithDefinedProperties =>
+      _i14.SchemaPropertyString => 'SchemaPropertyString',
+      _i14.SchemaPropertyStructuredObjectWithDefinedProperties =>
         'SchemaPropertyStructuredObjectWithDefinedProperties',
-      _i14.AiThinkingChunk => 'AiThinkingChunk',
-      _i15.ShoebillException => 'ShoebillException',
-      _i16.SupportedLanguages => 'SupportedLanguages',
-      _i17.TemplatePdf => 'TemplatePdf',
-      _i18.Greeting => 'Greeting',
+      _i15.AiThinkingChunk => 'AiThinkingChunk',
+      _i16.ShoebillException => 'ShoebillException',
+      _i17.SupportedLanguages => 'SupportedLanguages',
+      _i18.TemplatePdf => 'TemplatePdf',
+      _i19.Greeting => 'Greeting',
       _ => null,
     };
   }
@@ -611,41 +675,45 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'ChatMessage';
       case _i7.ChatUIStyle():
         return 'ChatUIStyle';
-      case _i8.TemplateEssential():
+      case _i8.DeployReadyTemplateState():
+        return 'DeployReadyTemplateState';
+      case _i8.NewTemplateState():
+        return 'NewTemplateState';
+      case _i9.TemplateEssential():
         return 'TemplateEssential';
-      case _i9.PdfContent():
+      case _i10.PdfContent():
         return 'PdfContent';
-      case _i10.PdfDeclaration():
+      case _i11.PdfDeclaration():
         return 'PdfDeclaration';
-      case _i11.PdfImplementationPayload():
+      case _i12.PdfImplementationPayload():
         return 'PdfImplementationPayload';
-      case _i12.SchemaDefinition():
+      case _i13.SchemaDefinition():
         return 'SchemaDefinition';
-      case _i13.SchemaPropertyArray():
+      case _i14.SchemaPropertyArray():
         return 'SchemaPropertyArray';
-      case _i13.SchemaPropertyBoolean():
+      case _i14.SchemaPropertyBoolean():
         return 'SchemaPropertyBoolean';
-      case _i13.SchemaPropertyDouble():
+      case _i14.SchemaPropertyDouble():
         return 'SchemaPropertyDouble';
-      case _i13.SchemaPropertyEnum():
+      case _i14.SchemaPropertyEnum():
         return 'SchemaPropertyEnum';
-      case _i13.SchemaPropertyInteger():
+      case _i14.SchemaPropertyInteger():
         return 'SchemaPropertyInteger';
-      case _i13.SchemaPropertyObjectWithUndefinedProperties():
+      case _i14.SchemaPropertyObjectWithUndefinedProperties():
         return 'SchemaPropertyObjectWithUndefinedProperties';
-      case _i13.SchemaPropertyString():
+      case _i14.SchemaPropertyString():
         return 'SchemaPropertyString';
-      case _i13.SchemaPropertyStructuredObjectWithDefinedProperties():
+      case _i14.SchemaPropertyStructuredObjectWithDefinedProperties():
         return 'SchemaPropertyStructuredObjectWithDefinedProperties';
-      case _i14.AiThinkingChunk():
+      case _i15.AiThinkingChunk():
         return 'AiThinkingChunk';
-      case _i15.ShoebillException():
+      case _i16.ShoebillException():
         return 'ShoebillException';
-      case _i16.SupportedLanguages():
+      case _i17.SupportedLanguages():
         return 'SupportedLanguages';
-      case _i17.TemplatePdf():
+      case _i18.TemplatePdf():
         return 'TemplatePdf';
-      case _i18.Greeting():
+      case _i19.Greeting():
         return 'Greeting';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -659,6 +727,13 @@ class Protocol extends _i1.SerializationManagerServer {
     className = _i4.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
+    }
+    if (data
+        is ({
+          _i20.AiThinkingChunk? aiThinkingChunk,
+          _i21.TemplateEssential? template,
+        })) {
+      return '(,{AiThinkingChunk? aiThinkingChunk,TemplateEssential? template})';
     }
     return null;
   }
@@ -678,64 +753,70 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'ChatUIStyle') {
       return deserialize<_i7.ChatUIStyle>(data['data']);
     }
+    if (dataClassName == 'DeployReadyTemplateState') {
+      return deserialize<_i8.DeployReadyTemplateState>(data['data']);
+    }
+    if (dataClassName == 'NewTemplateState') {
+      return deserialize<_i8.NewTemplateState>(data['data']);
+    }
     if (dataClassName == 'TemplateEssential') {
-      return deserialize<_i8.TemplateEssential>(data['data']);
+      return deserialize<_i9.TemplateEssential>(data['data']);
     }
     if (dataClassName == 'PdfContent') {
-      return deserialize<_i9.PdfContent>(data['data']);
+      return deserialize<_i10.PdfContent>(data['data']);
     }
     if (dataClassName == 'PdfDeclaration') {
-      return deserialize<_i10.PdfDeclaration>(data['data']);
+      return deserialize<_i11.PdfDeclaration>(data['data']);
     }
     if (dataClassName == 'PdfImplementationPayload') {
-      return deserialize<_i11.PdfImplementationPayload>(data['data']);
+      return deserialize<_i12.PdfImplementationPayload>(data['data']);
     }
     if (dataClassName == 'SchemaDefinition') {
-      return deserialize<_i12.SchemaDefinition>(data['data']);
+      return deserialize<_i13.SchemaDefinition>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyArray') {
-      return deserialize<_i13.SchemaPropertyArray>(data['data']);
+      return deserialize<_i14.SchemaPropertyArray>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyBoolean') {
-      return deserialize<_i13.SchemaPropertyBoolean>(data['data']);
+      return deserialize<_i14.SchemaPropertyBoolean>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyDouble') {
-      return deserialize<_i13.SchemaPropertyDouble>(data['data']);
+      return deserialize<_i14.SchemaPropertyDouble>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyEnum') {
-      return deserialize<_i13.SchemaPropertyEnum>(data['data']);
+      return deserialize<_i14.SchemaPropertyEnum>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyInteger') {
-      return deserialize<_i13.SchemaPropertyInteger>(data['data']);
+      return deserialize<_i14.SchemaPropertyInteger>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyObjectWithUndefinedProperties') {
-      return deserialize<_i13.SchemaPropertyObjectWithUndefinedProperties>(
+      return deserialize<_i14.SchemaPropertyObjectWithUndefinedProperties>(
         data['data'],
       );
     }
     if (dataClassName == 'SchemaPropertyString') {
-      return deserialize<_i13.SchemaPropertyString>(data['data']);
+      return deserialize<_i14.SchemaPropertyString>(data['data']);
     }
     if (dataClassName ==
         'SchemaPropertyStructuredObjectWithDefinedProperties') {
       return deserialize<
-        _i13.SchemaPropertyStructuredObjectWithDefinedProperties
+        _i14.SchemaPropertyStructuredObjectWithDefinedProperties
       >(data['data']);
     }
     if (dataClassName == 'AiThinkingChunk') {
-      return deserialize<_i14.AiThinkingChunk>(data['data']);
+      return deserialize<_i15.AiThinkingChunk>(data['data']);
     }
     if (dataClassName == 'ShoebillException') {
-      return deserialize<_i15.ShoebillException>(data['data']);
+      return deserialize<_i16.ShoebillException>(data['data']);
     }
     if (dataClassName == 'SupportedLanguages') {
-      return deserialize<_i16.SupportedLanguages>(data['data']);
+      return deserialize<_i17.SupportedLanguages>(data['data']);
     }
     if (dataClassName == 'TemplatePdf') {
-      return deserialize<_i17.TemplatePdf>(data['data']);
+      return deserialize<_i18.TemplatePdf>(data['data']);
     }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i18.Greeting>(data['data']);
+      return deserialize<_i19.Greeting>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -748,6 +829,15 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
       return _i4.Protocol().deserializeByClassName(data);
+    }
+    if (dataClassName ==
+        '(,{AiThinkingChunk? aiThinkingChunk,TemplateEssential? template})') {
+      return deserialize<
+        ({
+          _i20.AiThinkingChunk? aiThinkingChunk,
+          _i21.TemplateEssential? template,
+        })
+      >(data['data']);
     }
     return super.deserializeByClassName(data);
   }
@@ -773,16 +863,16 @@ class Protocol extends _i1.SerializationManagerServer {
       }
     }
     switch (t) {
-      case _i9.PdfContent:
-        return _i9.PdfContent.t;
-      case _i10.PdfDeclaration:
-        return _i10.PdfDeclaration.t;
-      case _i11.PdfImplementationPayload:
-        return _i11.PdfImplementationPayload.t;
-      case _i12.SchemaDefinition:
-        return _i12.SchemaDefinition.t;
-      case _i17.TemplatePdf:
-        return _i17.TemplatePdf.t;
+      case _i10.PdfContent:
+        return _i10.PdfContent.t;
+      case _i11.PdfDeclaration:
+        return _i11.PdfDeclaration.t;
+      case _i12.PdfImplementationPayload:
+        return _i12.PdfImplementationPayload.t;
+      case _i13.SchemaDefinition:
+        return _i13.SchemaDefinition.t;
+      case _i18.TemplatePdf:
+        return _i18.TemplatePdf.t;
     }
     return null;
   }
@@ -793,4 +883,108 @@ class Protocol extends _i1.SerializationManagerServer {
 
   @override
   String getModuleName() => 'shoebill_template';
+
+  /// Wraps serialized data with its class name so that it can be deserialized
+  /// with [deserializeByClassName].
+  ///
+  /// Records and containers containing records will be return in their JSON representation in the returned map.
+  @override
+  Map<String, dynamic> wrapWithClassName(Object? data) {
+    /// In case the value (to be streamed) contains a record or potentially empty non-String-keyed Map, we need to map it before it reaches the underlying JSON encode
+    if (data != null && (data is Iterable || data is Map)) {
+      return {
+        'className': getClassNameForObject(data)!,
+        'data': mapContainerToJson(data),
+      };
+    } else if (data is Record) {
+      return {
+        'className': getClassNameForObject(data)!,
+        'data': mapRecordToJson(data),
+      };
+    }
+
+    return super.wrapWithClassName(data);
+  }
+
+  /// Maps any `Record`s known to this [Protocol] to their JSON representation
+  ///
+  /// Throws in case the record type is not known.
+  ///
+  /// This method will return `null` (only) for `null` inputs.
+  Map<String, dynamic>? mapRecordToJson(Record? record) {
+    if (record == null) {
+      return null;
+    }
+    if (record
+        is ({
+          _i20.AiThinkingChunk? aiThinkingChunk,
+          _i21.TemplateEssential? template,
+        })) {
+      return {
+        "n": {
+          "aiThinkingChunk": record.aiThinkingChunk,
+          "template": record.template,
+        },
+      };
+    }
+    try {
+      return _i3.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    try {
+      return _i4.Protocol().mapRecordToJson(record);
+    } catch (_) {}
+    throw Exception('Unsupported record type ${record.runtimeType}');
+  }
+
+  /// Maps container types (like [List], [Map], [Set]) containing
+  /// [Record]s or non-String-keyed [Map]s to their JSON representation.
+  ///
+  /// It should not be called for [SerializableModel] types. These
+  /// handle the "[Record] in container" mapping internally already.
+  ///
+  /// It is only supposed to be called from generated protocol code.
+  ///
+  /// Returns either a `List<dynamic>` (for List, Sets, and Maps with
+  /// non-String keys) or a `Map<String, dynamic>` in case the input was
+  /// a `Map<String, …>`.
+  Object? mapContainerToJson(Object obj) {
+    if (obj is! Iterable && obj is! Map) {
+      throw ArgumentError.value(
+        obj,
+        'obj',
+        'The object to serialize should be of type List, Map, or Set',
+      );
+    }
+
+    dynamic mapIfNeeded(Object? obj) {
+      return switch (obj) {
+        Record record => mapRecordToJson(record),
+        Iterable iterable => mapContainerToJson(iterable),
+        Map map => mapContainerToJson(map),
+        Object? value => value,
+      };
+    }
+
+    switch (obj) {
+      case Map<String, dynamic>():
+        return {
+          for (var entry in obj.entries) entry.key: mapIfNeeded(entry.value),
+        };
+      case Map():
+        return [
+          for (var entry in obj.entries)
+            {
+              'k': mapIfNeeded(entry.key),
+              'v': mapIfNeeded(entry.value),
+            },
+        ];
+
+      case Iterable():
+        return [
+          for (var e in obj) mapIfNeeded(e),
+        ];
+    }
+
+    return obj;
+  }
 }

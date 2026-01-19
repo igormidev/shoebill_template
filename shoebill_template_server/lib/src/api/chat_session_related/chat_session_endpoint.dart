@@ -10,11 +10,20 @@ typedef TimesRefreshed = int;
 const int kMaxSessionRefreshes = 30;
 
 final Map<SessionUUID, IChatController> _activeSessions = {};
+final Map<SessionUUID, TemplateCurrentState> _sessionTemplateInfo = {};
+final Map<SessionUUID, bool> _isNewTemplate = {};
 final Map<SessionUUID, Timer> _sessionCleanupTimers = {};
 final Map<SessionUUID, int> _sessionRefresh = {};
 
 class ChatSessionEndpoint extends Endpoint {
   final Uuid uuidClass = Uuid();
+
+  ChatControllerImpl get newChat => ChatControllerImpl(
+    codding: DaytonaClaudeCodeService(
+      daytonaApiKey: '',
+      anthropicApiKey: '',
+    ),
+  );
 
   void refreshSession(SessionUUID sessionUuid) {
     final currentRefreshes = _sessionRefresh[sessionUuid] ?? 0;
@@ -37,14 +46,80 @@ class ChatSessionEndpoint extends Endpoint {
     );
   }
 
-  Future<SessionUUID> startChat() async {
+  Future<void> deploySession(
+    Session session, {
+    required SessionUUID sessionUUID,
+  }) async {}
+
+  Future<SessionUUID> startChatFromNewTemplate(
+    Session session, {
+    required NewTemplateState newTemplateState,
+  }) async {
     final uuid = uuidClass.v7();
-    _activeSessions[uuid] = ChatControllerImpl(
-      codding: DaytonaClaudeCodeService(
-        daytonaApiKey: '',
-        anthropicApiKey: '',
+    _sessionTemplateInfo[uuid] = newTemplateState;
+    _isNewTemplate[uuid] = true;
+    _activeSessions[uuid] = newChat;
+    refreshSession(uuid);
+    return uuid;
+  }
+
+  Future<SessionUUID> startChatFromExistingTemplate(
+    Session session, {
+    required UuidValue pdfDeclarationUuid,
+  }) async {
+    final pdfDeclaration = await PdfDeclaration.db.findById(
+      session,
+      pdfDeclarationUuid,
+      include: PdfDeclaration.include(
+        schema: SchemaDefinition.include(),
+        referencePdfContent: PdfContent.include(),
       ),
     );
+
+    if (pdfDeclaration == null) {
+      throw ShoebillException(
+        title: 'Template not found',
+        description: 'The specified PDF template does not exist.',
+      );
+    }
+
+    if (pdfDeclaration.schema == null ||
+        pdfDeclaration.referencePdfContent == null) {
+      throw ShoebillException(
+        title: 'Incomplete template',
+        description: 'The template is missing required schema or content data.',
+      );
+    }
+
+    final PdfImplementationPayload? pdfImplementation =
+        await PdfImplementationPayload.db.findFirstRow(
+          session,
+          where: (pI) =>
+              pI.pdfDeclarationId.equals(pdfDeclaration.id) &
+              pI.language.equals(pdfDeclaration.referenceLanguage),
+        );
+
+    if (pdfImplementation == null) {
+      throw ShoebillException(
+        title: 'Implementation not found',
+        description:
+            'No PDF implementation found for the template in the reference language.',
+      );
+    }
+
+    final templateEssential = DeployReadyTemplateState(
+      pdfContent: pdfDeclaration.referencePdfContent!,
+      schemaDefinition: pdfDeclaration.schema!,
+      pythonGeneratorScript: pdfDeclaration.pythonGeneratorScript,
+      referenceLanguage: pdfDeclaration.referenceLanguage,
+      referenceStringifiedPayloadJson: pdfImplementation.stringifiedJson,
+    );
+
+    final uuid = uuidClass.v7();
+    _sessionTemplateInfo[uuid] = templateEssential;
+    _isNewTemplate[uuid] = false;
+    _activeSessions[uuid] = newChat;
+    refreshSession(uuid);
     return uuid;
   }
 
