@@ -15,7 +15,7 @@
 import 'package:serverpod_test/serverpod_test.dart' as _i1;
 import 'package:serverpod/serverpod.dart' as _i2;
 import 'dart:async' as _i3;
-import 'package:shoebill_template_server/src/generated/api/chat_session_related/messages/chat_message.dart'
+import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/messages/chat_message.dart'
     as _i4;
 import 'package:shoebill_template_server/src/generated/entities/others/supported_languages.dart'
     as _i5;

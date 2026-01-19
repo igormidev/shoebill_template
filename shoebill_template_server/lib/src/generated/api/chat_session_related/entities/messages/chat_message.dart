@@ -11,8 +11,10 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
-import '../../../api/chat_session_related/messages/chat_actor.dart' as _i2;
-import '../../../api/chat_session_related/messages/chat_ui_style.dart' as _i3;
+import '../../../../api/chat_session_related/entities/messages/chat_actor.dart'
+    as _i2;
+import '../../../../api/chat_session_related/entities/messages/chat_ui_style.dart'
+    as _i3;
 
 abstract class ChatMessage
     implements _i1.SerializableModel, _i1.ProtocolSerialization {

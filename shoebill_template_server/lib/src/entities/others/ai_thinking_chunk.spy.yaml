@@ -1,0 +1,3 @@
+class: AiThinkingChunk
+fields:
+    thinkingText: String

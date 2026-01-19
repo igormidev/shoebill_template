@@ -1,0 +1,6 @@
+class: TemplateEssential
+fields:
+    pdfContent: PdfContent
+    schemaDefinition: SchemaDefinition
+    suggestedPrompt: String # The ai will suggest a prompt based on the schema of what the pdf should look like.
+    referenceLanguage: SupportedLanguages

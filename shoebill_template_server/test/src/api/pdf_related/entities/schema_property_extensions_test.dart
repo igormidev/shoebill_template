@@ -12,7 +12,10 @@ class MockOpenAiService implements IOpenAiService {
   Map<String, String>? lastTextsToTranslate;
 
   @override
-  Future<String> generatePrompt({String model = '', required String prompt}) async {
+  Future<String> generatePrompt({
+    String model = '',
+    required String prompt,
+  }) async {
     throw UnimplementedError('Not needed for these tests');
   }
 
@@ -21,7 +24,7 @@ class MockOpenAiService implements IOpenAiService {
     required Map<String, String> textsToTranslate,
     required String sourceLanguage,
     required String targetLanguage,
-    String model = '',
+    String? model,
   }) async {
     lastTextsToTranslate = textsToTranslate;
     if (mockTranslationResult != null) {
@@ -190,53 +193,56 @@ void main() {
       expect(products[1]['price'], equals(599.99));
     });
 
-    test('does NOT include non-translatable strings in the translation call', () async {
-      // Schema with both translatable and non-translatable strings
-      final schema = SchemaDefinition(
-        properties: {
-          'title': SchemaPropertyString(
-            nullable: false,
-            shouldBeTranslated: true,
-          ),
-          'id': SchemaPropertyString(
-            nullable: false,
-            shouldBeTranslated: false,
-          ),
-          'code': SchemaPropertyString(
-            nullable: false,
-            shouldBeTranslated: false,
-          ),
-        },
-      );
+    test(
+      'does NOT include non-translatable strings in the translation call',
+      () async {
+        // Schema with both translatable and non-translatable strings
+        final schema = SchemaDefinition(
+          properties: {
+            'title': SchemaPropertyString(
+              nullable: false,
+              shouldBeTranslated: true,
+            ),
+            'id': SchemaPropertyString(
+              nullable: false,
+              shouldBeTranslated: false,
+            ),
+            'code': SchemaPropertyString(
+              nullable: false,
+              shouldBeTranslated: false,
+            ),
+          },
+        );
 
-      final inputJson = jsonEncode({
-        'title': 'Product Name',
-        'id': 'SKU-12345',
-        'code': 'ABC-001',
-      });
+        final inputJson = jsonEncode({
+          'title': 'Product Name',
+          'id': 'SKU-12345',
+          'code': 'ABC-001',
+        });
 
-      await schema.translateBasedOnSchema(
-        stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.spanish,
-      );
+        await schema.translateBasedOnSchema(
+          stringifiedJson: inputJson,
+          sourceLanguage: SupportedLanguages.english,
+          targetLanguage: SupportedLanguages.spanish,
+        );
 
-      // Verify only the translatable string was sent for translation
-      expect(mockOpenAiService.lastTextsToTranslate, isNotNull);
-      expect(mockOpenAiService.lastTextsToTranslate!.length, equals(1));
-      expect(
-        mockOpenAiService.lastTextsToTranslate!.containsKey('root.title'),
-        isTrue,
-      );
-      expect(
-        mockOpenAiService.lastTextsToTranslate!.containsKey('root.id'),
-        isFalse,
-      );
-      expect(
-        mockOpenAiService.lastTextsToTranslate!.containsKey('root.code'),
-        isFalse,
-      );
-    });
+        // Verify only the translatable string was sent for translation
+        expect(mockOpenAiService.lastTextsToTranslate, isNotNull);
+        expect(mockOpenAiService.lastTextsToTranslate!.length, equals(1));
+        expect(
+          mockOpenAiService.lastTextsToTranslate!.containsKey('root.title'),
+          isTrue,
+        );
+        expect(
+          mockOpenAiService.lastTextsToTranslate!.containsKey('root.id'),
+          isFalse,
+        );
+        expect(
+          mockOpenAiService.lastTextsToTranslate!.containsKey('root.code'),
+          isFalse,
+        );
+      },
+    );
 
     test('preserves the original JSON structure', () async {
       // Schema with various property types

@@ -12,7 +12,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'dart:async' as _i2;
-import 'package:shoebill_template_client/src/protocol/api/chat_session_related/messages/chat_message.dart'
+import 'package:shoebill_template_client/src/protocol/api/chat_session_related/entities/messages/chat_message.dart'
     as _i3;
 import 'package:shoebill_template_client/src/protocol/entities/others/supported_languages.dart'
     as _i4;

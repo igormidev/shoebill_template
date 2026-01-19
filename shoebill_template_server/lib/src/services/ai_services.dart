@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:shoebill_template_server/src/generated/protocol.dart';
+
 abstract interface class IOpenAiService {
   Future<String> generatePrompt({String model, required String prompt});
 
@@ -8,8 +10,45 @@ abstract interface class IOpenAiService {
     required Map<String, String> textsToTranslate,
     required String sourceLanguage,
     required String targetLanguage,
-    String model,
+    String? model,
   });
+
+  Stream<AiStreamResult> streamPromptGeneration({
+    required String prompt,
+    bool shouldUseInternetSearchTool = false,
+    String? model,
+  });
+
+  Stream<AiStreamResult> streamPromptGenerationWithSchemaResponse({
+    required String prompt,
+    required Map<String, SchemaProperty> properties,
+    bool shouldUseInternetSearchTool = false,
+    String? model,
+  });
+}
+
+abstract class AiStreamResult {}
+
+class AiThinkItem extends AiStreamResult {
+  final AiThinkingChunk thinkingChunk;
+  AiThinkItem(this.thinkingChunk);
+}
+
+class AiResultItem extends AiStreamResult {
+  final String result;
+  AiResultItem(this.result);
+}
+
+abstract class AiStreamSchemaResult {}
+
+class AiSchemaThinkItem extends AiStreamResult {
+  final AiThinkingChunk thinkingChunk;
+  AiSchemaThinkItem(this.thinkingChunk);
+}
+
+class AiSchemaResultItem extends AiStreamResult {
+  final Map<String, dynamic> result;
+  AiSchemaResultItem(this.result);
 }
 
 class OpenAiService implements IOpenAiService {
@@ -34,14 +73,15 @@ class OpenAiService implements IOpenAiService {
     required Map<String, String> textsToTranslate,
     required String sourceLanguage,
     required String targetLanguage,
-    String model = _defaultModel,
+    String? model = _defaultModel,
   }) async {
     if (textsToTranslate.isEmpty) {
       return {};
     }
 
     final inputJson = jsonEncode(textsToTranslate);
-    final prompt = '''
+    final prompt =
+        '''
 You are a professional translator. Translate the following JSON object's values from $sourceLanguage to $targetLanguage.
 
 IMPORTANT RULES:
@@ -63,7 +103,9 @@ Return the translated JSON:''';
       if (decoded is Map<String, dynamic>) {
         return decoded.map((key, value) => MapEntry(key, value.toString()));
       }
-      throw FormatException('Expected JSON object, got: ${decoded.runtimeType}');
+      throw FormatException(
+        'Expected JSON object, got: ${decoded.runtimeType}',
+      );
     } catch (e) {
       throw FormatException(
         'Failed to parse translation response as JSON: $e\nResponse was: $response',
@@ -105,13 +147,17 @@ Return the translated JSON:''';
       final json = jsonDecode(responseBody) as Map<String, dynamic>;
       final choices = json['choices'] as List<dynamic>?;
       if (choices == null || choices.isEmpty) {
-        throw FormatException('No choices in OpenRouter response: $responseBody');
+        throw FormatException(
+          'No choices in OpenRouter response: $responseBody',
+        );
       }
 
       final message = choices[0]['message'] as Map<String, dynamic>?;
       final content = message?['content'] as String?;
       if (content == null) {
-        throw FormatException('No content in OpenRouter response: $responseBody');
+        throw FormatException(
+          'No content in OpenRouter response: $responseBody',
+        );
       }
 
       return content;
