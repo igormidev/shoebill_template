@@ -29,50 +29,56 @@ class ChatControllerImpl implements IChatController {
         StreamController<ChatMessage>();
     yield* controller.stream;
 
+    void onThinking(String thinking) {
+      if (isLocal) print('🧠 Thinking: $thinking');
+      controller.add(
+        ChatMessage(
+          role: ChatActor.ai,
+          content: thinking,
+          style: ChatUIStyle.thinkingChunk,
+        ),
+      );
+    }
+
+    void onToolUse(String toolName, Map<String, dynamic> input) {
+      if (isLocal) {
+        print('🔧 Using tool: $toolName');
+        if (toolName == 'Write') {
+          print('   Writing to: ${input['file_path']}');
+        }
+      }
+
+      controller.add(
+        ChatMessage(
+          role: ChatActor.ai,
+          style: ChatUIStyle.thinkingChunk,
+          content: '\nUsing tool: $toolName\n',
+        ),
+      );
+    }
+
+    void onText(String text) {
+      if (isLocal) print('💬 $text');
+      controller.add(
+        ChatMessage(
+          role: ChatActor.ai,
+          content: text,
+          style: ChatUIStyle.normal,
+        ),
+      );
+    }
+
     final result = await codding.generatePythonScript(
       message,
 
       // 🧠 Real-time thinking from Claude
-      onThinking: (thinking) {
-        if (isLocal) print('🧠 Thinking: $thinking');
-        controller.add(
-          ChatMessage(
-            role: ChatActor.ai,
-            content: thinking,
-            style: ChatUIStyle.thinkingChunk,
-          ),
-        );
-      },
+      onThinking: onThinking,
 
       // 🔧 Tool usage (Write, Bash, Read, etc.)
-      onToolUse: (toolName, input) {
-        if (isLocal) {
-          print('🔧 Using tool: $toolName');
-          if (toolName == 'Write') {
-            print('   Writing to: ${input['file_path']}');
-          }
-        }
-
-        controller.add(
-          ChatMessage(
-            role: ChatActor.ai,
-            style: ChatUIStyle.thinkingChunk,
-            content: '\nUsing tool: $toolName\n',
-          ),
-        );
-      },
+      onToolUse: onToolUse,
 
       // 💬 Text output
-      onText: (text) {
-        if (isLocal) print('💬 $text');
-        controller.add(
-          ChatMessage(
-            role: ChatActor.ai,
-            content: text,
-            style: ChatUIStyle.normal,
-          ),
-        );
-      },
+      onText: onText,
     );
 
     switch (result) {
@@ -105,7 +111,10 @@ I will now test the script that generates the PDF in a sandbox environment to en
           ChatMessage(
             role: ChatActor.system,
             style: ChatUIStyle.success,
-            content: '''''',
+            content:
+                '''Seems like a error of status code ${result.statusCode} happened when trying to run the script in a sandbox environment.
+
+Please contact support.''',
           ),
         );
       case ClaudeCodeExecutionError():
