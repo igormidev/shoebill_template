@@ -46,10 +46,180 @@ class ChatSessionEndpoint extends Endpoint {
     );
   }
 
-  Future<void> deploySession(
+  Future<UuidValue> deploySession(
     Session session, {
     required SessionUUID sessionUUID,
-  }) async {}
+  }) async {
+    final templateState = _sessionTemplateInfo[sessionUUID];
+
+    if (templateState == null) {
+      throw ShoebillException(
+        title: 'Session not found',
+        description: 'No template session found for UUID: $sessionUUID',
+      );
+    }
+
+    if (templateState is! DeployReadyTemplateState) {
+      throw ShoebillException(
+        title: 'Template not ready',
+        description:
+            'The template is not ready for deployment. Ensure the Python generator script has been created.',
+      );
+    }
+
+    final isNew = _isNewTemplate[sessionUUID] ?? true;
+
+    if (isNew) {
+      return _deployNewTemplate(session, templateState: templateState);
+    } else {
+      return _updateExistingTemplate(session, templateState: templateState);
+    }
+  }
+
+  Future<UuidValue> _deployNewTemplate(
+    Session session, {
+    required DeployReadyTemplateState templateState,
+  }) async {
+    var schemaDefinition = templateState.schemaDefinition;
+    var pdfContent = templateState.pdfContent;
+
+    return session.db.transaction((tx) async {
+      // Insert SchemaDefinition if it doesn't have an ID
+      if (schemaDefinition.id == null) {
+        schemaDefinition = await SchemaDefinition.db.insertRow(
+          session,
+          schemaDefinition,
+          transaction: tx,
+        );
+      }
+
+      // Insert PdfContent if it doesn't have an ID
+      if (pdfContent.id == null) {
+        pdfContent = await PdfContent.db.insertRow(
+          session,
+          pdfContent,
+          transaction: tx,
+        );
+      }
+
+      // Create the PdfDeclaration
+      final pdfDeclaration = await PdfDeclaration.db.insertRow(
+        session,
+        PdfDeclaration(
+          schemaId: schemaDefinition.id!,
+          referencePdfContentId: pdfContent.id!,
+          referencePdfContent: pdfContent,
+          schema: schemaDefinition,
+          pythonGeneratorScript: templateState.pythonGeneratorScript,
+          referenceLanguage: templateState.referenceLanguage,
+        ),
+        transaction: tx,
+      );
+
+      // Create the PdfImplementationPayload
+      final implementation = await PdfImplementationPayload.db.insertRow(
+        session,
+        PdfImplementationPayload(
+          stringifiedJson: templateState.referenceStringifiedPayloadJson,
+          pdfDeclarationId: pdfDeclaration.id,
+          language: templateState.referenceLanguage,
+        ),
+        transaction: tx,
+      );
+
+      // Attach the implementation to the declaration
+      await PdfDeclaration.db.attachRow.pdfImplementationsPayloads(
+        session,
+        pdfDeclaration,
+        implementation,
+        transaction: tx,
+      );
+
+      return pdfDeclaration.id;
+    });
+  }
+
+  Future<UuidValue> _updateExistingTemplate(
+    Session session, {
+    required DeployReadyTemplateState templateState,
+  }) async {
+    // For existing templates, pdfContent should have an ID
+    final pdfContentId = templateState.pdfContent.id;
+    if (pdfContentId == null) {
+      throw ShoebillException(
+        title: 'Invalid template state',
+        description: 'Existing template state is missing PDF content ID.',
+      );
+    }
+
+    // Find the existing PdfDeclaration by pdfContent
+    final existingDeclaration = await PdfDeclaration.db.findFirstRow(
+      session,
+      where: (t) => t.referencePdfContentId.equals(pdfContentId),
+    );
+
+    if (existingDeclaration == null) {
+      throw ShoebillException(
+        title: 'Declaration not found',
+        description:
+            'No existing PDF declaration found for the given template.',
+      );
+    }
+
+    return session.db.transaction((tx) async {
+      // Update the python generator script
+      await PdfDeclaration.db.updateRow(
+        session,
+        existingDeclaration.copyWith(
+          pythonGeneratorScript: templateState.pythonGeneratorScript,
+        ),
+        columns: (t) => [t.pythonGeneratorScript],
+        transaction: tx,
+      );
+
+      // Update or create the implementation payload for the reference language
+      final existingImplementation = await PdfImplementationPayload.db
+          .findFirstRow(
+            session,
+            where: (t) =>
+                t.pdfDeclarationId.equals(existingDeclaration.id) &
+                t.language.equals(templateState.referenceLanguage),
+            transaction: tx,
+          );
+
+      if (existingImplementation != null) {
+        // Update existing implementation
+        await PdfImplementationPayload.db.updateRow(
+          session,
+          existingImplementation.copyWith(
+            stringifiedJson: templateState.referenceStringifiedPayloadJson,
+          ),
+          columns: (t) => [t.stringifiedJson],
+          transaction: tx,
+        );
+      } else {
+        // Create new implementation for this language
+        final newImplementation = await PdfImplementationPayload.db.insertRow(
+          session,
+          PdfImplementationPayload(
+            stringifiedJson: templateState.referenceStringifiedPayloadJson,
+            pdfDeclarationId: existingDeclaration.id,
+            language: templateState.referenceLanguage,
+          ),
+          transaction: tx,
+        );
+
+        await PdfDeclaration.db.attachRow.pdfImplementationsPayloads(
+          session,
+          existingDeclaration,
+          newImplementation,
+          transaction: tx,
+        );
+      }
+
+      return existingDeclaration.id;
+    });
+  }
 
   Future<SessionUUID> startChatFromNewTemplate(
     Session session, {
@@ -155,8 +325,11 @@ class ChatSessionEndpoint extends Endpoint {
     }
     refreshSession(sessionUUID);
 
-    yield* currentSession.sendMessage(
+    await for (final msg in currentSession.sendMessage(
       message: message,
-    );
+    )) {
+      yield msg;
+      switch (msg) {}
+    }
   }
 }
