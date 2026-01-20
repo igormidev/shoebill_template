@@ -1,0 +1,6 @@
+class: ShoebillTemplateVersionInput
+table: shoebill_template_version_inputs
+fields:
+    user: ShoebillTemplateVersion?, relation(name=shoebill_template_version_input_relation)
+    htmlContent: String
+    cssContent: String

@@ -1,3 +1,8 @@
+chatSession:
+  - deploySession:
+  - startChatFromNewTemplate:
+  - startChatFromExistingTemplate:
+  - sendMessage:
 createTemplateEssentials:
   - call:
 pdfGenerate:

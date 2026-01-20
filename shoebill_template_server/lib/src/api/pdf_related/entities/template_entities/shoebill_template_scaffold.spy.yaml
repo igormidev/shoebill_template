@@ -1,0 +1,7 @@
+class: ShoebillTemplateScaffold
+table: shoebill_template_scaffolds
+fields:
+    id: UuidValue, defaultModel=random_v7
+    createdAt: DateTime, default=now
+    referencePdfContent: PdfContent?, relation
+    versions: List<ShoebillTemplateVersion>?, relation(name=scaffold_to_versions)

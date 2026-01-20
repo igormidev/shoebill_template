@@ -1,0 +1,7 @@
+class: ShoebillTemplateVersionImplementation
+table: shoebill_template_version_implementations
+fields:
+    stringifiedPayload: String
+    language: SupportedLanguages
+    createdAt: DateTime, default=now
+    version: ShoebillTemplateVersion?, relation(name=version_implementation_relation)

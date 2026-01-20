@@ -14,20 +14,24 @@
 import 'package:serverpod_test/serverpod_test.dart' as _i1;
 import 'package:serverpod/serverpod.dart' as _i2;
 import 'dart:async' as _i3;
-import 'package:shoebill_template_server/src/generated/entities/others/ai_thinking_chunk.dart'
+import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/template_current_state/template_current_state.dart'
     as _i4;
-import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/template_essential.dart'
+import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/messages/chat_message.dart'
     as _i5;
-import 'package:shoebill_template_server/src/generated/entities/others/supported_languages.dart'
+import 'package:shoebill_template_server/src/generated/entities/others/ai_thinking_chunk.dart'
     as _i6;
-import 'package:shoebill_template_server/src/generated/api/pdf_related/entities/schema_definition.dart'
+import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/template_essential.dart'
     as _i7;
-import 'package:shoebill_template_server/src/generated/api/pdf_related/entities/pdf_content.dart'
+import 'package:shoebill_template_server/src/generated/entities/others/supported_languages.dart'
     as _i8;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+import 'package:shoebill_template_server/src/generated/api/pdf_related/entities/schema_definition.dart'
     as _i9;
-import 'package:shoebill_template_server/src/generated/greetings/greeting.dart'
+import 'package:shoebill_template_server/src/generated/api/pdf_related/entities/pdf_content.dart'
     as _i10;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i11;
+import 'package:shoebill_template_server/src/generated/greetings/greeting.dart'
+    as _i12;
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -135,6 +139,8 @@ void withServerpod(
 }
 
 class TestEndpoints {
+  late final _ChatSessionEndpoint chatSession;
+
   late final _CreateTemplateEssentialsEndpoint createTemplateEssentials;
 
   late final _PdfGenerateEndpoint pdfGenerate;
@@ -153,6 +159,10 @@ class _InternalTestEndpoints extends TestEndpoints
     _i2.SerializationManager serializationManager,
     _i2.EndpointDispatch endpoints,
   ) {
+    chatSession = _ChatSessionEndpoint(
+      endpoints,
+      serializationManager,
+    );
     createTemplateEssentials = _CreateTemplateEssentialsEndpoint(
       endpoints,
       serializationManager,
@@ -176,6 +186,150 @@ class _InternalTestEndpoints extends TestEndpoints
   }
 }
 
+class _ChatSessionEndpoint {
+  _ChatSessionEndpoint(
+    this._endpointDispatch,
+    this._serializationManager,
+  );
+
+  final _i2.EndpointDispatch _endpointDispatch;
+
+  final _i2.SerializationManager _serializationManager;
+
+  _i3.Future<_i2.UuidValue> deploySession(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required String sessionUUID,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'chatSession',
+            method: 'deploySession',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'chatSession',
+          methodName: 'deploySession',
+          parameters: _i1.testObjectToJson({'sessionUUID': sessionUUID}),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<_i2.UuidValue>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<String> startChatFromNewTemplate(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required _i4.NewTemplateState newTemplateState,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'chatSession',
+            method: 'startChatFromNewTemplate',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'chatSession',
+          methodName: 'startChatFromNewTemplate',
+          parameters: _i1.testObjectToJson({
+            'newTemplateState': newTemplateState,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Future<String> startChatFromExistingTemplate(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required _i2.UuidValue pdfDeclarationUuid,
+  }) async {
+    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'chatSession',
+            method: 'startChatFromExistingTemplate',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'chatSession',
+          methodName: 'startChatFromExistingTemplate',
+          parameters: _i1.testObjectToJson({
+            'pdfDeclarationUuid': pdfDeclarationUuid,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _i3.Future<String>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _i3.Stream<_i5.ChatMessage> sendMessage(
+    _i1.TestSessionBuilder sessionBuilder, {
+    required String sessionUUID,
+    required String message,
+  }) {
+    var _localTestStreamManager = _i1.TestStreamManager<_i5.ChatMessage>();
+    _i1.callStreamFunctionAndHandleExceptions(
+      () async {
+        var _localUniqueSession =
+            (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
+              endpoint: 'chatSession',
+              method: 'sendMessage',
+            );
+        var _localCallContext = await _endpointDispatch
+            .getMethodStreamCallContext(
+              createSessionCallback: (_) => _localUniqueSession,
+              endpointPath: 'chatSession',
+              methodName: 'sendMessage',
+              arguments: {
+                'sessionUUID': sessionUUID,
+                'message': message,
+              },
+              requestedInputStreams: [],
+              serializationManager: _serializationManager,
+            );
+        await _localTestStreamManager.callStreamMethod(
+          _localCallContext,
+          _localUniqueSession,
+          {},
+        );
+      },
+      _localTestStreamManager.outputStreamController,
+    );
+    return _localTestStreamManager.outputStreamController.stream;
+  }
+}
+
 class _CreateTemplateEssentialsEndpoint {
   _CreateTemplateEssentialsEndpoint(
     this._endpointDispatch,
@@ -187,7 +341,7 @@ class _CreateTemplateEssentialsEndpoint {
   final _i2.SerializationManager _serializationManager;
 
   _i3.Stream<
-    ({_i4.AiThinkingChunk? aiThinkingChunk, _i5.TemplateEssential? template})
+    ({_i6.AiThinkingChunk? aiThinkingChunk, _i7.TemplateEssential? template})
   >
   call(
     _i1.TestSessionBuilder sessionBuilder, {
@@ -196,8 +350,8 @@ class _CreateTemplateEssentialsEndpoint {
     var _localTestStreamManager =
         _i1.TestStreamManager<
           ({
-            _i4.AiThinkingChunk? aiThinkingChunk,
-            _i5.TemplateEssential? template,
+            _i6.AiThinkingChunk? aiThinkingChunk,
+            _i7.TemplateEssential? template,
           })
         >();
     _i1.callStreamFunctionAndHandleExceptions(
@@ -240,10 +394,10 @@ class _PdfGenerateEndpoint {
 
   _i3.Future<void> call(
     _i1.TestSessionBuilder sessionBuilder, {
-    required _i6.SupportedLanguages language,
+    required _i8.SupportedLanguages language,
     required String stringifiedJson,
-    required _i7.SchemaDefinition schemaDefinition,
-    required _i8.PdfContent pdfContent,
+    required _i9.SchemaDefinition schemaDefinition,
+    required _i10.PdfContent pdfContent,
     required String pythonGeneratorScript,
   }) async {
     return _i1.callAwaitableFunctionAndHandleExceptions(() async {
@@ -290,7 +444,7 @@ class _EmailIdpEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i9.AuthSuccess> login(
+  _i3.Future<_i11.AuthSuccess> login(
     _i1.TestSessionBuilder sessionBuilder, {
     required String email,
     required String password,
@@ -317,7 +471,7 @@ class _EmailIdpEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i9.AuthSuccess>);
+                as _i3.Future<_i11.AuthSuccess>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -391,7 +545,7 @@ class _EmailIdpEndpoint {
     });
   }
 
-  _i3.Future<_i9.AuthSuccess> finishRegistration(
+  _i3.Future<_i11.AuthSuccess> finishRegistration(
     _i1.TestSessionBuilder sessionBuilder, {
     required String registrationToken,
     required String password,
@@ -418,7 +572,7 @@ class _EmailIdpEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i9.AuthSuccess>);
+                as _i3.Future<_i11.AuthSuccess>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -538,7 +692,7 @@ class _JwtRefreshEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i9.AuthSuccess> refreshAccessToken(
+  _i3.Future<_i11.AuthSuccess> refreshAccessToken(
     _i1.TestSessionBuilder sessionBuilder, {
     required String refreshToken,
   }) async {
@@ -561,7 +715,7 @@ class _JwtRefreshEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i9.AuthSuccess>);
+                as _i3.Future<_i11.AuthSuccess>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -580,7 +734,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i10.Greeting> hello(
+  _i3.Future<_i12.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -603,7 +757,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i10.Greeting>);
+                as _i3.Future<_i12.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

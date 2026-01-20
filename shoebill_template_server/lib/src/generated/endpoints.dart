@@ -11,58 +11,158 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod/serverpod.dart' as _i1;
+import '../api/chat_session_related/chat_session_endpoint.dart' as _i2;
 import '../api/chat_session_related/create_template_essentials_mixins.dart'
-    as _i2;
-import '../api/pdf_related/pdf_generate_route.dart' as _i3;
-import '../auth/email_idp_endpoint.dart' as _i4;
-import '../auth/jwt_refresh_endpoint.dart' as _i5;
-import '../greetings/greeting_endpoint.dart' as _i6;
-import 'package:shoebill_template_server/src/generated/entities/others/supported_languages.dart'
-    as _i7;
-import 'package:shoebill_template_server/src/generated/api/pdf_related/entities/schema_definition.dart'
+    as _i3;
+import '../api/pdf_related/pdf_generate_route.dart' as _i4;
+import '../auth/email_idp_endpoint.dart' as _i5;
+import '../auth/jwt_refresh_endpoint.dart' as _i6;
+import '../greetings/greeting_endpoint.dart' as _i7;
+import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/template_current_state/template_current_state.dart'
     as _i8;
-import 'package:shoebill_template_server/src/generated/api/pdf_related/entities/pdf_content.dart'
+import 'package:shoebill_template_server/src/generated/entities/others/supported_languages.dart'
     as _i9;
-import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
+import 'package:shoebill_template_server/src/generated/api/pdf_related/entities/schema_definition.dart'
     as _i10;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+import 'package:shoebill_template_server/src/generated/api/pdf_related/entities/pdf_content.dart'
     as _i11;
+import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
+    as _i12;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i13;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
   void initializeEndpoints(_i1.Server server) {
     var endpoints = <String, _i1.Endpoint>{
-      'createTemplateEssentials': _i2.CreateTemplateEssentialsEndpoint()
+      'chatSession': _i2.ChatSessionEndpoint()
+        ..initialize(
+          server,
+          'chatSession',
+          null,
+        ),
+      'createTemplateEssentials': _i3.CreateTemplateEssentialsEndpoint()
         ..initialize(
           server,
           'createTemplateEssentials',
           null,
         ),
-      'pdfGenerate': _i3.PdfGenerateEndpoint()
+      'pdfGenerate': _i4.PdfGenerateEndpoint()
         ..initialize(
           server,
           'pdfGenerate',
           null,
         ),
-      'emailIdp': _i4.EmailIdpEndpoint()
+      'emailIdp': _i5.EmailIdpEndpoint()
         ..initialize(
           server,
           'emailIdp',
           null,
         ),
-      'jwtRefresh': _i5.JwtRefreshEndpoint()
+      'jwtRefresh': _i6.JwtRefreshEndpoint()
         ..initialize(
           server,
           'jwtRefresh',
           null,
         ),
-      'greeting': _i6.GreetingEndpoint()
+      'greeting': _i7.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
           null,
         ),
     };
+    connectors['chatSession'] = _i1.EndpointConnector(
+      name: 'chatSession',
+      endpoint: endpoints['chatSession']!,
+      methodConnectors: {
+        'deploySession': _i1.MethodConnector(
+          name: 'deploySession',
+          params: {
+            'sessionUUID': _i1.ParameterDescription(
+              name: 'sessionUUID',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['chatSession'] as _i2.ChatSessionEndpoint)
+                  .deploySession(
+                    session,
+                    sessionUUID: params['sessionUUID'],
+                  ),
+        ),
+        'startChatFromNewTemplate': _i1.MethodConnector(
+          name: 'startChatFromNewTemplate',
+          params: {
+            'newTemplateState': _i1.ParameterDescription(
+              name: 'newTemplateState',
+              type: _i1.getType<_i8.NewTemplateState>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['chatSession'] as _i2.ChatSessionEndpoint)
+                  .startChatFromNewTemplate(
+                    session,
+                    newTemplateState: params['newTemplateState'],
+                  ),
+        ),
+        'startChatFromExistingTemplate': _i1.MethodConnector(
+          name: 'startChatFromExistingTemplate',
+          params: {
+            'pdfDeclarationUuid': _i1.ParameterDescription(
+              name: 'pdfDeclarationUuid',
+              type: _i1.getType<_i1.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['chatSession'] as _i2.ChatSessionEndpoint)
+                  .startChatFromExistingTemplate(
+                    session,
+                    pdfDeclarationUuid: params['pdfDeclarationUuid'],
+                  ),
+        ),
+        'sendMessage': _i1.MethodStreamConnector(
+          name: 'sendMessage',
+          params: {
+            'sessionUUID': _i1.ParameterDescription(
+              name: 'sessionUUID',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+            'message': _i1.ParameterDescription(
+              name: 'message',
+              type: _i1.getType<String>(),
+              nullable: false,
+            ),
+          },
+          streamParams: {},
+          returnType: _i1.MethodStreamReturnType.streamType,
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+                Map<String, Stream> streamParams,
+              ) => (endpoints['chatSession'] as _i2.ChatSessionEndpoint)
+                  .sendMessage(
+                    session,
+                    sessionUUID: params['sessionUUID'],
+                    message: params['message'],
+                  ),
+        ),
+      },
+    );
     connectors['createTemplateEssentials'] = _i1.EndpointConnector(
       name: 'createTemplateEssentials',
       endpoint: endpoints['createTemplateEssentials']!,
@@ -85,7 +185,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 Map<String, Stream> streamParams,
               ) =>
                   (endpoints['createTemplateEssentials']
-                          as _i2.CreateTemplateEssentialsEndpoint)
+                          as _i3.CreateTemplateEssentialsEndpoint)
                       .call(
                         session,
                         stringifiedPayload: params['stringifiedPayload'],
@@ -102,7 +202,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'language': _i1.ParameterDescription(
               name: 'language',
-              type: _i1.getType<_i7.SupportedLanguages>(),
+              type: _i1.getType<_i9.SupportedLanguages>(),
               nullable: false,
             ),
             'stringifiedJson': _i1.ParameterDescription(
@@ -112,12 +212,12 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'schemaDefinition': _i1.ParameterDescription(
               name: 'schemaDefinition',
-              type: _i1.getType<_i8.SchemaDefinition>(),
+              type: _i1.getType<_i10.SchemaDefinition>(),
               nullable: false,
             ),
             'pdfContent': _i1.ParameterDescription(
               name: 'pdfContent',
-              type: _i1.getType<_i9.PdfContent>(),
+              type: _i1.getType<_i11.PdfContent>(),
               nullable: false,
             ),
             'pythonGeneratorScript': _i1.ParameterDescription(
@@ -131,7 +231,7 @@ class Endpoints extends _i1.EndpointDispatch {
                 _i1.Session session,
                 Map<String, dynamic> params,
               ) async =>
-                  (endpoints['pdfGenerate'] as _i3.PdfGenerateEndpoint).call(
+                  (endpoints['pdfGenerate'] as _i4.PdfGenerateEndpoint).call(
                     session,
                     language: params['language'],
                     stringifiedJson: params['stringifiedJson'],
@@ -164,7 +264,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['emailIdp'] as _i4.EmailIdpEndpoint).login(
+              ) async => (endpoints['emailIdp'] as _i5.EmailIdpEndpoint).login(
                 session,
                 email: params['email'],
                 password: params['password'],
@@ -183,7 +283,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['emailIdp'] as _i4.EmailIdpEndpoint)
+              ) async => (endpoints['emailIdp'] as _i5.EmailIdpEndpoint)
                   .startRegistration(
                     session,
                     email: params['email'],
@@ -207,7 +307,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['emailIdp'] as _i4.EmailIdpEndpoint)
+              ) async => (endpoints['emailIdp'] as _i5.EmailIdpEndpoint)
                   .verifyRegistrationCode(
                     session,
                     accountRequestId: params['accountRequestId'],
@@ -232,7 +332,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['emailIdp'] as _i4.EmailIdpEndpoint)
+              ) async => (endpoints['emailIdp'] as _i5.EmailIdpEndpoint)
                   .finishRegistration(
                     session,
                     registrationToken: params['registrationToken'],
@@ -252,7 +352,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['emailIdp'] as _i4.EmailIdpEndpoint)
+              ) async => (endpoints['emailIdp'] as _i5.EmailIdpEndpoint)
                   .startPasswordReset(
                     session,
                     email: params['email'],
@@ -276,7 +376,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['emailIdp'] as _i4.EmailIdpEndpoint)
+              ) async => (endpoints['emailIdp'] as _i5.EmailIdpEndpoint)
                   .verifyPasswordResetCode(
                     session,
                     passwordResetRequestId: params['passwordResetRequestId'],
@@ -301,7 +401,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['emailIdp'] as _i4.EmailIdpEndpoint)
+              ) async => (endpoints['emailIdp'] as _i5.EmailIdpEndpoint)
                   .finishPasswordReset(
                     session,
                     finishPasswordResetToken:
@@ -328,7 +428,7 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['jwtRefresh'] as _i5.JwtRefreshEndpoint)
+              ) async => (endpoints['jwtRefresh'] as _i6.JwtRefreshEndpoint)
                   .refreshAccessToken(
                     session,
                     refreshToken: params['refreshToken'],
@@ -353,16 +453,16 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i6.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i7.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i10.Endpoints()
+    modules['serverpod_auth_idp'] = _i12.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i11.Endpoints()
+    modules['serverpod_auth_core'] = _i13.Endpoints()
       ..initializeEndpoints(server);
   }
 }

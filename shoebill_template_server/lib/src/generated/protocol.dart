@@ -28,15 +28,23 @@ import 'api/pdf_related/entities/pdf_implementation_payload.dart' as _i12;
 import 'api/pdf_related/entities/schema_definition.dart' as _i13;
 import 'api/pdf_related/entities/schemas_implementations/schema_property.dart'
     as _i14;
-import 'entities/others/ai_thinking_chunk.dart' as _i15;
-import 'entities/others/shoebill_exception.dart' as _i16;
-import 'entities/others/supported_languages.dart' as _i17;
-import 'entities/template/shoebill_template.dart' as _i18;
-import 'greetings/greeting.dart' as _i19;
+import 'api/pdf_related/entities/template_entities/shoebill_template_scaffold.dart'
+    as _i15;
+import 'api/pdf_related/entities/template_entities/shoebill_template_version.dart'
+    as _i16;
+import 'api/pdf_related/entities/template_entities/shoebill_template_version_implementation.dart'
+    as _i17;
+import 'api/pdf_related/entities/template_entities/shoebill_template_version_input.dart'
+    as _i18;
+import 'entities/others/ai_thinking_chunk.dart' as _i19;
+import 'entities/others/shoebill_exception.dart' as _i20;
+import 'entities/others/supported_languages.dart' as _i21;
+import 'entities/template/shoebill_template.dart' as _i22;
+import 'greetings/greeting.dart' as _i23;
 import 'package:shoebill_template_server/src/generated/entities/others/ai_thinking_chunk.dart'
-    as _i20;
+    as _i24;
 import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/template_essential.dart'
-    as _i21;
+    as _i25;
 export 'api/chat_session_related/entities/messages/chat_actor.dart';
 export 'api/chat_session_related/entities/messages/chat_message.dart';
 export 'api/chat_session_related/entities/messages/chat_ui_style.dart';
@@ -47,6 +55,10 @@ export 'api/pdf_related/entities/pdf_declaration.dart';
 export 'api/pdf_related/entities/pdf_implementation_payload.dart';
 export 'api/pdf_related/entities/schema_definition.dart';
 export 'api/pdf_related/entities/schemas_implementations/schema_property.dart';
+export 'api/pdf_related/entities/template_entities/shoebill_template_scaffold.dart';
+export 'api/pdf_related/entities/template_entities/shoebill_template_version.dart';
+export 'api/pdf_related/entities/template_entities/shoebill_template_version_implementation.dart';
+export 'api/pdf_related/entities/template_entities/shoebill_template_version_input.dart';
 export 'entities/others/ai_thinking_chunk.dart';
 export 'entities/others/shoebill_exception.dart';
 export 'entities/others/supported_languages.dart';
@@ -297,6 +309,278 @@ class Protocol extends _i1.SerializationManagerServer {
       managed: true,
     ),
     _i2.TableDefinition(
+      name: 'shoebill_template_scaffolds',
+      dartName: 'ShoebillTemplateScaffold',
+      schema: 'public',
+      module: 'shoebill_template',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+          columnDefault: 'gen_random_uuid_v7()',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'CURRENT_TIMESTAMP',
+        ),
+        _i2.ColumnDefinition(
+          name: 'referencePdfContentId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+      ],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'shoebill_template_scaffolds_fk_0',
+          columns: ['referencePdfContentId'],
+          referenceTable: 'pdf_content',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'shoebill_template_scaffolds_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
+      name: 'shoebill_template_version_implementations',
+      dartName: 'ShoebillTemplateVersionImplementation',
+      schema: 'public',
+      module: 'shoebill_template',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault:
+              'nextval(\'shoebill_template_version_implementations_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'stringifiedPayload',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'language',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'protocol:SupportedLanguages',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'CURRENT_TIMESTAMP',
+        ),
+        _i2.ColumnDefinition(
+          name: 'versionId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+      ],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'shoebill_template_version_implementations_fk_0',
+          columns: ['versionId'],
+          referenceTable: 'shoebill_template_versions',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'shoebill_template_version_implementations_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
+      name: 'shoebill_template_version_inputs',
+      dartName: 'ShoebillTemplateVersionInput',
+      schema: 'public',
+      module: 'shoebill_template',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault:
+              'nextval(\'shoebill_template_version_inputs_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'htmlContent',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'cssContent',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'shoebill_template_version_inputs_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
+      name: 'shoebill_template_versions',
+      dartName: 'ShoebillTemplateVersion',
+      schema: 'public',
+      module: 'shoebill_template',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault:
+              'nextval(\'shoebill_template_versions_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'CURRENT_TIMESTAMP',
+        ),
+        _i2.ColumnDefinition(
+          name: 'schemaId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'inputId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _i2.ColumnDefinition(
+          name: 'scaffoldId',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+      ],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'shoebill_template_versions_fk_0',
+          columns: ['schemaId'],
+          referenceTable: 'schema_definitions',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+        _i2.ForeignKeyDefinition(
+          constraintName: 'shoebill_template_versions_fk_1',
+          columns: ['inputId'],
+          referenceTable: 'shoebill_template_version_inputs',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+        _i2.ForeignKeyDefinition(
+          constraintName: 'shoebill_template_versions_fk_2',
+          columns: ['scaffoldId'],
+          referenceTable: 'shoebill_template_scaffolds',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'shoebill_template_versions_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'template_input_unique_index',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'inputId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _i2.TableDefinition(
       name: 'template_pdf',
       dartName: 'TemplatePdf',
       schema: 'public',
@@ -438,20 +722,32 @@ class Protocol extends _i1.SerializationManagerServer {
           )
           as T;
     }
-    if (t == _i15.AiThinkingChunk) {
-      return _i15.AiThinkingChunk.fromJson(data) as T;
+    if (t == _i15.ShoebillTemplateScaffold) {
+      return _i15.ShoebillTemplateScaffold.fromJson(data) as T;
     }
-    if (t == _i16.ShoebillException) {
-      return _i16.ShoebillException.fromJson(data) as T;
+    if (t == _i16.ShoebillTemplateVersion) {
+      return _i16.ShoebillTemplateVersion.fromJson(data) as T;
     }
-    if (t == _i17.SupportedLanguages) {
-      return _i17.SupportedLanguages.fromJson(data) as T;
+    if (t == _i17.ShoebillTemplateVersionImplementation) {
+      return _i17.ShoebillTemplateVersionImplementation.fromJson(data) as T;
     }
-    if (t == _i18.TemplatePdf) {
-      return _i18.TemplatePdf.fromJson(data) as T;
+    if (t == _i18.ShoebillTemplateVersionInput) {
+      return _i18.ShoebillTemplateVersionInput.fromJson(data) as T;
     }
-    if (t == _i19.Greeting) {
-      return _i19.Greeting.fromJson(data) as T;
+    if (t == _i19.AiThinkingChunk) {
+      return _i19.AiThinkingChunk.fromJson(data) as T;
+    }
+    if (t == _i20.ShoebillException) {
+      return _i20.ShoebillException.fromJson(data) as T;
+    }
+    if (t == _i21.SupportedLanguages) {
+      return _i21.SupportedLanguages.fromJson(data) as T;
+    }
+    if (t == _i22.TemplatePdf) {
+      return _i22.TemplatePdf.fromJson(data) as T;
+    }
+    if (t == _i23.Greeting) {
+      return _i23.Greeting.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.ChatActor?>()) {
       return (data != null ? _i5.ChatActor.fromJson(data) : null) as T;
@@ -529,21 +825,43 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == _i1.getType<_i15.AiThinkingChunk?>()) {
-      return (data != null ? _i15.AiThinkingChunk.fromJson(data) : null) as T;
-    }
-    if (t == _i1.getType<_i16.ShoebillException?>()) {
-      return (data != null ? _i16.ShoebillException.fromJson(data) : null) as T;
-    }
-    if (t == _i1.getType<_i17.SupportedLanguages?>()) {
-      return (data != null ? _i17.SupportedLanguages.fromJson(data) : null)
+    if (t == _i1.getType<_i15.ShoebillTemplateScaffold?>()) {
+      return (data != null
+              ? _i15.ShoebillTemplateScaffold.fromJson(data)
+              : null)
           as T;
     }
-    if (t == _i1.getType<_i18.TemplatePdf?>()) {
-      return (data != null ? _i18.TemplatePdf.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i16.ShoebillTemplateVersion?>()) {
+      return (data != null ? _i16.ShoebillTemplateVersion.fromJson(data) : null)
+          as T;
     }
-    if (t == _i1.getType<_i19.Greeting?>()) {
-      return (data != null ? _i19.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i17.ShoebillTemplateVersionImplementation?>()) {
+      return (data != null
+              ? _i17.ShoebillTemplateVersionImplementation.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _i1.getType<_i18.ShoebillTemplateVersionInput?>()) {
+      return (data != null
+              ? _i18.ShoebillTemplateVersionInput.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _i1.getType<_i19.AiThinkingChunk?>()) {
+      return (data != null ? _i19.AiThinkingChunk.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i20.ShoebillException?>()) {
+      return (data != null ? _i20.ShoebillException.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i21.SupportedLanguages?>()) {
+      return (data != null ? _i21.SupportedLanguages.fromJson(data) : null)
+          as T;
+    }
+    if (t == _i1.getType<_i22.TemplatePdf?>()) {
+      return (data != null ? _i22.TemplatePdf.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i23.Greeting?>()) {
+      return (data != null ? _i23.Greeting.fromJson(data) : null) as T;
     }
     if (t == List<_i12.PdfImplementationPayload>) {
       return (data as List)
@@ -571,24 +889,60 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
+    if (t == List<_i16.ShoebillTemplateVersion>) {
+      return (data as List)
+              .map((e) => deserialize<_i16.ShoebillTemplateVersion>(e))
+              .toList()
+          as T;
+    }
+    if (t == _i1.getType<List<_i16.ShoebillTemplateVersion>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_i16.ShoebillTemplateVersion>(e))
+                    .toList()
+              : null)
+          as T;
+    }
+    if (t == List<_i17.ShoebillTemplateVersionImplementation>) {
+      return (data as List)
+              .map(
+                (e) =>
+                    deserialize<_i17.ShoebillTemplateVersionImplementation>(e),
+              )
+              .toList()
+          as T;
+    }
+    if (t == _i1.getType<List<_i17.ShoebillTemplateVersionImplementation>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map(
+                      (e) =>
+                          deserialize<
+                            _i17.ShoebillTemplateVersionImplementation
+                          >(e),
+                    )
+                    .toList()
+              : null)
+          as T;
+    }
     if (t ==
         _i1
             .getType<
               ({
-                _i20.AiThinkingChunk? aiThinkingChunk,
-                _i21.TemplateEssential? template,
+                _i24.AiThinkingChunk? aiThinkingChunk,
+                _i25.TemplateEssential? template,
               })
             >()) {
       return (
             aiThinkingChunk:
                 ((data as Map)['n'] as Map)['aiThinkingChunk'] == null
                 ? null
-                : deserialize<_i20.AiThinkingChunk>(
+                : deserialize<_i24.AiThinkingChunk>(
                     data['n']['aiThinkingChunk'],
                   ),
             template: ((data)['n'] as Map)['template'] == null
                 ? null
-                : deserialize<_i21.TemplateEssential>(data['n']['template']),
+                : deserialize<_i25.TemplateEssential>(data['n']['template']),
           )
           as T;
     }
@@ -596,20 +950,20 @@ class Protocol extends _i1.SerializationManagerServer {
         _i1
             .getType<
               ({
-                _i20.AiThinkingChunk? aiThinkingChunk,
-                _i21.TemplateEssential? template,
+                _i24.AiThinkingChunk? aiThinkingChunk,
+                _i25.TemplateEssential? template,
               })
             >()) {
       return (
             aiThinkingChunk:
                 ((data as Map)['n'] as Map)['aiThinkingChunk'] == null
                 ? null
-                : deserialize<_i20.AiThinkingChunk>(
+                : deserialize<_i24.AiThinkingChunk>(
                     data['n']['aiThinkingChunk'],
                   ),
             template: ((data)['n'] as Map)['template'] == null
                 ? null
-                : deserialize<_i21.TemplateEssential>(data['n']['template']),
+                : deserialize<_i25.TemplateEssential>(data['n']['template']),
           )
           as T;
     }
@@ -647,11 +1001,16 @@ class Protocol extends _i1.SerializationManagerServer {
       _i14.SchemaPropertyString => 'SchemaPropertyString',
       _i14.SchemaPropertyStructuredObjectWithDefinedProperties =>
         'SchemaPropertyStructuredObjectWithDefinedProperties',
-      _i15.AiThinkingChunk => 'AiThinkingChunk',
-      _i16.ShoebillException => 'ShoebillException',
-      _i17.SupportedLanguages => 'SupportedLanguages',
-      _i18.TemplatePdf => 'TemplatePdf',
-      _i19.Greeting => 'Greeting',
+      _i15.ShoebillTemplateScaffold => 'ShoebillTemplateScaffold',
+      _i16.ShoebillTemplateVersion => 'ShoebillTemplateVersion',
+      _i17.ShoebillTemplateVersionImplementation =>
+        'ShoebillTemplateVersionImplementation',
+      _i18.ShoebillTemplateVersionInput => 'ShoebillTemplateVersionInput',
+      _i19.AiThinkingChunk => 'AiThinkingChunk',
+      _i20.ShoebillException => 'ShoebillException',
+      _i21.SupportedLanguages => 'SupportedLanguages',
+      _i22.TemplatePdf => 'TemplatePdf',
+      _i23.Greeting => 'Greeting',
       _ => null,
     };
   }
@@ -705,15 +1064,23 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'SchemaPropertyString';
       case _i14.SchemaPropertyStructuredObjectWithDefinedProperties():
         return 'SchemaPropertyStructuredObjectWithDefinedProperties';
-      case _i15.AiThinkingChunk():
+      case _i15.ShoebillTemplateScaffold():
+        return 'ShoebillTemplateScaffold';
+      case _i16.ShoebillTemplateVersion():
+        return 'ShoebillTemplateVersion';
+      case _i17.ShoebillTemplateVersionImplementation():
+        return 'ShoebillTemplateVersionImplementation';
+      case _i18.ShoebillTemplateVersionInput():
+        return 'ShoebillTemplateVersionInput';
+      case _i19.AiThinkingChunk():
         return 'AiThinkingChunk';
-      case _i16.ShoebillException():
+      case _i20.ShoebillException():
         return 'ShoebillException';
-      case _i17.SupportedLanguages():
+      case _i21.SupportedLanguages():
         return 'SupportedLanguages';
-      case _i18.TemplatePdf():
+      case _i22.TemplatePdf():
         return 'TemplatePdf';
-      case _i19.Greeting():
+      case _i23.Greeting():
         return 'Greeting';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -730,8 +1097,8 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (data
         is ({
-          _i20.AiThinkingChunk? aiThinkingChunk,
-          _i21.TemplateEssential? template,
+          _i24.AiThinkingChunk? aiThinkingChunk,
+          _i25.TemplateEssential? template,
         })) {
       return '(,{AiThinkingChunk? aiThinkingChunk,TemplateEssential? template})';
     }
@@ -803,20 +1170,34 @@ class Protocol extends _i1.SerializationManagerServer {
         _i14.SchemaPropertyStructuredObjectWithDefinedProperties
       >(data['data']);
     }
+    if (dataClassName == 'ShoebillTemplateScaffold') {
+      return deserialize<_i15.ShoebillTemplateScaffold>(data['data']);
+    }
+    if (dataClassName == 'ShoebillTemplateVersion') {
+      return deserialize<_i16.ShoebillTemplateVersion>(data['data']);
+    }
+    if (dataClassName == 'ShoebillTemplateVersionImplementation') {
+      return deserialize<_i17.ShoebillTemplateVersionImplementation>(
+        data['data'],
+      );
+    }
+    if (dataClassName == 'ShoebillTemplateVersionInput') {
+      return deserialize<_i18.ShoebillTemplateVersionInput>(data['data']);
+    }
     if (dataClassName == 'AiThinkingChunk') {
-      return deserialize<_i15.AiThinkingChunk>(data['data']);
+      return deserialize<_i19.AiThinkingChunk>(data['data']);
     }
     if (dataClassName == 'ShoebillException') {
-      return deserialize<_i16.ShoebillException>(data['data']);
+      return deserialize<_i20.ShoebillException>(data['data']);
     }
     if (dataClassName == 'SupportedLanguages') {
-      return deserialize<_i17.SupportedLanguages>(data['data']);
+      return deserialize<_i21.SupportedLanguages>(data['data']);
     }
     if (dataClassName == 'TemplatePdf') {
-      return deserialize<_i18.TemplatePdf>(data['data']);
+      return deserialize<_i22.TemplatePdf>(data['data']);
     }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i19.Greeting>(data['data']);
+      return deserialize<_i23.Greeting>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -834,8 +1215,8 @@ class Protocol extends _i1.SerializationManagerServer {
         '(,{AiThinkingChunk? aiThinkingChunk,TemplateEssential? template})') {
       return deserialize<
         ({
-          _i20.AiThinkingChunk? aiThinkingChunk,
-          _i21.TemplateEssential? template,
+          _i24.AiThinkingChunk? aiThinkingChunk,
+          _i25.TemplateEssential? template,
         })
       >(data['data']);
     }
@@ -871,8 +1252,16 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i12.PdfImplementationPayload.t;
       case _i13.SchemaDefinition:
         return _i13.SchemaDefinition.t;
-      case _i18.TemplatePdf:
-        return _i18.TemplatePdf.t;
+      case _i15.ShoebillTemplateScaffold:
+        return _i15.ShoebillTemplateScaffold.t;
+      case _i16.ShoebillTemplateVersion:
+        return _i16.ShoebillTemplateVersion.t;
+      case _i17.ShoebillTemplateVersionImplementation:
+        return _i17.ShoebillTemplateVersionImplementation.t;
+      case _i18.ShoebillTemplateVersionInput:
+        return _i18.ShoebillTemplateVersionInput.t;
+      case _i22.TemplatePdf:
+        return _i22.TemplatePdf.t;
     }
     return null;
   }
@@ -917,8 +1306,8 @@ class Protocol extends _i1.SerializationManagerServer {
     }
     if (record
         is ({
-          _i20.AiThinkingChunk? aiThinkingChunk,
-          _i21.TemplateEssential? template,
+          _i24.AiThinkingChunk? aiThinkingChunk,
+          _i25.TemplateEssential? template,
         })) {
       return {
         "n": {
