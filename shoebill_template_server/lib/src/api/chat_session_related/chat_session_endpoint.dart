@@ -29,6 +29,8 @@ class ChatSessionEndpoint extends Endpoint {
     final currentRefreshes = _sessionRefresh[sessionUuid] ?? 0;
     if (currentRefreshes >= kMaxSessionRefreshes) {
       _activeSessions.remove(sessionUuid);
+      _isNewTemplate.remove(sessionUuid);
+      _sessionTemplateInfo.remove(sessionUuid);
       _sessionCleanupTimers[sessionUuid]?.cancel();
       _sessionCleanupTimers.remove(sessionUuid);
       _sessionRefresh.remove(sessionUuid);
@@ -41,6 +43,8 @@ class ChatSessionEndpoint extends Endpoint {
       () {
         _activeSessions.remove(sessionUuid);
         _sessionRefresh.remove(sessionUuid);
+        _isNewTemplate.remove(sessionUuid);
+        _sessionTemplateInfo.remove(sessionUuid);
         _sessionCleanupTimers.remove(sessionUuid);
       },
     );

@@ -6,7 +6,7 @@ fields:
     inputId: int
     input: ShoebillTemplateVersionInput?, relation(name=shoebill_template_version_input_relation, field=inputId)
     scaffold: ShoebillTemplateScaffold?, relation(name=scaffold_to_versions)
-    implementations: List<ShoebillTemplateVersionImplementation>?, relation(name=version_implementation_relation)
+    implementations: List<ShoebillTemplateBaseline>?, relation(name=version_baseline_relation)
 
 indexes:
     template_input_unique_index:

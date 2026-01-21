@@ -4,4 +4,4 @@ fields:
     stringifiedPayload: String
     language: SupportedLanguages
     createdAt: DateTime, default=now
-    version: ShoebillTemplateVersion?, relation(name=version_implementation_relation)
+    baseline: ShoebillTemplateBaseline?, relation(name=baseline_implementation_relation)
