@@ -12,34 +12,34 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import '../../../../entities/others/supported_languages.dart' as _i2;
-import '../../../../api/pdf_related/entities/template_entities/shoebill_template_version.dart'
+import '../../../../api/pdf_related/entities/template_entities/shoebill_template_baseline.dart'
     as _i3;
 import 'package:shoebill_template_client/src/protocol/protocol.dart' as _i4;
 
-abstract class ShoebillTemplateVersionImplementation
+abstract class ShoebillTemplateBaselineImplementation
     implements _i1.SerializableModel {
-  ShoebillTemplateVersionImplementation._({
+  ShoebillTemplateBaselineImplementation._({
     this.id,
     required this.stringifiedPayload,
     required this.language,
     DateTime? createdAt,
-    required this.versionId,
-    this.version,
+    required this.baselineId,
+    this.baseline,
   }) : createdAt = createdAt ?? DateTime.now();
 
-  factory ShoebillTemplateVersionImplementation({
+  factory ShoebillTemplateBaselineImplementation({
     int? id,
     required String stringifiedPayload,
     required _i2.SupportedLanguages language,
     DateTime? createdAt,
-    required int versionId,
-    _i3.ShoebillTemplateVersion? version,
-  }) = _ShoebillTemplateVersionImplementationImpl;
+    required _i1.UuidValue baselineId,
+    _i3.ShoebillTemplateBaseline? baseline,
+  }) = _ShoebillTemplateBaselineImplementationImpl;
 
-  factory ShoebillTemplateVersionImplementation.fromJson(
+  factory ShoebillTemplateBaselineImplementation.fromJson(
     Map<String, dynamic> jsonSerialization,
   ) {
-    return ShoebillTemplateVersionImplementation(
+    return ShoebillTemplateBaselineImplementation(
       id: jsonSerialization['id'] as int?,
       stringifiedPayload: jsonSerialization['stringifiedPayload'] as String,
       language: _i2.SupportedLanguages.fromJson(
@@ -48,11 +48,13 @@ abstract class ShoebillTemplateVersionImplementation
       createdAt: jsonSerialization['createdAt'] == null
           ? null
           : _i1.DateTimeJsonExtension.fromJson(jsonSerialization['createdAt']),
-      versionId: jsonSerialization['versionId'] as int,
-      version: jsonSerialization['version'] == null
+      baselineId: _i1.UuidValueJsonExtension.fromJson(
+        jsonSerialization['baselineId'],
+      ),
+      baseline: jsonSerialization['baseline'] == null
           ? null
-          : _i4.Protocol().deserialize<_i3.ShoebillTemplateVersion>(
-              jsonSerialization['version'],
+          : _i4.Protocol().deserialize<_i3.ShoebillTemplateBaseline>(
+              jsonSerialization['baseline'],
             ),
     );
   }
@@ -68,31 +70,31 @@ abstract class ShoebillTemplateVersionImplementation
 
   DateTime createdAt;
 
-  int versionId;
+  _i1.UuidValue baselineId;
 
-  _i3.ShoebillTemplateVersion? version;
+  _i3.ShoebillTemplateBaseline? baseline;
 
-  /// Returns a shallow copy of this [ShoebillTemplateVersionImplementation]
+  /// Returns a shallow copy of this [ShoebillTemplateBaselineImplementation]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
-  ShoebillTemplateVersionImplementation copyWith({
+  ShoebillTemplateBaselineImplementation copyWith({
     int? id,
     String? stringifiedPayload,
     _i2.SupportedLanguages? language,
     DateTime? createdAt,
-    int? versionId,
-    _i3.ShoebillTemplateVersion? version,
+    _i1.UuidValue? baselineId,
+    _i3.ShoebillTemplateBaseline? baseline,
   });
   @override
   Map<String, dynamic> toJson() {
     return {
-      '__className__': 'ShoebillTemplateVersionImplementation',
+      '__className__': 'ShoebillTemplateBaselineImplementation',
       if (id != null) 'id': id,
       'stringifiedPayload': stringifiedPayload,
       'language': language.toJson(),
       'createdAt': createdAt.toJson(),
-      'versionId': versionId,
-      if (version != null) 'version': version?.toJson(),
+      'baselineId': baselineId.toJson(),
+      if (baseline != null) 'baseline': baseline?.toJson(),
     };
   }
 
@@ -104,45 +106,45 @@ abstract class ShoebillTemplateVersionImplementation
 
 class _Undefined {}
 
-class _ShoebillTemplateVersionImplementationImpl
-    extends ShoebillTemplateVersionImplementation {
-  _ShoebillTemplateVersionImplementationImpl({
+class _ShoebillTemplateBaselineImplementationImpl
+    extends ShoebillTemplateBaselineImplementation {
+  _ShoebillTemplateBaselineImplementationImpl({
     int? id,
     required String stringifiedPayload,
     required _i2.SupportedLanguages language,
     DateTime? createdAt,
-    required int versionId,
-    _i3.ShoebillTemplateVersion? version,
+    required _i1.UuidValue baselineId,
+    _i3.ShoebillTemplateBaseline? baseline,
   }) : super._(
          id: id,
          stringifiedPayload: stringifiedPayload,
          language: language,
          createdAt: createdAt,
-         versionId: versionId,
-         version: version,
+         baselineId: baselineId,
+         baseline: baseline,
        );
 
-  /// Returns a shallow copy of this [ShoebillTemplateVersionImplementation]
+  /// Returns a shallow copy of this [ShoebillTemplateBaselineImplementation]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
   @override
-  ShoebillTemplateVersionImplementation copyWith({
+  ShoebillTemplateBaselineImplementation copyWith({
     Object? id = _Undefined,
     String? stringifiedPayload,
     _i2.SupportedLanguages? language,
     DateTime? createdAt,
-    int? versionId,
-    Object? version = _Undefined,
+    _i1.UuidValue? baselineId,
+    Object? baseline = _Undefined,
   }) {
-    return ShoebillTemplateVersionImplementation(
+    return ShoebillTemplateBaselineImplementation(
       id: id is int? ? id : this.id,
       stringifiedPayload: stringifiedPayload ?? this.stringifiedPayload,
       language: language ?? this.language,
       createdAt: createdAt ?? this.createdAt,
-      versionId: versionId ?? this.versionId,
-      version: version is _i3.ShoebillTemplateVersion?
-          ? version
-          : this.version?.copyWith(),
+      baselineId: baselineId ?? this.baselineId,
+      baseline: baseline is _i3.ShoebillTemplateBaseline?
+          ? baseline
+          : this.baseline?.copyWith(),
     );
   }
 }

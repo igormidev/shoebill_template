@@ -17,7 +17,7 @@ import '../../../../api/pdf_related/entities/template_entities/shoebill_template
     as _i3;
 import '../../../../api/pdf_related/entities/template_entities/shoebill_template_scaffold.dart'
     as _i4;
-import '../../../../api/pdf_related/entities/template_entities/shoebill_template_version_implementation.dart'
+import '../../../../api/pdf_related/entities/template_entities/shoebill_template_baseline.dart'
     as _i5;
 import 'package:shoebill_template_server/src/generated/protocol.dart' as _i6;
 
@@ -44,7 +44,7 @@ abstract class ShoebillTemplateVersion
     _i3.ShoebillTemplateVersionInput? input,
     required _i1.UuidValue scaffoldId,
     _i4.ShoebillTemplateScaffold? scaffold,
-    List<_i5.ShoebillTemplateVersionImplementation>? implementations,
+    List<_i5.ShoebillTemplateBaseline>? implementations,
   }) = _ShoebillTemplateVersionImpl;
 
   factory ShoebillTemplateVersion.fromJson(
@@ -77,10 +77,9 @@ abstract class ShoebillTemplateVersion
             ),
       implementations: jsonSerialization['implementations'] == null
           ? null
-          : _i6.Protocol()
-                .deserialize<List<_i5.ShoebillTemplateVersionImplementation>>(
-                  jsonSerialization['implementations'],
-                ),
+          : _i6.Protocol().deserialize<List<_i5.ShoebillTemplateBaseline>>(
+              jsonSerialization['implementations'],
+            ),
     );
   }
 
@@ -105,7 +104,7 @@ abstract class ShoebillTemplateVersion
 
   _i4.ShoebillTemplateScaffold? scaffold;
 
-  List<_i5.ShoebillTemplateVersionImplementation>? implementations;
+  List<_i5.ShoebillTemplateBaseline>? implementations;
 
   @override
   _i1.Table<int?> get table => t;
@@ -122,7 +121,7 @@ abstract class ShoebillTemplateVersion
     _i3.ShoebillTemplateVersionInput? input,
     _i1.UuidValue? scaffoldId,
     _i4.ShoebillTemplateScaffold? scaffold,
-    List<_i5.ShoebillTemplateVersionImplementation>? implementations,
+    List<_i5.ShoebillTemplateBaseline>? implementations,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -166,7 +165,7 @@ abstract class ShoebillTemplateVersion
     _i2.SchemaDefinitionInclude? schema,
     _i3.ShoebillTemplateVersionInputInclude? input,
     _i4.ShoebillTemplateScaffoldInclude? scaffold,
-    _i5.ShoebillTemplateVersionImplementationIncludeList? implementations,
+    _i5.ShoebillTemplateBaselineIncludeList? implementations,
   }) {
     return ShoebillTemplateVersionInclude._(
       schema: schema,
@@ -214,7 +213,7 @@ class _ShoebillTemplateVersionImpl extends ShoebillTemplateVersion {
     _i3.ShoebillTemplateVersionInput? input,
     required _i1.UuidValue scaffoldId,
     _i4.ShoebillTemplateScaffold? scaffold,
-    List<_i5.ShoebillTemplateVersionImplementation>? implementations,
+    List<_i5.ShoebillTemplateBaseline>? implementations,
   }) : super._(
          id: id,
          createdAt: createdAt,
@@ -257,8 +256,7 @@ class _ShoebillTemplateVersionImpl extends ShoebillTemplateVersion {
       scaffold: scaffold is _i4.ShoebillTemplateScaffold?
           ? scaffold
           : this.scaffold?.copyWith(),
-      implementations:
-          implementations is List<_i5.ShoebillTemplateVersionImplementation>?
+      implementations: implementations is List<_i5.ShoebillTemplateBaseline>?
           ? implementations
           : this.implementations?.map((e0) => e0.copyWith()).toList(),
     );
@@ -332,10 +330,9 @@ class ShoebillTemplateVersionTable extends _i1.Table<int?> {
 
   _i4.ShoebillTemplateScaffoldTable? _scaffold;
 
-  _i5.ShoebillTemplateVersionImplementationTable? ___implementations;
+  _i5.ShoebillTemplateBaselineTable? ___implementations;
 
-  _i1.ManyRelation<_i5.ShoebillTemplateVersionImplementationTable>?
-  _implementations;
+  _i1.ManyRelation<_i5.ShoebillTemplateBaselineTable>? _implementations;
 
   _i2.SchemaDefinitionTable get schema {
     if (_schema != null) return _schema!;
@@ -379,41 +376,37 @@ class ShoebillTemplateVersionTable extends _i1.Table<int?> {
     return _scaffold!;
   }
 
-  _i5.ShoebillTemplateVersionImplementationTable get __implementations {
+  _i5.ShoebillTemplateBaselineTable get __implementations {
     if (___implementations != null) return ___implementations!;
     ___implementations = _i1.createRelationTable(
       relationFieldName: '__implementations',
       field: ShoebillTemplateVersion.t.id,
-      foreignField: _i5.ShoebillTemplateVersionImplementation.t.versionId,
+      foreignField: _i5.ShoebillTemplateBaseline.t.versionId,
       tableRelation: tableRelation,
-      createTable: (foreignTableRelation) =>
-          _i5.ShoebillTemplateVersionImplementationTable(
-            tableRelation: foreignTableRelation,
-          ),
+      createTable: (foreignTableRelation) => _i5.ShoebillTemplateBaselineTable(
+        tableRelation: foreignTableRelation,
+      ),
     );
     return ___implementations!;
   }
 
-  _i1.ManyRelation<_i5.ShoebillTemplateVersionImplementationTable>
-  get implementations {
+  _i1.ManyRelation<_i5.ShoebillTemplateBaselineTable> get implementations {
     if (_implementations != null) return _implementations!;
     var relationTable = _i1.createRelationTable(
       relationFieldName: 'implementations',
       field: ShoebillTemplateVersion.t.id,
-      foreignField: _i5.ShoebillTemplateVersionImplementation.t.versionId,
+      foreignField: _i5.ShoebillTemplateBaseline.t.versionId,
       tableRelation: tableRelation,
-      createTable: (foreignTableRelation) =>
-          _i5.ShoebillTemplateVersionImplementationTable(
-            tableRelation: foreignTableRelation,
-          ),
+      createTable: (foreignTableRelation) => _i5.ShoebillTemplateBaselineTable(
+        tableRelation: foreignTableRelation,
+      ),
     );
-    _implementations =
-        _i1.ManyRelation<_i5.ShoebillTemplateVersionImplementationTable>(
-          tableWithRelations: relationTable,
-          table: _i5.ShoebillTemplateVersionImplementationTable(
-            tableRelation: relationTable.tableRelation!.lastRelation,
-          ),
-        );
+    _implementations = _i1.ManyRelation<_i5.ShoebillTemplateBaselineTable>(
+      tableWithRelations: relationTable,
+      table: _i5.ShoebillTemplateBaselineTable(
+        tableRelation: relationTable.tableRelation!.lastRelation,
+      ),
+    );
     return _implementations!;
   }
 
@@ -449,7 +442,7 @@ class ShoebillTemplateVersionInclude extends _i1.IncludeObject {
     _i2.SchemaDefinitionInclude? schema,
     _i3.ShoebillTemplateVersionInputInclude? input,
     _i4.ShoebillTemplateScaffoldInclude? scaffold,
-    _i5.ShoebillTemplateVersionImplementationIncludeList? implementations,
+    _i5.ShoebillTemplateBaselineIncludeList? implementations,
   }) {
     _schema = schema;
     _input = input;
@@ -463,7 +456,7 @@ class ShoebillTemplateVersionInclude extends _i1.IncludeObject {
 
   _i4.ShoebillTemplateScaffoldInclude? _scaffold;
 
-  _i5.ShoebillTemplateVersionImplementationIncludeList? _implementations;
+  _i5.ShoebillTemplateBaselineIncludeList? _implementations;
 
   @override
   Map<String, _i1.Include?> get includes => {
@@ -503,10 +496,6 @@ class ShoebillTemplateVersionRepository {
   final attach = const ShoebillTemplateVersionAttachRepository._();
 
   final attachRow = const ShoebillTemplateVersionAttachRowRepository._();
-
-  final detach = const ShoebillTemplateVersionDetachRepository._();
-
-  final detachRow = const ShoebillTemplateVersionDetachRowRepository._();
 
   /// Returns a list of [ShoebillTemplateVersion]s matching the given query parameters.
   ///
@@ -769,29 +758,27 @@ class ShoebillTemplateVersionRepository {
 class ShoebillTemplateVersionAttachRepository {
   const ShoebillTemplateVersionAttachRepository._();
 
-  /// Creates a relation between this [ShoebillTemplateVersion] and the given [ShoebillTemplateVersionImplementation]s
-  /// by setting each [ShoebillTemplateVersionImplementation]'s foreign key `versionId` to refer to this [ShoebillTemplateVersion].
+  /// Creates a relation between this [ShoebillTemplateVersion] and the given [ShoebillTemplateBaseline]s
+  /// by setting each [ShoebillTemplateBaseline]'s foreign key `versionId` to refer to this [ShoebillTemplateVersion].
   Future<void> implementations(
     _i1.Session session,
     ShoebillTemplateVersion shoebillTemplateVersion,
-    List<_i5.ShoebillTemplateVersionImplementation>
-    shoebillTemplateVersionImplementation, {
+    List<_i5.ShoebillTemplateBaseline> shoebillTemplateBaseline, {
     _i1.Transaction? transaction,
   }) async {
-    if (shoebillTemplateVersionImplementation.any((e) => e.id == null)) {
-      throw ArgumentError.notNull('shoebillTemplateVersionImplementation.id');
+    if (shoebillTemplateBaseline.any((e) => e.id == null)) {
+      throw ArgumentError.notNull('shoebillTemplateBaseline.id');
     }
     if (shoebillTemplateVersion.id == null) {
       throw ArgumentError.notNull('shoebillTemplateVersion.id');
     }
 
-    var $shoebillTemplateVersionImplementation =
-        shoebillTemplateVersionImplementation
-            .map((e) => e.copyWith(versionId: shoebillTemplateVersion.id))
-            .toList();
-    await session.db.update<_i5.ShoebillTemplateVersionImplementation>(
-      $shoebillTemplateVersionImplementation,
-      columns: [_i5.ShoebillTemplateVersionImplementation.t.versionId],
+    var $shoebillTemplateBaseline = shoebillTemplateBaseline
+        .map((e) => e.copyWith(versionId: shoebillTemplateVersion.id))
+        .toList();
+    await session.db.update<_i5.ShoebillTemplateBaseline>(
+      $shoebillTemplateBaseline,
+      columns: [_i5.ShoebillTemplateBaseline.t.versionId],
       transaction: transaction,
     );
   }
@@ -875,87 +862,27 @@ class ShoebillTemplateVersionAttachRowRepository {
     );
   }
 
-  /// Creates a relation between this [ShoebillTemplateVersion] and the given [ShoebillTemplateVersionImplementation]
-  /// by setting the [ShoebillTemplateVersionImplementation]'s foreign key `versionId` to refer to this [ShoebillTemplateVersion].
+  /// Creates a relation between this [ShoebillTemplateVersion] and the given [ShoebillTemplateBaseline]
+  /// by setting the [ShoebillTemplateBaseline]'s foreign key `versionId` to refer to this [ShoebillTemplateVersion].
   Future<void> implementations(
     _i1.Session session,
     ShoebillTemplateVersion shoebillTemplateVersion,
-    _i5.ShoebillTemplateVersionImplementation
-    shoebillTemplateVersionImplementation, {
+    _i5.ShoebillTemplateBaseline shoebillTemplateBaseline, {
     _i1.Transaction? transaction,
   }) async {
-    if (shoebillTemplateVersionImplementation.id == null) {
-      throw ArgumentError.notNull('shoebillTemplateVersionImplementation.id');
+    if (shoebillTemplateBaseline.id == null) {
+      throw ArgumentError.notNull('shoebillTemplateBaseline.id');
     }
     if (shoebillTemplateVersion.id == null) {
       throw ArgumentError.notNull('shoebillTemplateVersion.id');
     }
 
-    var $shoebillTemplateVersionImplementation =
-        shoebillTemplateVersionImplementation.copyWith(
-          versionId: shoebillTemplateVersion.id,
-        );
-    await session.db.updateRow<_i5.ShoebillTemplateVersionImplementation>(
-      $shoebillTemplateVersionImplementation,
-      columns: [_i5.ShoebillTemplateVersionImplementation.t.versionId],
-      transaction: transaction,
+    var $shoebillTemplateBaseline = shoebillTemplateBaseline.copyWith(
+      versionId: shoebillTemplateVersion.id,
     );
-  }
-}
-
-class ShoebillTemplateVersionDetachRepository {
-  const ShoebillTemplateVersionDetachRepository._();
-
-  /// Detaches the relation between this [ShoebillTemplateVersion] and the given [ShoebillTemplateVersionImplementation]
-  /// by setting the [ShoebillTemplateVersionImplementation]'s foreign key `versionId` to `null`.
-  ///
-  /// This removes the association between the two models without deleting
-  /// the related record.
-  Future<void> implementations(
-    _i1.Session session,
-    List<_i5.ShoebillTemplateVersionImplementation>
-    shoebillTemplateVersionImplementation, {
-    _i1.Transaction? transaction,
-  }) async {
-    if (shoebillTemplateVersionImplementation.any((e) => e.id == null)) {
-      throw ArgumentError.notNull('shoebillTemplateVersionImplementation.id');
-    }
-
-    var $shoebillTemplateVersionImplementation =
-        shoebillTemplateVersionImplementation
-            .map((e) => e.copyWith(versionId: null))
-            .toList();
-    await session.db.update<_i5.ShoebillTemplateVersionImplementation>(
-      $shoebillTemplateVersionImplementation,
-      columns: [_i5.ShoebillTemplateVersionImplementation.t.versionId],
-      transaction: transaction,
-    );
-  }
-}
-
-class ShoebillTemplateVersionDetachRowRepository {
-  const ShoebillTemplateVersionDetachRowRepository._();
-
-  /// Detaches the relation between this [ShoebillTemplateVersion] and the given [ShoebillTemplateVersionImplementation]
-  /// by setting the [ShoebillTemplateVersionImplementation]'s foreign key `versionId` to `null`.
-  ///
-  /// This removes the association between the two models without deleting
-  /// the related record.
-  Future<void> implementations(
-    _i1.Session session,
-    _i5.ShoebillTemplateVersionImplementation
-    shoebillTemplateVersionImplementation, {
-    _i1.Transaction? transaction,
-  }) async {
-    if (shoebillTemplateVersionImplementation.id == null) {
-      throw ArgumentError.notNull('shoebillTemplateVersionImplementation.id');
-    }
-
-    var $shoebillTemplateVersionImplementation =
-        shoebillTemplateVersionImplementation.copyWith(versionId: null);
-    await session.db.updateRow<_i5.ShoebillTemplateVersionImplementation>(
-      $shoebillTemplateVersionImplementation,
-      columns: [_i5.ShoebillTemplateVersionImplementation.t.versionId],
+    await session.db.updateRow<_i5.ShoebillTemplateBaseline>(
+      $shoebillTemplateBaseline,
+      columns: [_i5.ShoebillTemplateBaseline.t.versionId],
       transaction: transaction,
     );
   }

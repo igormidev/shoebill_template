@@ -1,5 +1,5 @@
-class: ShoebillTemplateVersionImplementation
-table: shoebill_template_version_implementations
+class: ShoebillTemplateBaselineImplementation
+table: shoebill_template_baseline_implementations
 fields:
     stringifiedPayload: String
     language: SupportedLanguages

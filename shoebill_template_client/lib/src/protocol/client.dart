@@ -20,19 +20,13 @@ import 'package:shoebill_template_client/src/protocol/entities/others/ai_thinkin
     as _i5;
 import 'package:shoebill_template_client/src/protocol/api/chat_session_related/entities/template_essential.dart'
     as _i6;
-import 'package:shoebill_template_client/src/protocol/entities/others/supported_languages.dart'
-    as _i7;
-import 'package:shoebill_template_client/src/protocol/api/pdf_related/entities/schema_definition.dart'
-    as _i8;
-import 'package:shoebill_template_client/src/protocol/api/pdf_related/entities/pdf_content.dart'
-    as _i9;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i10;
+    as _i7;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
-    as _i11;
+    as _i8;
 import 'package:shoebill_template_client/src/protocol/greetings/greeting.dart'
-    as _i12;
-import 'protocol.dart' as _i13;
+    as _i9;
+import 'protocol.dart' as _i10;
 
 /// {@category Endpoint}
 class EndpointChatSession extends _i1.EndpointRef {
@@ -122,37 +116,11 @@ class EndpointCreateTemplateEssentials extends _i1.EndpointRef {
       );
 }
 
-/// {@category Endpoint}
-class EndpointPdfGenerate extends _i1.EndpointRef {
-  EndpointPdfGenerate(_i1.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'pdfGenerate';
-
-  _i2.Future<void> call({
-    required _i7.SupportedLanguages language,
-    required String stringifiedJson,
-    required _i8.SchemaDefinition schemaDefinition,
-    required _i9.PdfContent pdfContent,
-    required String pythonGeneratorScript,
-  }) => caller.callServerEndpoint<void>(
-    'pdfGenerate',
-    'call',
-    {
-      'language': language,
-      'stringifiedJson': stringifiedJson,
-      'schemaDefinition': schemaDefinition,
-      'pdfContent': pdfContent,
-      'pythonGeneratorScript': pythonGeneratorScript,
-    },
-  );
-}
-
 /// By extending [EmailIdpBaseEndpoint], the email identity provider endpoints
 /// are made available on the server and enable the corresponding sign-in widget
 /// on the client.
 /// {@category Endpoint}
-class EndpointEmailIdp extends _i10.EndpointEmailIdpBase {
+class EndpointEmailIdp extends _i7.EndpointEmailIdpBase {
   EndpointEmailIdp(_i1.EndpointCaller caller) : super(caller);
 
   @override
@@ -168,10 +136,10 @@ class EndpointEmailIdp extends _i10.EndpointEmailIdpBase {
   ///
   /// Throws an [AuthUserBlockedException] if the auth user is blocked.
   @override
-  _i2.Future<_i11.AuthSuccess> login({
+  _i2.Future<_i8.AuthSuccess> login({
     required String email,
     required String password,
-  }) => caller.callServerEndpoint<_i11.AuthSuccess>(
+  }) => caller.callServerEndpoint<_i8.AuthSuccess>(
     'emailIdp',
     'login',
     {
@@ -236,10 +204,10 @@ class EndpointEmailIdp extends _i10.EndpointEmailIdpBase {
   ///
   /// Returns a session for the newly created user.
   @override
-  _i2.Future<_i11.AuthSuccess> finishRegistration({
+  _i2.Future<_i8.AuthSuccess> finishRegistration({
     required String registrationToken,
     required String password,
-  }) => caller.callServerEndpoint<_i11.AuthSuccess>(
+  }) => caller.callServerEndpoint<_i8.AuthSuccess>(
     'emailIdp',
     'finishRegistration',
     {
@@ -327,7 +295,7 @@ class EndpointEmailIdp extends _i10.EndpointEmailIdpBase {
 /// By extending [RefreshJwtTokensEndpoint], the JWT token refresh endpoint
 /// is made available on the server and enables automatic token refresh on the client.
 /// {@category Endpoint}
-class EndpointJwtRefresh extends _i11.EndpointRefreshJwtTokens {
+class EndpointJwtRefresh extends _i8.EndpointRefreshJwtTokens {
   EndpointJwtRefresh(_i1.EndpointCaller caller) : super(caller);
 
   @override
@@ -352,9 +320,9 @@ class EndpointJwtRefresh extends _i11.EndpointRefreshJwtTokens {
   /// This endpoint is unauthenticated, meaning the client won't include any
   /// authentication information with the call.
   @override
-  _i2.Future<_i11.AuthSuccess> refreshAccessToken({
+  _i2.Future<_i8.AuthSuccess> refreshAccessToken({
     required String refreshToken,
-  }) => caller.callServerEndpoint<_i11.AuthSuccess>(
+  }) => caller.callServerEndpoint<_i8.AuthSuccess>(
     'jwtRefresh',
     'refreshAccessToken',
     {'refreshToken': refreshToken},
@@ -372,8 +340,8 @@ class EndpointGreeting extends _i1.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i2.Future<_i12.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i12.Greeting>(
+  _i2.Future<_i9.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i9.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -382,13 +350,13 @@ class EndpointGreeting extends _i1.EndpointRef {
 
 class Modules {
   Modules(Client client) {
-    serverpod_auth_idp = _i10.Caller(client);
-    serverpod_auth_core = _i11.Caller(client);
+    serverpod_auth_idp = _i7.Caller(client);
+    serverpod_auth_core = _i8.Caller(client);
   }
 
-  late final _i10.Caller serverpod_auth_idp;
+  late final _i7.Caller serverpod_auth_idp;
 
-  late final _i11.Caller serverpod_auth_core;
+  late final _i8.Caller serverpod_auth_core;
 }
 
 class Client extends _i1.ServerpodClientShared {
@@ -411,7 +379,7 @@ class Client extends _i1.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i13.Protocol(),
+         _i10.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -422,7 +390,6 @@ class Client extends _i1.ServerpodClientShared {
        ) {
     chatSession = EndpointChatSession(this);
     createTemplateEssentials = EndpointCreateTemplateEssentials(this);
-    pdfGenerate = EndpointPdfGenerate(this);
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     greeting = EndpointGreeting(this);
@@ -432,8 +399,6 @@ class Client extends _i1.ServerpodClientShared {
   late final EndpointChatSession chatSession;
 
   late final EndpointCreateTemplateEssentials createTemplateEssentials;
-
-  late final EndpointPdfGenerate pdfGenerate;
 
   late final EndpointEmailIdp emailIdp;
 
@@ -447,7 +412,6 @@ class Client extends _i1.ServerpodClientShared {
   Map<String, _i1.EndpointRef> get endpointRefLookup => {
     'chatSession': chatSession,
     'createTemplateEssentials': createTemplateEssentials,
-    'pdfGenerate': pdfGenerate,
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
     'greeting': greeting,

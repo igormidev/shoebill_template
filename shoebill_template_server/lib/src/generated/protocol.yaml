@@ -5,8 +5,6 @@ chatSession:
   - sendMessage:
 createTemplateEssentials:
   - call:
-pdfGenerate:
-  - call:
 emailIdp:
   - login:
   - startRegistration:

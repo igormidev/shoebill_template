@@ -16,7 +16,7 @@ import '../../../../api/pdf_related/entities/template_entities/shoebill_template
     as _i3;
 import '../../../../api/pdf_related/entities/template_entities/shoebill_template_scaffold.dart'
     as _i4;
-import '../../../../api/pdf_related/entities/template_entities/shoebill_template_version_implementation.dart'
+import '../../../../api/pdf_related/entities/template_entities/shoebill_template_baseline.dart'
     as _i5;
 import 'package:shoebill_template_client/src/protocol/protocol.dart' as _i6;
 
@@ -42,7 +42,7 @@ abstract class ShoebillTemplateVersion implements _i1.SerializableModel {
     _i3.ShoebillTemplateVersionInput? input,
     required _i1.UuidValue scaffoldId,
     _i4.ShoebillTemplateScaffold? scaffold,
-    List<_i5.ShoebillTemplateVersionImplementation>? implementations,
+    List<_i5.ShoebillTemplateBaseline>? implementations,
   }) = _ShoebillTemplateVersionImpl;
 
   factory ShoebillTemplateVersion.fromJson(
@@ -75,10 +75,9 @@ abstract class ShoebillTemplateVersion implements _i1.SerializableModel {
             ),
       implementations: jsonSerialization['implementations'] == null
           ? null
-          : _i6.Protocol()
-                .deserialize<List<_i5.ShoebillTemplateVersionImplementation>>(
-                  jsonSerialization['implementations'],
-                ),
+          : _i6.Protocol().deserialize<List<_i5.ShoebillTemplateBaseline>>(
+              jsonSerialization['implementations'],
+            ),
     );
   }
 
@@ -101,7 +100,7 @@ abstract class ShoebillTemplateVersion implements _i1.SerializableModel {
 
   _i4.ShoebillTemplateScaffold? scaffold;
 
-  List<_i5.ShoebillTemplateVersionImplementation>? implementations;
+  List<_i5.ShoebillTemplateBaseline>? implementations;
 
   /// Returns a shallow copy of this [ShoebillTemplateVersion]
   /// with some or all fields replaced by the given arguments.
@@ -115,7 +114,7 @@ abstract class ShoebillTemplateVersion implements _i1.SerializableModel {
     _i3.ShoebillTemplateVersionInput? input,
     _i1.UuidValue? scaffoldId,
     _i4.ShoebillTemplateScaffold? scaffold,
-    List<_i5.ShoebillTemplateVersionImplementation>? implementations,
+    List<_i5.ShoebillTemplateBaseline>? implementations,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -154,7 +153,7 @@ class _ShoebillTemplateVersionImpl extends ShoebillTemplateVersion {
     _i3.ShoebillTemplateVersionInput? input,
     required _i1.UuidValue scaffoldId,
     _i4.ShoebillTemplateScaffold? scaffold,
-    List<_i5.ShoebillTemplateVersionImplementation>? implementations,
+    List<_i5.ShoebillTemplateBaseline>? implementations,
   }) : super._(
          id: id,
          createdAt: createdAt,
@@ -197,8 +196,7 @@ class _ShoebillTemplateVersionImpl extends ShoebillTemplateVersion {
       scaffold: scaffold is _i4.ShoebillTemplateScaffold?
           ? scaffold
           : this.scaffold?.copyWith(),
-      implementations:
-          implementations is List<_i5.ShoebillTemplateVersionImplementation>?
+      implementations: implementations is List<_i5.ShoebillTemplateBaseline>?
           ? implementations
           : this.implementations?.map((e0) => e0.copyWith()).toList(),
     );

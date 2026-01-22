@@ -1,26 +1,26 @@
 enum: SupportedLanguages
 values:
   - english
-  - mandarinChinese
-  - hindi
+  - simplifiedMandarinChinese          # Simplified (Mainland China)
+  - traditionalChinese                 # Taiwan, Hong Kong
   - spanish
   - french
-  - modernStandardArabic
-  - bengali
   - brazilianPortuguese
+  - portugalPortuguese
   - russian
-  - urdu
+  - ukrainian
+  - polish
   - indonesian
+  - malay
   - german
   - dutch
   - japanese
   - swahili
-  - marathi
-  - telugu
   - turkish
-  - tamil
   - vietnamese
   - korean
   - italian
-  - thai
-  - filipino # based mostly on Tagalog
+  - filipino
+  - romanian
+  - swedish
+  - czech

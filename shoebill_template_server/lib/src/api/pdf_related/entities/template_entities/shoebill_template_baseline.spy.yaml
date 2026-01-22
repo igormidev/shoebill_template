@@ -10,4 +10,4 @@ fields:
 
     version: ShoebillTemplateVersion?, relation(name=version_baseline_relation)
 
-    pdfImplementationsPayloads: List<ShoebillTemplateVersionImplementation>?, relation(name=baseline_implementation_relation)
+    implementations: List<ShoebillTemplateBaselineImplementation>?, relation(name=baseline_implementation_relation)
