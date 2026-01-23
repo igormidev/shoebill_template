@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:get_it/get_it.dart';
 import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
+import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
 
@@ -141,6 +142,12 @@ extension SchemaDefinitionExt on SchemaDefinition {
   /// Translates all strings marked with `shouldBeTranslated: true` in the JSON
   /// using AI-powered translation via OpenRouter.
   ///
+  /// When the number of translatable strings exceeds [kTranslationBatchSize],
+  /// the strings are split into multiple chunks and translated in parallel
+  /// using [Future.wait]. This significantly reduces total translation time
+  /// for payloads with many translatable fields, as each chunk is sent as a
+  /// separate API request and all chunks are processed concurrently.
+  ///
   /// Throws [ShoebillException] if the JSON is invalid or translation fails.
   Future<String> translateBasedOnSchema({
     required String stringifiedJson,
@@ -169,16 +176,20 @@ extension SchemaDefinitionExt on SchemaDefinition {
       return stringifiedJson;
     }
 
-    // Import the openAiService from server.dart
     final openAiService = _getOpenAiService();
+    final sourceDisplayName = _languageToDisplayName(sourceLanguage);
+    final targetDisplayName = _languageToDisplayName(targetLanguage);
 
-    // Translate all strings in batch
+    // Translate strings in parallel batches for improved performance.
+    // If the total count is within a single batch, only one API call is made.
+    // Otherwise, the map is chunked and all chunks are sent concurrently.
     final Map<String, String> translatedStrings;
     try {
-      translatedStrings = await openAiService.translateTexts(
+      translatedStrings = await _translateInParallelBatches(
+        openAiService: openAiService,
         textsToTranslate: translatableStrings,
-        sourceLanguage: _languageToDisplayName(sourceLanguage),
-        targetLanguage: _languageToDisplayName(targetLanguage),
+        sourceLanguage: sourceDisplayName,
+        targetLanguage: targetDisplayName,
       );
     } catch (e) {
       throw ShoebillException(
@@ -250,6 +261,77 @@ void _extractTranslatableStrings({
     case SchemaPropertyObjectWithUndefinedProperties():
       break;
   }
+}
+
+/// Translates a map of strings in parallel batches.
+///
+/// Splits [textsToTranslate] into chunks of size [kTranslationBatchSize],
+/// dispatches all chunks concurrently via [Future.wait], and merges the
+/// results back into a single map.
+///
+/// Edge cases handled:
+/// - Empty map: returns immediately with an empty map (no API calls).
+/// - Single string or count <= [kTranslationBatchSize]: a single API call
+///   is made (no overhead from chunking).
+/// - Many strings (>100): chunked into ceil(n / batchSize) parallel requests.
+Future<Map<String, String>> _translateInParallelBatches({
+  required IOpenAiService openAiService,
+  required Map<String, String> textsToTranslate,
+  required String sourceLanguage,
+  required String targetLanguage,
+}) async {
+  if (textsToTranslate.isEmpty) {
+    return {};
+  }
+
+  final chunks = _chunkMap(textsToTranslate, kTranslationBatchSize);
+
+  // Send all chunks in parallel. Each chunk becomes one API request.
+  final futures = chunks.map(
+    (chunk) => openAiService.translateTexts(
+      textsToTranslate: chunk,
+      sourceLanguage: sourceLanguage,
+      targetLanguage: targetLanguage,
+    ),
+  );
+
+  final results = await Future.wait(futures);
+
+  // Merge all batch results into a single map
+  final merged = <String, String>{};
+  for (final batchResult in results) {
+    merged.addAll(batchResult);
+  }
+  return merged;
+}
+
+/// Splits a map into a list of smaller maps, each containing at most
+/// [chunkSize] entries. Preserves insertion order within each chunk.
+List<Map<String, String>> _chunkMap(
+  Map<String, String> source,
+  int chunkSize,
+) {
+  if (source.length <= chunkSize) {
+    return [source];
+  }
+
+  final chunks = <Map<String, String>>[];
+  var currentChunk = <String, String>{};
+
+  for (final entry in source.entries) {
+    currentChunk[entry.key] = entry.value;
+    if (currentChunk.length >= chunkSize) {
+      chunks.add(currentChunk);
+      currentChunk = <String, String>{};
+    }
+  }
+
+  // Add the remaining partial chunk if non-empty
+  if (currentChunk.isNotEmpty) {
+    chunks.add(currentChunk);
+  }
+
+  return chunks;
 }
 
 /// Reconstructs JSON with translated values applied.
