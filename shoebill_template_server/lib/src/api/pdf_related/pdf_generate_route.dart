@@ -118,10 +118,13 @@ class PdfGenerateEndpoint extends Route with RouteMixin {
     // 7. Stringify the validated payload for storage
     final stringifiedPayload = JsonEncoder.withIndent('  ').convert(payload);
 
-    // 8. Create baseline and implementation inside a transaction
+    // 8. Create baseline and implementation inside a transaction.
+    // Foreign keys (versionId, baselineId) are set during construction,
+    // so the relations are established automatically upon insert -
+    // no attachRow calls are needed.
     try {
       final result = await session.db.transaction((tx) async {
-        // Create the ShoebillTemplateBaseline
+        // Create the ShoebillTemplateBaseline (versionId links to version)
         final baseline = await ShoebillTemplateBaseline.db.insertRow(
           session,
           ShoebillTemplateBaseline(
@@ -131,7 +134,7 @@ class PdfGenerateEndpoint extends Route with RouteMixin {
           transaction: tx,
         );
 
-        // Create the first ShoebillTemplateBaselineImplementation
+        // Create the first ShoebillTemplateBaselineImplementation (baselineId links to baseline)
         final implementation =
             await ShoebillTemplateBaselineImplementation.db.insertRow(
           session,
@@ -140,22 +143,6 @@ class PdfGenerateEndpoint extends Route with RouteMixin {
             language: language,
             baselineId: baseline.id,
           ),
-          transaction: tx,
-        );
-
-        // Attach the implementation to the baseline
-        await ShoebillTemplateBaseline.db.attachRow.implementations(
-          session,
-          baseline,
-          implementation,
-          transaction: tx,
-        );
-
-        // Attach the baseline to the version
-        await ShoebillTemplateVersion.db.attachRow.implementations(
-          session,
-          templateVersion,
-          baseline,
           transaction: tx,
         );
 

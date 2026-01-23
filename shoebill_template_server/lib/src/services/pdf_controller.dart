@@ -120,28 +120,17 @@ class PdfController {
       );
     }
 
-    // Insert the new implementation and attach it to the baseline within a transaction
-    return session.db.transaction((tx) async {
-      final implementation =
-          await ShoebillTemplateBaselineImplementation.db.insertRow(
-        session,
-        ShoebillTemplateBaselineImplementation(
-          stringifiedPayload: translatedPayload,
-          baselineId: baselineId,
-          language: targetLanguage,
-        ),
-        transaction: tx,
-      );
-
-      await ShoebillTemplateBaseline.db.attachRow.implementations(
-        session,
-        baseline,
-        implementation,
-        transaction: tx,
-      );
-
-      return implementation;
-    });
+    // Insert the new implementation with baselineId already set,
+    // which automatically establishes the relation in the database.
+    // No transaction or attachRow needed for a single insert with FK set.
+    return ShoebillTemplateBaselineImplementation.db.insertRow(
+      session,
+      ShoebillTemplateBaselineImplementation(
+        stringifiedPayload: translatedPayload,
+        baselineId: baselineId,
+        language: targetLanguage,
+      ),
+    );
   }
 
   /// Creates a new template scaffold with the complete entity hierarchy:
@@ -260,23 +249,16 @@ class PdfController {
         transaction: tx,
       );
 
-      // 7. Insert ShoebillTemplateBaselineImplementation
-      final implementation =
-          await ShoebillTemplateBaselineImplementation.db.insertRow(
+      // 7. Insert ShoebillTemplateBaselineImplementation.
+      // The baselineId is set during construction, which automatically
+      // establishes the relation in the database - no attachRow needed.
+      await ShoebillTemplateBaselineImplementation.db.insertRow(
         session,
         ShoebillTemplateBaselineImplementation(
           stringifiedPayload: stringifiedPayload,
           language: language,
           baselineId: baseline.id,
         ),
-        transaction: tx,
-      );
-
-      // 8. Attach the implementation to the baseline
-      await ShoebillTemplateBaseline.db.attachRow.implementations(
-        session,
-        baseline,
-        implementation,
         transaction: tx,
       );
 
@@ -405,7 +387,9 @@ class PdfController {
         transaction: tx,
       );
 
-      // 3. Insert the new ShoebillTemplateVersion linking to scaffold, schema, and input
+      // 3. Insert the new ShoebillTemplateVersion linking to scaffold, schema, and input.
+      // The scaffoldId is set during construction, which automatically
+      // establishes the relation to the scaffold - no attachRow needed.
       final version = await ShoebillTemplateVersion.db.insertRow(
         session,
         ShoebillTemplateVersion(
@@ -415,14 +399,6 @@ class PdfController {
           input: versionInput,
           scaffoldId: scaffoldId,
         ),
-        transaction: tx,
-      );
-
-      // 4. Attach the new version to the scaffold
-      await ShoebillTemplateScaffold.db.attachRow.versions(
-        session,
-        scaffold,
-        version,
         transaction: tx,
       );
 
