@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
 
@@ -95,17 +96,6 @@ final class ReviewStatusEvent extends ReviewStreamEvent {
   final String message;
   const ReviewStatusEvent(this.message);
 }
-
-// ============================================================================
-// CONSTANTS
-// ============================================================================
-
-/// Maximum number of retry attempts for the review loop.
-const int kMaxReviewRetryAttempts = 6;
-
-/// The AI model used for template review.
-/// Gemini 3 Flash Preview with thinking mode for thorough analysis.
-const String kReviewerModel = 'google/gemini-3-flash-preview';
 
 // ============================================================================
 // TEMPLATE REVIEWER SERVICE

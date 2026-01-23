@@ -34,6 +34,7 @@ library;
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 // ============================================================================
@@ -218,7 +219,7 @@ class DaytonaClaudeCodeService {
     required this.anthropicApiKey,
     this.apiUrl = 'https://app.daytona.io/api',
     this.target = 'us',
-    this.executionTimeout = const Duration(minutes: 30),
+    this.executionTimeout = kLegacyDaytonaExecutionTimeout,
     http.Client? httpClient,
   }) : _httpClient = httpClient ?? http.Client();
 
@@ -380,8 +381,8 @@ class DaytonaClaudeCodeService {
         headers: _headers,
         body: jsonEncode({
           'id': 'claude-code-${DateTime.now().millisecondsSinceEpoch}',
-          'cols': 120,
-          'rows': 40,
+          'cols': kPtyColumns,
+          'rows': kPtyRows,
         }),
       );
 
@@ -446,8 +447,8 @@ class DaytonaClaudeCodeService {
         },
       );
 
-      // Wait for connection
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Wait for connection to stabilize
+      await Future.delayed(kWebSocketConnectionDelay);
 
       // Build and send the Claude Code command
       final escapedPrompt = prompt
@@ -654,13 +655,13 @@ exit
             body: jsonEncode({
               'image': 'daytonaio/ai-starter:latest',
               'envVars': {'ANTHROPIC_API_KEY': anthropicApiKey},
-              'autoStopInterval': 30,
-              'autoArchiveInterval': 60,
-              'autoDeleteInterval': 120,
+              'autoStopInterval': kLegacySandboxAutoStopMinutes,
+              'autoArchiveInterval': kLegacySandboxAutoArchiveMinutes,
+              'autoDeleteInterval': kLegacySandboxAutoDeleteMinutes,
               'target': target,
             }),
           )
-          .timeout(const Duration(seconds: 60));
+          .timeout(kSandboxCreationTimeout);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -676,7 +677,7 @@ exit
   }
 
   Future<bool> _waitForSandboxReady(String sandboxId) async {
-    for (var i = 0; i < 60; i++) {
+    for (var i = 0; i < kLegacySandboxMaxPollAttempts; i++) {
       try {
         final response = await _httpClient.get(
           Uri.parse('$apiUrl/sandboxes/$sandboxId'),
@@ -689,7 +690,7 @@ exit
           if (state == 'error' || state == 'failed') return false;
         }
       } catch (_) {}
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(kLegacySandboxPollInterval);
     }
     return false;
   }
@@ -701,7 +702,7 @@ exit
             Uri.parse('$apiUrl/sandboxes/$sandboxId'),
             headers: _headers,
           )
-          .timeout(const Duration(seconds: 10));
+          .timeout(kLegacySandboxDeleteTimeout);
     } catch (_) {}
   }
 
@@ -714,9 +715,12 @@ exit
           .post(
             Uri.parse('$apiUrl/sandboxes/$sandboxId/process/exec'),
             headers: _headers,
-            body: jsonEncode({'command': command, 'timeout': 600}),
+            body: jsonEncode({
+              'command': command,
+              'timeout': kLegacyCommandTimeoutSeconds,
+            }),
           )
-          .timeout(const Duration(minutes: 10));
+          .timeout(kLegacyDaytonaExecutionTimeout);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -742,7 +746,7 @@ exit
       ).replace(queryParameters: {'path': path});
       final response = await _httpClient
           .get(uri, headers: _headers)
-          .timeout(const Duration(seconds: 30));
+          .timeout(kFileDownloadTimeout);
       if (response.statusCode == 200) return response.body;
     } catch (_) {}
     return null;

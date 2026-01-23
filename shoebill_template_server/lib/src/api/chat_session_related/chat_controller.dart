@@ -5,16 +5,10 @@ import 'dart:convert';
 
 import 'package:shoebill_template_server/server.dart';
 import 'package:shoebill_template_server/src/api/pdf_related/entities/schema_property_extensions.dart';
+import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/services/daytona_claude_code_service.dart';
 import 'package:shoebill_template_server/src/services/template_reviewer_service.dart';
-
-// ============================================================================
-// CONSTANTS
-// ============================================================================
-
-/// Maximum number of Daytona retry attempts when the reviewer rejects output.
-const int kMaxDaytonaRetryAttempts = 6;
 
 // ============================================================================
 // CHAT CONTROLLER INTERFACE
@@ -627,34 +621,31 @@ Do NOT start from scratch - modify the existing files to address the specific is
     required String cssContent,
     NewSchemaChangePayload? schemaChangePayload,
   }) {
-    final DeployReadyTemplateState deployState;
+    // Both NewTemplateState and DeployReadyTemplateState share the same fields
+    // needed to construct a DeployReadyTemplateState, so we extract them
+    // uniformly regardless of the concrete type.
+    final effectiveSchema = schemaChangePayload?.newSchemaDefinition ??
+        _extractSchemaDefinition(templateState, null);
+    final effectivePayload =
+        schemaChangePayload?.newExamplePayloadStringified ??
+            _getPayloadJsonString(templateState, null);
+    final referenceLanguage = switch (templateState) {
+      NewTemplateState(:final referenceLanguage) => referenceLanguage,
+      DeployReadyTemplateState(:final referenceLanguage) => referenceLanguage,
+    };
+    final pdfContent = switch (templateState) {
+      NewTemplateState(:final pdfContent) => pdfContent,
+      DeployReadyTemplateState(:final pdfContent) => pdfContent,
+    };
 
-    switch (templateState) {
-      case NewTemplateState():
-        deployState = DeployReadyTemplateState(
-          pdfContent: templateState.pdfContent,
-          schemaDefinition: schemaChangePayload?.newSchemaDefinition ??
-              templateState.schemaDefinition,
-          referenceLanguage: templateState.referenceLanguage,
-          htmlContent: htmlContent,
-          cssContent: cssContent,
-          referenceStringifiedPayloadJson:
-              schemaChangePayload?.newExamplePayloadStringified ??
-                  templateState.referenceStringifiedPayloadJson,
-        );
-      case DeployReadyTemplateState():
-        deployState = DeployReadyTemplateState(
-          pdfContent: templateState.pdfContent,
-          schemaDefinition: schemaChangePayload?.newSchemaDefinition ??
-              templateState.schemaDefinition,
-          referenceLanguage: templateState.referenceLanguage,
-          htmlContent: htmlContent,
-          cssContent: cssContent,
-          referenceStringifiedPayloadJson:
-              schemaChangePayload?.newExamplePayloadStringified ??
-                  templateState.referenceStringifiedPayloadJson,
-        );
-    }
+    final deployState = DeployReadyTemplateState(
+      pdfContent: pdfContent,
+      schemaDefinition: effectiveSchema,
+      referenceLanguage: referenceLanguage,
+      htmlContent: htmlContent,
+      cssContent: cssContent,
+      referenceStringifiedPayloadJson: effectivePayload,
+    );
 
     return TemplateStateResponse(currentState: deployState);
   }

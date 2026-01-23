@@ -4,13 +4,13 @@ import 'package:serverpod/serverpod.dart';
 import 'package:shoebill_template_server/src/api/chat_session_related/chat_controller.dart';
 import 'package:shoebill_template_server/src/api/pdf_related/entities/schema_property_extensions.dart';
 import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
+import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/services/daytona_claude_streaming.dart';
 import 'package:shoebill_template_server/src/services/pdf_controller.dart';
 
 typedef SessionUUID = String;
 typedef TimesRefreshed = int;
-const int kMaxSessionRefreshes = 30;
 
 /// Active chat controller instances per session.
 final Map<SessionUUID, IChatController> _activeSessions = {};
@@ -42,7 +42,7 @@ final Map<SessionUUID, Timer> _sessionCleanupTimers = {};
 final Map<SessionUUID, int> _sessionRefresh = {};
 
 class ChatSessionEndpoint extends Endpoint {
-  final Uuid uuidClass = Uuid();
+  final Uuid _uuidGenerator = Uuid();
 
   ChatControllerImpl get newChat => ChatControllerImpl(
     codding: DaytonaClaudeCodeService(
@@ -62,7 +62,7 @@ class ChatSessionEndpoint extends Endpoint {
     _sessionRefresh[sessionUuid] = currentRefreshes + 1;
     _sessionCleanupTimers[sessionUuid]?.cancel();
     _sessionCleanupTimers[sessionUuid] = Timer(
-      Duration(minutes: 30),
+      kSessionInactivityTimeout,
       () => _cleanupSession(sessionUuid),
     );
   }
@@ -94,7 +94,7 @@ class ChatSessionEndpoint extends Endpoint {
     Session session, {
     required NewTemplateState newTemplateState,
   }) async {
-    final uuid = uuidClass.v7();
+    final uuid = _uuidGenerator.v7();
     _sessionTemplateInfo[uuid] = newTemplateState;
     _isNewTemplate[uuid] = true;
     _sessionSchemaChanged[uuid] = false;
@@ -220,7 +220,7 @@ class ChatSessionEndpoint extends Endpoint {
           referenceImplementation.stringifiedPayload,
     );
 
-    final uuid = uuidClass.v7();
+    final uuid = _uuidGenerator.v7();
     _sessionTemplateInfo[uuid] = templateState;
     _isNewTemplate[uuid] = false;
     _sessionSchemaChanged[uuid] = false;
