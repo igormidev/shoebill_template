@@ -14,18 +14,14 @@
 import 'package:serverpod_test/serverpod_test.dart' as _i1;
 import 'package:serverpod/serverpod.dart' as _i2;
 import 'dart:async' as _i3;
-import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/template_current_state/template_current_state.dart'
-    as _i4;
-import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/messages/chat_message.dart'
-    as _i5;
 import 'package:shoebill_template_server/src/generated/entities/others/ai_thinking_chunk.dart'
-    as _i6;
+    as _i4;
 import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/template_essential.dart'
-    as _i7;
+    as _i5;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
-    as _i8;
+    as _i6;
 import 'package:shoebill_template_server/src/generated/greetings/greeting.dart'
-    as _i9;
+    as _i7;
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/generated/endpoints.dart';
 export 'package:serverpod_test/serverpod_test_public_exports.dart';
@@ -133,8 +129,6 @@ void withServerpod(
 }
 
 class TestEndpoints {
-  late final _ChatSessionEndpoint chatSession;
-
   late final _CreateTemplateEssentialsEndpoint createTemplateEssentials;
 
   late final _EmailIdpEndpoint emailIdp;
@@ -151,10 +145,6 @@ class _InternalTestEndpoints extends TestEndpoints
     _i2.SerializationManager serializationManager,
     _i2.EndpointDispatch endpoints,
   ) {
-    chatSession = _ChatSessionEndpoint(
-      endpoints,
-      serializationManager,
-    );
     createTemplateEssentials = _CreateTemplateEssentialsEndpoint(
       endpoints,
       serializationManager,
@@ -174,150 +164,6 @@ class _InternalTestEndpoints extends TestEndpoints
   }
 }
 
-class _ChatSessionEndpoint {
-  _ChatSessionEndpoint(
-    this._endpointDispatch,
-    this._serializationManager,
-  );
-
-  final _i2.EndpointDispatch _endpointDispatch;
-
-  final _i2.SerializationManager _serializationManager;
-
-  _i3.Future<_i2.UuidValue> deploySession(
-    _i1.TestSessionBuilder sessionBuilder, {
-    required String sessionUUID,
-  }) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'chatSession',
-            method: 'deploySession',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'chatSession',
-          methodName: 'deploySession',
-          parameters: _i1.testObjectToJson({'sessionUUID': sessionUUID}),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<_i2.UuidValue>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<String> startChatFromNewTemplate(
-    _i1.TestSessionBuilder sessionBuilder, {
-    required _i4.NewTemplateState newTemplateState,
-  }) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'chatSession',
-            method: 'startChatFromNewTemplate',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'chatSession',
-          methodName: 'startChatFromNewTemplate',
-          parameters: _i1.testObjectToJson({
-            'newTemplateState': newTemplateState,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<String>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Future<String> startChatFromExistingTemplate(
-    _i1.TestSessionBuilder sessionBuilder, {
-    required _i2.UuidValue pdfDeclarationUuid,
-  }) async {
-    return _i1.callAwaitableFunctionAndHandleExceptions(() async {
-      var _localUniqueSession =
-          (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-            endpoint: 'chatSession',
-            method: 'startChatFromExistingTemplate',
-          );
-      try {
-        var _localCallContext = await _endpointDispatch.getMethodCallContext(
-          createSessionCallback: (_) => _localUniqueSession,
-          endpointPath: 'chatSession',
-          methodName: 'startChatFromExistingTemplate',
-          parameters: _i1.testObjectToJson({
-            'pdfDeclarationUuid': pdfDeclarationUuid,
-          }),
-          serializationManager: _serializationManager,
-        );
-        var _localReturnValue =
-            await (_localCallContext.method.call(
-                  _localUniqueSession,
-                  _localCallContext.arguments,
-                )
-                as _i3.Future<String>);
-        return _localReturnValue;
-      } finally {
-        await _localUniqueSession.close();
-      }
-    });
-  }
-
-  _i3.Stream<_i5.ChatMessage> sendMessage(
-    _i1.TestSessionBuilder sessionBuilder, {
-    required String sessionUUID,
-    required String message,
-  }) {
-    var _localTestStreamManager = _i1.TestStreamManager<_i5.ChatMessage>();
-    _i1.callStreamFunctionAndHandleExceptions(
-      () async {
-        var _localUniqueSession =
-            (sessionBuilder as _i1.InternalTestSessionBuilder).internalBuild(
-              endpoint: 'chatSession',
-              method: 'sendMessage',
-            );
-        var _localCallContext = await _endpointDispatch
-            .getMethodStreamCallContext(
-              createSessionCallback: (_) => _localUniqueSession,
-              endpointPath: 'chatSession',
-              methodName: 'sendMessage',
-              arguments: {
-                'sessionUUID': sessionUUID,
-                'message': message,
-              },
-              requestedInputStreams: [],
-              serializationManager: _serializationManager,
-            );
-        await _localTestStreamManager.callStreamMethod(
-          _localCallContext,
-          _localUniqueSession,
-          {},
-        );
-      },
-      _localTestStreamManager.outputStreamController,
-    );
-    return _localTestStreamManager.outputStreamController.stream;
-  }
-}
-
 class _CreateTemplateEssentialsEndpoint {
   _CreateTemplateEssentialsEndpoint(
     this._endpointDispatch,
@@ -329,7 +175,7 @@ class _CreateTemplateEssentialsEndpoint {
   final _i2.SerializationManager _serializationManager;
 
   _i3.Stream<
-    ({_i6.AiThinkingChunk? aiThinkingChunk, _i7.TemplateEssential? template})
+    ({_i4.AiThinkingChunk? aiThinkingChunk, _i5.TemplateEssential? template})
   >
   call(
     _i1.TestSessionBuilder sessionBuilder, {
@@ -338,8 +184,8 @@ class _CreateTemplateEssentialsEndpoint {
     var _localTestStreamManager =
         _i1.TestStreamManager<
           ({
-            _i6.AiThinkingChunk? aiThinkingChunk,
-            _i7.TemplateEssential? template,
+            _i4.AiThinkingChunk? aiThinkingChunk,
+            _i5.TemplateEssential? template,
           })
         >();
     _i1.callStreamFunctionAndHandleExceptions(
@@ -380,7 +226,7 @@ class _EmailIdpEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i8.AuthSuccess> login(
+  _i3.Future<_i6.AuthSuccess> login(
     _i1.TestSessionBuilder sessionBuilder, {
     required String email,
     required String password,
@@ -407,7 +253,7 @@ class _EmailIdpEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.AuthSuccess>);
+                as _i3.Future<_i6.AuthSuccess>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -481,7 +327,7 @@ class _EmailIdpEndpoint {
     });
   }
 
-  _i3.Future<_i8.AuthSuccess> finishRegistration(
+  _i3.Future<_i6.AuthSuccess> finishRegistration(
     _i1.TestSessionBuilder sessionBuilder, {
     required String registrationToken,
     required String password,
@@ -508,7 +354,7 @@ class _EmailIdpEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.AuthSuccess>);
+                as _i3.Future<_i6.AuthSuccess>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -628,7 +474,7 @@ class _JwtRefreshEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i8.AuthSuccess> refreshAccessToken(
+  _i3.Future<_i6.AuthSuccess> refreshAccessToken(
     _i1.TestSessionBuilder sessionBuilder, {
     required String refreshToken,
   }) async {
@@ -651,7 +497,7 @@ class _JwtRefreshEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i8.AuthSuccess>);
+                as _i3.Future<_i6.AuthSuccess>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();
@@ -670,7 +516,7 @@ class _GreetingEndpoint {
 
   final _i2.SerializationManager _serializationManager;
 
-  _i3.Future<_i9.Greeting> hello(
+  _i3.Future<_i7.Greeting> hello(
     _i1.TestSessionBuilder sessionBuilder,
     String name,
   ) async {
@@ -693,7 +539,7 @@ class _GreetingEndpoint {
                   _localUniqueSession,
                   _localCallContext.arguments,
                 )
-                as _i3.Future<_i9.Greeting>);
+                as _i3.Future<_i7.Greeting>);
         return _localReturnValue;
       } finally {
         await _localUniqueSession.close();

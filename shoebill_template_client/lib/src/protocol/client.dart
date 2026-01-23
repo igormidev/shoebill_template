@@ -12,69 +12,17 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'dart:async' as _i2;
-import 'package:shoebill_template_client/src/protocol/api/chat_session_related/entities/template_current_state/template_current_state.dart'
-    as _i3;
-import 'package:shoebill_template_client/src/protocol/api/chat_session_related/entities/messages/chat_message.dart'
-    as _i4;
 import 'package:shoebill_template_client/src/protocol/entities/others/ai_thinking_chunk.dart'
-    as _i5;
+    as _i3;
 import 'package:shoebill_template_client/src/protocol/api/chat_session_related/entities/template_essential.dart'
-    as _i6;
+    as _i4;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i7;
+    as _i5;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
-    as _i8;
+    as _i6;
 import 'package:shoebill_template_client/src/protocol/greetings/greeting.dart'
-    as _i9;
-import 'protocol.dart' as _i10;
-
-/// {@category Endpoint}
-class EndpointChatSession extends _i1.EndpointRef {
-  EndpointChatSession(_i1.EndpointCaller caller) : super(caller);
-
-  @override
-  String get name => 'chatSession';
-
-  _i2.Future<_i1.UuidValue> deploySession({required String sessionUUID}) =>
-      caller.callServerEndpoint<_i1.UuidValue>(
-        'chatSession',
-        'deploySession',
-        {'sessionUUID': sessionUUID},
-      );
-
-  _i2.Future<String> startChatFromNewTemplate({
-    required _i3.NewTemplateState newTemplateState,
-  }) => caller.callServerEndpoint<String>(
-    'chatSession',
-    'startChatFromNewTemplate',
-    {'newTemplateState': newTemplateState},
-  );
-
-  _i2.Future<String> startChatFromExistingTemplate({
-    required _i1.UuidValue pdfDeclarationUuid,
-  }) => caller.callServerEndpoint<String>(
-    'chatSession',
-    'startChatFromExistingTemplate',
-    {'pdfDeclarationUuid': pdfDeclarationUuid},
-  );
-
-  _i2.Stream<_i4.ChatMessage> sendMessage({
-    required String sessionUUID,
-    required String message,
-  }) =>
-      caller.callStreamingServerEndpoint<
-        _i2.Stream<_i4.ChatMessage>,
-        _i4.ChatMessage
-      >(
-        'chatSession',
-        'sendMessage',
-        {
-          'sessionUUID': sessionUUID,
-          'message': message,
-        },
-        {},
-      );
-}
+    as _i7;
+import 'protocol.dart' as _i8;
 
 /// {@category Endpoint}
 class EndpointCreateTemplateEssentials extends _i1.EndpointRef {
@@ -87,26 +35,26 @@ class EndpointCreateTemplateEssentials extends _i1.EndpointRef {
   /// The AI will analyze the payload and generate:
   /// - A title and description for the template
   /// - A schema definition that matches the JSON structure
-  /// - A suggested prompt for PDF generation
+  /// - A suggested prompt for Jinja2 HTML/CSS template generation
   /// - The detected reference language
   ///
   /// Returns a stream that yields either:
   /// - `AiThinkingChunk` during AI reasoning
   /// - `TemplateEssential` when the final result is ready
   _i2.Stream<
-    ({_i5.AiThinkingChunk? aiThinkingChunk, _i6.TemplateEssential? template})
+    ({_i3.AiThinkingChunk? aiThinkingChunk, _i4.TemplateEssential? template})
   >
   call({required String stringifiedPayload}) =>
       caller.callStreamingServerEndpoint<
         _i2.Stream<
           ({
-            _i5.AiThinkingChunk? aiThinkingChunk,
-            _i6.TemplateEssential? template,
+            _i3.AiThinkingChunk? aiThinkingChunk,
+            _i4.TemplateEssential? template,
           })
         >,
         ({
-          _i5.AiThinkingChunk? aiThinkingChunk,
-          _i6.TemplateEssential? template,
+          _i3.AiThinkingChunk? aiThinkingChunk,
+          _i4.TemplateEssential? template,
         })
       >(
         'createTemplateEssentials',
@@ -120,7 +68,7 @@ class EndpointCreateTemplateEssentials extends _i1.EndpointRef {
 /// are made available on the server and enable the corresponding sign-in widget
 /// on the client.
 /// {@category Endpoint}
-class EndpointEmailIdp extends _i7.EndpointEmailIdpBase {
+class EndpointEmailIdp extends _i5.EndpointEmailIdpBase {
   EndpointEmailIdp(_i1.EndpointCaller caller) : super(caller);
 
   @override
@@ -136,10 +84,10 @@ class EndpointEmailIdp extends _i7.EndpointEmailIdpBase {
   ///
   /// Throws an [AuthUserBlockedException] if the auth user is blocked.
   @override
-  _i2.Future<_i8.AuthSuccess> login({
+  _i2.Future<_i6.AuthSuccess> login({
     required String email,
     required String password,
-  }) => caller.callServerEndpoint<_i8.AuthSuccess>(
+  }) => caller.callServerEndpoint<_i6.AuthSuccess>(
     'emailIdp',
     'login',
     {
@@ -204,10 +152,10 @@ class EndpointEmailIdp extends _i7.EndpointEmailIdpBase {
   ///
   /// Returns a session for the newly created user.
   @override
-  _i2.Future<_i8.AuthSuccess> finishRegistration({
+  _i2.Future<_i6.AuthSuccess> finishRegistration({
     required String registrationToken,
     required String password,
-  }) => caller.callServerEndpoint<_i8.AuthSuccess>(
+  }) => caller.callServerEndpoint<_i6.AuthSuccess>(
     'emailIdp',
     'finishRegistration',
     {
@@ -295,7 +243,7 @@ class EndpointEmailIdp extends _i7.EndpointEmailIdpBase {
 /// By extending [RefreshJwtTokensEndpoint], the JWT token refresh endpoint
 /// is made available on the server and enables automatic token refresh on the client.
 /// {@category Endpoint}
-class EndpointJwtRefresh extends _i8.EndpointRefreshJwtTokens {
+class EndpointJwtRefresh extends _i6.EndpointRefreshJwtTokens {
   EndpointJwtRefresh(_i1.EndpointCaller caller) : super(caller);
 
   @override
@@ -320,9 +268,9 @@ class EndpointJwtRefresh extends _i8.EndpointRefreshJwtTokens {
   /// This endpoint is unauthenticated, meaning the client won't include any
   /// authentication information with the call.
   @override
-  _i2.Future<_i8.AuthSuccess> refreshAccessToken({
+  _i2.Future<_i6.AuthSuccess> refreshAccessToken({
     required String refreshToken,
-  }) => caller.callServerEndpoint<_i8.AuthSuccess>(
+  }) => caller.callServerEndpoint<_i6.AuthSuccess>(
     'jwtRefresh',
     'refreshAccessToken',
     {'refreshToken': refreshToken},
@@ -340,8 +288,8 @@ class EndpointGreeting extends _i1.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i2.Future<_i9.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i9.Greeting>(
+  _i2.Future<_i7.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i7.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -350,13 +298,13 @@ class EndpointGreeting extends _i1.EndpointRef {
 
 class Modules {
   Modules(Client client) {
-    serverpod_auth_idp = _i7.Caller(client);
-    serverpod_auth_core = _i8.Caller(client);
+    serverpod_auth_idp = _i5.Caller(client);
+    serverpod_auth_core = _i6.Caller(client);
   }
 
-  late final _i7.Caller serverpod_auth_idp;
+  late final _i5.Caller serverpod_auth_idp;
 
-  late final _i8.Caller serverpod_auth_core;
+  late final _i6.Caller serverpod_auth_core;
 }
 
 class Client extends _i1.ServerpodClientShared {
@@ -379,7 +327,7 @@ class Client extends _i1.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i10.Protocol(),
+         _i8.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -388,15 +336,12 @@ class Client extends _i1.ServerpodClientShared {
          disconnectStreamsOnLostInternetConnection:
              disconnectStreamsOnLostInternetConnection,
        ) {
-    chatSession = EndpointChatSession(this);
     createTemplateEssentials = EndpointCreateTemplateEssentials(this);
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
-
-  late final EndpointChatSession chatSession;
 
   late final EndpointCreateTemplateEssentials createTemplateEssentials;
 
@@ -410,7 +355,6 @@ class Client extends _i1.ServerpodClientShared {
 
   @override
   Map<String, _i1.EndpointRef> get endpointRefLookup => {
-    'chatSession': chatSession,
     'createTemplateEssentials': createTemplateEssentials,
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,

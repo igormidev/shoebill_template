@@ -10,11 +10,9 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import '../../protocol.dart' as _i1;
-import 'package:serverpod_client/serverpod_client.dart' as _i2;
-part 'template_pdf.dart';
+import 'package:serverpod_client/serverpod_client.dart' as _i1;
 
-sealed class ShoebillTemplate implements _i2.SerializableModel {
+sealed class ShoebillTemplate implements _i1.SerializableModel {
   ShoebillTemplate({
     this.id,
     DateTime? createdAt,
@@ -22,7 +20,7 @@ sealed class ShoebillTemplate implements _i2.SerializableModel {
   }) : createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now();
 
-  _i2.UuidValue? id;
+  _i1.UuidValue? id;
 
   DateTime createdAt;
 
@@ -30,12 +28,10 @@ sealed class ShoebillTemplate implements _i2.SerializableModel {
 
   /// Returns a shallow copy of this [ShoebillTemplate]
   /// with some or all fields replaced by the given arguments.
-  @_i2.useResult
+  @_i1.useResult
   ShoebillTemplate copyWith({
-    _i2.UuidValue? id,
+    _i1.UuidValue? id,
     DateTime? createdAt,
     DateTime? updatedAt,
   });
 }
-
-class _Undefined {}

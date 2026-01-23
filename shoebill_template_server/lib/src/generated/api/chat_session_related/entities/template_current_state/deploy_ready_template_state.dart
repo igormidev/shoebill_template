@@ -17,7 +17,8 @@ abstract class DeployReadyTemplateState extends _i1.TemplateCurrentState
     required this.pdfContent,
     required this.schemaDefinition,
     required this.referenceLanguage,
-    required this.pythonGeneratorScript,
+    required this.htmlContent,
+    required this.cssContent,
     required this.referenceStringifiedPayloadJson,
   });
 
@@ -25,7 +26,8 @@ abstract class DeployReadyTemplateState extends _i1.TemplateCurrentState
     required _i3.PdfContent pdfContent,
     required _i4.SchemaDefinition schemaDefinition,
     required _i5.SupportedLanguages referenceLanguage,
-    required String pythonGeneratorScript,
+    required String htmlContent,
+    required String cssContent,
     required String referenceStringifiedPayloadJson,
   }) = _DeployReadyTemplateStateImpl;
 
@@ -42,8 +44,8 @@ abstract class DeployReadyTemplateState extends _i1.TemplateCurrentState
       referenceLanguage: _i5.SupportedLanguages.fromJson(
         (jsonSerialization['referenceLanguage'] as String),
       ),
-      pythonGeneratorScript:
-          jsonSerialization['pythonGeneratorScript'] as String,
+      htmlContent: jsonSerialization['htmlContent'] as String,
+      cssContent: jsonSerialization['cssContent'] as String,
       referenceStringifiedPayloadJson:
           jsonSerialization['referenceStringifiedPayloadJson'] as String,
     );
@@ -55,7 +57,9 @@ abstract class DeployReadyTemplateState extends _i1.TemplateCurrentState
 
   _i5.SupportedLanguages referenceLanguage;
 
-  String pythonGeneratorScript;
+  String htmlContent;
+
+  String cssContent;
 
   String referenceStringifiedPayloadJson;
 
@@ -67,7 +71,8 @@ abstract class DeployReadyTemplateState extends _i1.TemplateCurrentState
     _i3.PdfContent? pdfContent,
     _i4.SchemaDefinition? schemaDefinition,
     _i5.SupportedLanguages? referenceLanguage,
-    String? pythonGeneratorScript,
+    String? htmlContent,
+    String? cssContent,
     String? referenceStringifiedPayloadJson,
   });
   @override
@@ -77,7 +82,8 @@ abstract class DeployReadyTemplateState extends _i1.TemplateCurrentState
       'pdfContent': pdfContent.toJson(),
       'schemaDefinition': schemaDefinition.toJson(),
       'referenceLanguage': referenceLanguage.toJson(),
-      'pythonGeneratorScript': pythonGeneratorScript,
+      'htmlContent': htmlContent,
+      'cssContent': cssContent,
       'referenceStringifiedPayloadJson': referenceStringifiedPayloadJson,
     };
   }
@@ -89,7 +95,8 @@ abstract class DeployReadyTemplateState extends _i1.TemplateCurrentState
       'pdfContent': pdfContent.toJsonForProtocol(),
       'schemaDefinition': schemaDefinition.toJsonForProtocol(),
       'referenceLanguage': referenceLanguage.toJson(),
-      'pythonGeneratorScript': pythonGeneratorScript,
+      'htmlContent': htmlContent,
+      'cssContent': cssContent,
       'referenceStringifiedPayloadJson': referenceStringifiedPayloadJson,
     };
   }
@@ -105,13 +112,15 @@ class _DeployReadyTemplateStateImpl extends DeployReadyTemplateState {
     required _i3.PdfContent pdfContent,
     required _i4.SchemaDefinition schemaDefinition,
     required _i5.SupportedLanguages referenceLanguage,
-    required String pythonGeneratorScript,
+    required String htmlContent,
+    required String cssContent,
     required String referenceStringifiedPayloadJson,
   }) : super._(
          pdfContent: pdfContent,
          schemaDefinition: schemaDefinition,
          referenceLanguage: referenceLanguage,
-         pythonGeneratorScript: pythonGeneratorScript,
+         htmlContent: htmlContent,
+         cssContent: cssContent,
          referenceStringifiedPayloadJson: referenceStringifiedPayloadJson,
        );
 
@@ -123,15 +132,16 @@ class _DeployReadyTemplateStateImpl extends DeployReadyTemplateState {
     _i3.PdfContent? pdfContent,
     _i4.SchemaDefinition? schemaDefinition,
     _i5.SupportedLanguages? referenceLanguage,
-    String? pythonGeneratorScript,
+    String? htmlContent,
+    String? cssContent,
     String? referenceStringifiedPayloadJson,
   }) {
     return DeployReadyTemplateState(
       pdfContent: pdfContent ?? this.pdfContent.copyWith(),
       schemaDefinition: schemaDefinition ?? this.schemaDefinition.copyWith(),
       referenceLanguage: referenceLanguage ?? this.referenceLanguage,
-      pythonGeneratorScript:
-          pythonGeneratorScript ?? this.pythonGeneratorScript,
+      htmlContent: htmlContent ?? this.htmlContent,
+      cssContent: cssContent ?? this.cssContent,
       referenceStringifiedPayloadJson:
           referenceStringifiedPayloadJson ??
           this.referenceStringifiedPayloadJson,
