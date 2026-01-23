@@ -7,6 +7,9 @@ import 'package:serverpod_auth_idp_server/providers/email.dart';
 import 'package:shoebill_template_server/src/services/get_locale_of_ip_service.dart';
 import 'package:shoebill_template_server/src/services/pdf_controller.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
+import 'package:shoebill_template_server/src/api/pdf_related/pdf_generate_route.dart';
+import 'package:shoebill_template_server/src/api/pdf_related/pdf_preview_route.dart';
+import 'package:shoebill_template_server/src/api/pdf_related/pdf_visualize_route.dart';
 import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
 import 'src/web/routes/app_config_route.dart';
@@ -78,6 +81,11 @@ void run(List<String> args) async {
       '/app/**',
     );
   }
+
+  // ─── PDF Routes ──────────────────────────────────────────────────────────
+  pod.webServer.addRoute(PdfVisualizeRoute(), '/pdf/visualize');
+  pod.webServer.addRoute(PdfGenerateEndpoint(), '/pdf/generate');
+  pod.webServer.addRoute(PdfPreviewRoute(), '/pdf/preview');
 
   final openRouterApiKey = pod.getPassword('open_router_service');
   if (openRouterApiKey == null) throw noOpenAiException;
