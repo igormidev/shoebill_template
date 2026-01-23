@@ -7,7 +7,7 @@ A Serverpod backend for a SaaS platform that enables users to create, manage, an
 Shoebill Template is a PDF generation platform where users can:
 
 1. **Create PDF Templates** - Provide a JSON payload example and let AI generate HTML/CSS templates with Jinja2 syntax
-2. **Multi-Language Support** - Automatically translate PDFs into 23+ languages with AI-powered translation
+2. **Multi-Language Support** - Automatically translate PDFs into 24 languages with AI-powered translation
 3. **Version Management** - Track template versions with smart versioning (UI-only changes vs schema changes)
 4. **REST API Access** - Get a dedicated endpoint to generate PDFs by simply POSTing your data
 
@@ -40,9 +40,9 @@ ShoebillTemplateScaffold (Root - general info, title, description)
 
 ### Multi-Language Translation
 
-The system supports 23 languages defined in @shoebill_template_server/lib/src/entities/others/supported_languages.spy.yaml:
+The system supports 24 languages defined in @shoebill_template_server/lib/src/entities/others/supported_languages.spy.yaml:
 - English, Spanish, French, German, Italian, Portuguese (Brazil/Portugal)
-- Simplified/Traditional Chinese, Japanese, Korean
+- Simplified/Traditional Chinese, Japanese, Korean, Vietnamese
 - Russian, Ukrainian, Polish, Czech, Romanian, Swedish, Dutch
 - Indonesian, Malay, Filipino, Turkish, Swahili
 
@@ -121,7 +121,7 @@ Powerful schema system with validation, translation extraction, and OpenRouter J
 **Reviewer Validation:**
 - Checks Jinja2 syntax correctness
 - Verifies all schema variables are used properly
-- Ensures multi-language support (all 23 languages have hardcoded string translations)
+- Ensures multi-language support (all 24 languages have hardcoded string translations)
 - Validates proper use of Noto Sans CJK font
 - Confirms page structure matches user requirements
 
