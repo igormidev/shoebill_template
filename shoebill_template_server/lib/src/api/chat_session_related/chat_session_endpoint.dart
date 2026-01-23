@@ -13,39 +13,58 @@ import 'package:shoebill_template_server/src/services/pdf_controller.dart';
 import 'package:shoebill_template_server/src/services/template_reviewer_service.dart';
 
 typedef SessionUUID = String;
-typedef TimesRefreshed = int;
 
-/// Active chat controller instances per session.
-final Map<SessionUUID, IChatController> _activeSessions = {};
+/// Encapsulates all mutable state associated with a single chat session.
+class SessionData {
+  /// The chat controller handling AI interactions for this session.
+  IChatController controller;
 
-/// Current template state for each session (NewTemplateState or DeployReadyTemplateState).
-final Map<SessionUUID, TemplateCurrentState> _sessionTemplateInfo = {};
+  /// Current template state (NewTemplateState or DeployReadyTemplateState).
+  TemplateCurrentState templateState;
 
-/// Whether this session is for a brand new template (true) or editing an existing one (false).
-final Map<SessionUUID, bool> _isNewTemplate = {};
+  /// For existing templates: the scaffold UUID that the version belongs to.
+  UuidValue? scaffoldId;
 
-/// Tracks whether the schema was modified during the session.
-/// When true, deploying creates a new ShoebillTemplateVersion instead of updating in place.
-final Map<SessionUUID, bool> _sessionSchemaChanged = {};
+  /// For existing templates: the version ID being edited (for UI-only updates).
+  int? existingVersionId;
 
-/// Stores the Daytona Claude Code session ID for resume capability.
-/// This allows stopping/deleting the sandbox to save costs, then resuming later.
-final Map<SessionUUID, String?> _sessionDaytonaSessionId = {};
+  /// Whether this session is for a brand new template (true) or editing an existing one (false).
+  bool isNewTemplate;
 
-/// For existing templates: the scaffold UUID that the version belongs to.
-final Map<SessionUUID, UuidValue?> _sessionScaffoldId = {};
+  /// Tracks whether the schema was modified during the session.
+  /// When true, deploying creates a new ShoebillTemplateVersion instead of updating in place.
+  bool schemaChanged;
 
-/// For existing templates: the version ID being edited (for UI-only updates).
-final Map<SessionUUID, int?> _sessionExistingVersionId = {};
+  /// Stores the Daytona Claude Code session ID for resume capability.
+  /// This allows stopping/deleting the sandbox to save costs, then resuming later.
+  String? daytonaSessionId;
 
-/// Timers that auto-cleanup sessions after inactivity.
-final Map<SessionUUID, Timer> _sessionCleanupTimers = {};
+  /// Timer that auto-cleans up this session after inactivity.
+  Timer? cleanupTimer;
 
-/// How many times a session has been refreshed (bounded by kMaxSessionRefreshes).
-final Map<SessionUUID, int> _sessionRefresh = {};
+  /// How many times this session has been refreshed (bounded by kMaxSessionRefreshes).
+  int refreshCount;
+
+  SessionData({
+    required this.controller,
+    required this.templateState,
+    this.scaffoldId,
+    this.existingVersionId,
+    required this.isNewTemplate,
+    this.schemaChanged = false,
+    this.daytonaSessionId,
+    this.cleanupTimer,
+    this.refreshCount = 0,
+  });
+}
+
+/// All active chat sessions, keyed by session UUID.
+final Map<SessionUUID, SessionData> _sessions = {};
 
 class ChatSessionEndpoint extends Endpoint {
   final Uuid _uuidGenerator = Uuid();
+
+  IPdfController get _pdfController => GetIt.instance<IPdfController>();
 
   ChatControllerImpl get newChat => ChatControllerImpl(
     daytonaService: DaytonaClaudeCodeService(
@@ -60,14 +79,16 @@ class ChatSessionEndpoint extends Endpoint {
   /// Refreshes the session timer and increments the refresh counter.
   /// If the max refreshes are exceeded, the session is cleaned up entirely.
   void refreshSession(SessionUUID sessionUuid) {
-    final currentRefreshes = _sessionRefresh[sessionUuid] ?? 0;
-    if (currentRefreshes >= kMaxSessionRefreshes) {
+    final sessionData = _sessions[sessionUuid];
+    if (sessionData == null) return;
+
+    if (sessionData.refreshCount >= kMaxSessionRefreshes) {
       _cleanupSession(sessionUuid);
       return;
     }
-    _sessionRefresh[sessionUuid] = currentRefreshes + 1;
-    _sessionCleanupTimers[sessionUuid]?.cancel();
-    _sessionCleanupTimers[sessionUuid] = Timer(
+    sessionData.refreshCount += 1;
+    sessionData.cleanupTimer?.cancel();
+    sessionData.cleanupTimer = Timer(
       kSessionInactivityTimeout,
       () => _cleanupSession(sessionUuid),
     );
@@ -75,21 +96,39 @@ class ChatSessionEndpoint extends Endpoint {
 
   /// Removes all in-memory data associated with a session.
   void _cleanupSession(SessionUUID sessionUuid) {
-    _activeSessions.remove(sessionUuid);
-    _isNewTemplate.remove(sessionUuid);
-    _sessionTemplateInfo.remove(sessionUuid);
-    _sessionSchemaChanged.remove(sessionUuid);
-    _sessionDaytonaSessionId.remove(sessionUuid);
-    _sessionScaffoldId.remove(sessionUuid);
-    _sessionExistingVersionId.remove(sessionUuid);
-    _sessionCleanupTimers[sessionUuid]?.cancel();
-    _sessionCleanupTimers.remove(sessionUuid);
-    _sessionRefresh.remove(sessionUuid);
+    final sessionData = _sessions.remove(sessionUuid);
+    sessionData?.cleanupTimer?.cancel();
   }
 
   // ===========================================================================
   // START CHAT: NEW TEMPLATE
   // ===========================================================================
+
+  /// Creates a new session entry, registers it in the [_sessions] map, and
+  /// starts the inactivity timer. Returns the generated session UUID.
+  SessionUUID _initSession({
+    required TemplateCurrentState templateState,
+    required bool isNewTemplate,
+    UuidValue? scaffoldId,
+    int? existingVersionId,
+  }) {
+    if (!isNewTemplate && (scaffoldId == null || existingVersionId == null)) {
+      throw ArgumentError(
+        'scaffoldId and existingVersionId are required when isNewTemplate is false',
+      );
+    }
+
+    final uuid = _uuidGenerator.v7();
+    _sessions[uuid] = SessionData(
+      controller: newChat,
+      templateState: templateState,
+      isNewTemplate: isNewTemplate,
+      scaffoldId: scaffoldId,
+      existingVersionId: existingVersionId,
+    );
+    refreshSession(uuid);
+    return uuid;
+  }
 
   /// Starts a new chat session for creating a brand new template.
   ///
@@ -100,16 +139,10 @@ class ChatSessionEndpoint extends Endpoint {
     Session session, {
     required NewTemplateState newTemplateState,
   }) async {
-    final uuid = _uuidGenerator.v7();
-    _sessionTemplateInfo[uuid] = newTemplateState;
-    _isNewTemplate[uuid] = true;
-    _sessionSchemaChanged[uuid] = false;
-    _sessionDaytonaSessionId[uuid] = null;
-    _sessionScaffoldId[uuid] = null;
-    _sessionExistingVersionId[uuid] = null;
-    _activeSessions[uuid] = newChat;
-    refreshSession(uuid);
-    return uuid;
+    return _initSession(
+      templateState: newTemplateState,
+      isNewTemplate: true,
+    );
   }
 
   // ===========================================================================
@@ -226,16 +259,12 @@ class ChatSessionEndpoint extends Endpoint {
           referenceImplementation.stringifiedPayload,
     );
 
-    final uuid = _uuidGenerator.v7();
-    _sessionTemplateInfo[uuid] = templateState;
-    _isNewTemplate[uuid] = false;
-    _sessionSchemaChanged[uuid] = false;
-    _sessionDaytonaSessionId[uuid] = null;
-    _sessionScaffoldId[uuid] = scaffold.id;
-    _sessionExistingVersionId[uuid] = version.id;
-    _activeSessions[uuid] = newChat;
-    refreshSession(uuid);
-    return uuid;
+    return _initSession(
+      templateState: templateState,
+      isNewTemplate: false,
+      scaffoldId: scaffold.id,
+      existingVersionId: version.id,
+    );
   }
 
   // ===========================================================================
@@ -271,9 +300,9 @@ class ChatSessionEndpoint extends Endpoint {
       ),
     );
 
-    final IChatController? currentSession = _activeSessions[sessionUUID];
+    final sessionData = _sessions[sessionUUID];
 
-    if (currentSession == null) {
+    if (sessionData == null) {
       controller.add(
         ChatMessageResponse(
           message: ChatMessage(
@@ -287,7 +316,7 @@ class ChatSessionEndpoint extends Endpoint {
       return controller.stream;
     }
 
-    if (currentSession.isAlreadyProcessingMessage) {
+    if (sessionData.controller.isAlreadyProcessingMessage) {
       controller.add(
         ChatMessageResponse(
           message: ChatMessage(
@@ -336,15 +365,13 @@ class ChatSessionEndpoint extends Endpoint {
 
     refreshSession(sessionUUID);
 
-    final templateState = _sessionTemplateInfo[sessionUUID]!;
-
     // Stream messages from the chat controller
     unawaited(_processMessages(
       controller: controller,
-      currentSession: currentSession,
+      currentSession: sessionData.controller,
       sessionUUID: sessionUUID,
       message: message,
-      templateState: templateState,
+      templateState: sessionData.templateState,
       schemaChange: schemaChange,
     ));
 
@@ -372,7 +399,7 @@ class ChatSessionEndpoint extends Endpoint {
 
         // If the controller yielded a TemplateStateResponse, update session state
         if (msg is TemplateStateResponse) {
-          _sessionTemplateInfo[sessionUUID] = msg.currentState;
+          _sessions[sessionUUID]?.templateState = msg.currentState;
         }
       }
     } catch (e) {
@@ -415,27 +442,17 @@ class ChatSessionEndpoint extends Endpoint {
     }
 
     // Mark session as having a schema change
-    _sessionSchemaChanged[sessionUUID] = true;
+    final sessionData = _sessions[sessionUUID];
+    if (sessionData == null) return null;
+
+    sessionData.schemaChanged = true;
 
     // Update the session template info with new schema and payload
-    final currentState = _sessionTemplateInfo[sessionUUID];
-    if (currentState is DeployReadyTemplateState) {
-      _sessionTemplateInfo[sessionUUID] = DeployReadyTemplateState(
-        pdfContent: currentState.pdfContent,
-        schemaDefinition: newSchema,
-        referenceLanguage: currentState.referenceLanguage,
-        htmlContent: currentState.htmlContent,
-        cssContent: currentState.cssContent,
-        referenceStringifiedPayloadJson: newPayloadString,
-      );
-    } else if (currentState is NewTemplateState) {
-      _sessionTemplateInfo[sessionUUID] = NewTemplateState(
-        pdfContent: currentState.pdfContent,
-        schemaDefinition: newSchema,
-        referenceLanguage: currentState.referenceLanguage,
-        referenceStringifiedPayloadJson: newPayloadString,
-      );
-    }
+    sessionData.templateState = _reconstructTemplateState(
+      currentState: sessionData.templateState,
+      schemaDefinition: newSchema,
+      referenceStringifiedPayloadJson: newPayloadString,
+    );
 
     return null; // Success
   }
@@ -462,14 +479,16 @@ class ChatSessionEndpoint extends Endpoint {
     Session session, {
     required SessionUUID sessionUUID,
   }) async {
-    final templateState = _sessionTemplateInfo[sessionUUID];
+    final sessionData = _sessions[sessionUUID];
 
-    if (templateState == null) {
+    if (sessionData == null) {
       throw ShoebillException(
         title: 'Session not found',
         description: 'No template session found for UUID: $sessionUUID',
       );
     }
+
+    final templateState = sessionData.templateState;
 
     if (templateState is! DeployReadyTemplateState) {
       throw ShoebillException(
@@ -480,8 +499,8 @@ class ChatSessionEndpoint extends Endpoint {
       );
     }
 
-    final isNew = _isNewTemplate[sessionUUID] ?? true;
-    final schemaChanged = _sessionSchemaChanged[sessionUUID] ?? false;
+    final isNew = sessionData.isNewTemplate;
+    final schemaChanged = sessionData.schemaChanged;
 
     final UuidValue resultId;
 
@@ -491,13 +510,13 @@ class ChatSessionEndpoint extends Endpoint {
       resultId = await _deployWithSchemaChange(
         session,
         templateState: templateState,
-        sessionUUID: sessionUUID,
+        sessionData: sessionData,
       );
     } else {
       resultId = await _updateExistingTemplateVersion(
         session,
         templateState: templateState,
-        sessionUUID: sessionUUID,
+        sessionData: sessionData,
       );
     }
 
@@ -513,9 +532,7 @@ class ChatSessionEndpoint extends Endpoint {
     Session session, {
     required DeployReadyTemplateState templateState,
   }) async {
-    final pdfController = PdfController();
-
-    final scaffold = await pdfController.createNewTemplateScaffold(
+    final scaffold = await _pdfController.createNewTemplateScaffold(
       session: session,
       pdfContent: templateState.pdfContent,
       schemaDefinition: templateState.schemaDefinition,
@@ -534,26 +551,24 @@ class ChatSessionEndpoint extends Endpoint {
   Future<UuidValue> _deployWithSchemaChange(
     Session session, {
     required DeployReadyTemplateState templateState,
-    required SessionUUID sessionUUID,
+    required SessionData sessionData,
   }) async {
-    final scaffoldId = _sessionScaffoldId[sessionUUID];
+    final scaffoldId = sessionData.scaffoldId;
     if (scaffoldId == null) {
       throw ShoebillException(
         title: 'Scaffold ID missing',
         description:
-            'Cannot create a new version: scaffold ID not found for session $sessionUUID. '
+            'Cannot create a new version: scaffold ID not found. '
             'This indicates the session was not properly initialized from an existing template.',
       );
     }
-
-    final pdfController = PdfController();
 
     // Create a new SchemaDefinition (without ID) for the new version
     final newSchema = SchemaDefinition(
       properties: templateState.schemaDefinition.properties,
     );
 
-    await pdfController.createNewTemplateVersion(
+    await _pdfController.createNewTemplateVersion(
       session: session,
       scaffoldId: scaffoldId,
       schemaDefinition: newSchema,
@@ -570,30 +585,28 @@ class ChatSessionEndpoint extends Endpoint {
   Future<UuidValue> _updateExistingTemplateVersion(
     Session session, {
     required DeployReadyTemplateState templateState,
-    required SessionUUID sessionUUID,
+    required SessionData sessionData,
   }) async {
-    final versionId = _sessionExistingVersionId[sessionUUID];
+    final versionId = sessionData.existingVersionId;
     if (versionId == null) {
       throw ShoebillException(
         title: 'Version ID missing',
         description:
-            'Cannot update version: version ID not found for session $sessionUUID. '
+            'Cannot update version: version ID not found. '
             'This indicates the session was not properly initialized from an existing template.',
       );
     }
 
-    final scaffoldId = _sessionScaffoldId[sessionUUID];
+    final scaffoldId = sessionData.scaffoldId;
     if (scaffoldId == null) {
       throw ShoebillException(
         title: 'Scaffold ID missing',
         description:
-            'Cannot update version: scaffold ID not found for session $sessionUUID.',
+            'Cannot update version: scaffold ID not found.',
       );
     }
 
-    final pdfController = PdfController();
-
-    await pdfController.updateTemplateVersion(
+    await _pdfController.updateTemplateVersion(
       session: session,
       versionId: versionId,
       htmlContent: templateState.htmlContent,
@@ -601,6 +614,56 @@ class ChatSessionEndpoint extends Endpoint {
     );
 
     return scaffoldId;
+  }
+
+  // ===========================================================================
+  // UTILITY: TEMPLATE STATE RECONSTRUCTION HELPER
+  // ===========================================================================
+
+  /// Reconstructs a [TemplateCurrentState] from the current state, optionally
+  /// overriding schema, payload, HTML, and CSS fields.
+  ///
+  /// If [currentState] is a [NewTemplateState] and both [htmlContent] and
+  /// [cssContent] are provided, promotes it to a [DeployReadyTemplateState].
+  TemplateCurrentState _reconstructTemplateState({
+    required TemplateCurrentState currentState,
+    SchemaDefinition? schemaDefinition,
+    String? referenceStringifiedPayloadJson,
+    String? htmlContent,
+    String? cssContent,
+  }) {
+    if (currentState is DeployReadyTemplateState) {
+      return DeployReadyTemplateState(
+        pdfContent: currentState.pdfContent,
+        schemaDefinition: schemaDefinition ?? currentState.schemaDefinition,
+        referenceLanguage: currentState.referenceLanguage,
+        htmlContent: htmlContent ?? currentState.htmlContent,
+        cssContent: cssContent ?? currentState.cssContent,
+        referenceStringifiedPayloadJson: referenceStringifiedPayloadJson ??
+            currentState.referenceStringifiedPayloadJson,
+      );
+    } else if (currentState is NewTemplateState) {
+      // If HTML/CSS are provided, promote to DeployReadyTemplateState
+      if (htmlContent != null && cssContent != null) {
+        return DeployReadyTemplateState(
+          pdfContent: currentState.pdfContent,
+          schemaDefinition: schemaDefinition ?? currentState.schemaDefinition,
+          referenceLanguage: currentState.referenceLanguage,
+          htmlContent: htmlContent,
+          cssContent: cssContent,
+          referenceStringifiedPayloadJson: referenceStringifiedPayloadJson ??
+              currentState.referenceStringifiedPayloadJson,
+        );
+      }
+      return NewTemplateState(
+        pdfContent: currentState.pdfContent,
+        schemaDefinition: schemaDefinition ?? currentState.schemaDefinition,
+        referenceLanguage: currentState.referenceLanguage,
+        referenceStringifiedPayloadJson: referenceStringifiedPayloadJson ??
+            currentState.referenceStringifiedPayloadJson,
+      );
+    }
+    return currentState;
   }
 
   // ===========================================================================
@@ -618,32 +681,14 @@ class ChatSessionEndpoint extends Endpoint {
     required String htmlContent,
     required String cssContent,
   }) {
-    final currentState = _sessionTemplateInfo[sessionUUID];
-    if (currentState == null) return;
+    final sessionData = _sessions[sessionUUID];
+    if (sessionData == null) return;
 
-    if (currentState is NewTemplateState) {
-      // Transition from NewTemplateState to DeployReadyTemplateState
-      _sessionTemplateInfo[sessionUUID] = DeployReadyTemplateState(
-        pdfContent: currentState.pdfContent,
-        schemaDefinition: currentState.schemaDefinition,
-        referenceLanguage: currentState.referenceLanguage,
-        htmlContent: htmlContent,
-        cssContent: cssContent,
-        referenceStringifiedPayloadJson:
-            currentState.referenceStringifiedPayloadJson,
-      );
-    } else if (currentState is DeployReadyTemplateState) {
-      // Update existing DeployReadyTemplateState with new HTML/CSS
-      _sessionTemplateInfo[sessionUUID] = DeployReadyTemplateState(
-        pdfContent: currentState.pdfContent,
-        schemaDefinition: currentState.schemaDefinition,
-        referenceLanguage: currentState.referenceLanguage,
-        htmlContent: htmlContent,
-        cssContent: cssContent,
-        referenceStringifiedPayloadJson:
-            currentState.referenceStringifiedPayloadJson,
-      );
-    }
+    sessionData.templateState = _reconstructTemplateState(
+      currentState: sessionData.templateState,
+      htmlContent: htmlContent,
+      cssContent: cssContent,
+    );
   }
 
   // ===========================================================================
@@ -656,13 +701,13 @@ class ChatSessionEndpoint extends Endpoint {
     required SessionUUID sessionUUID,
     required String daytonaSessionId,
   }) {
-    _sessionDaytonaSessionId[sessionUUID] = daytonaSessionId;
+    _sessions[sessionUUID]?.daytonaSessionId = daytonaSessionId;
   }
 
   /// Retrieves the stored Daytona Claude Code session ID for resuming.
   /// Returns null if no session ID has been stored yet.
   String? getDaytonaSessionId(SessionUUID sessionUUID) {
-    return _sessionDaytonaSessionId[sessionUUID];
+    return _sessions[sessionUUID]?.daytonaSessionId;
   }
 
   // ===========================================================================
@@ -671,16 +716,16 @@ class ChatSessionEndpoint extends Endpoint {
 
   /// Returns the current template state for a session, or null if not found.
   TemplateCurrentState? getSessionTemplateState(SessionUUID sessionUUID) {
-    return _sessionTemplateInfo[sessionUUID];
+    return _sessions[sessionUUID]?.templateState;
   }
 
   /// Returns whether the schema has been changed during this session.
   bool hasSchemaChanged(SessionUUID sessionUUID) {
-    return _sessionSchemaChanged[sessionUUID] ?? false;
+    return _sessions[sessionUUID]?.schemaChanged ?? false;
   }
 
   /// Returns whether this session is for a new template.
   bool isNewTemplateSession(SessionUUID sessionUUID) {
-    return _isNewTemplate[sessionUUID] ?? true;
+    return _sessions[sessionUUID]?.isNewTemplate ?? true;
   }
 }

@@ -1,8 +1,34 @@
 import 'dart:convert';
 
+import 'package:jinja/jinja.dart';
 import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
+
+// =============================================================================
+// SAMPLE VALUE CONSTANTS
+// =============================================================================
+
+/// Sample value used for string-type schema properties during Jinja2 rendering.
+const String kSampleStringValue = 'Sample Text';
+
+/// Sample value used for integer-type schema properties during Jinja2 rendering.
+const int kSampleIntValue = 1;
+
+/// Sample value used for double-type schema properties during Jinja2 rendering.
+const double kSampleDoubleValue = 1.0;
+
+/// Sample value used for boolean-type schema properties during Jinja2 rendering.
+const bool kSampleBoolValue = true;
+
+/// Fallback value used for enum-type schema properties with no defined values.
+const String kSampleEnumFallback = 'unknown';
+
+/// Sample key used for dynamic object properties during Jinja2 rendering.
+const String kSampleObjectKey = 'key';
+
+/// Sample value used for dynamic object properties during Jinja2 rendering.
+const String kSampleObjectValue = 'value';
 
 // ============================================================================
 // REVIEW SCENARIO ENUM
@@ -138,6 +164,16 @@ final class ReviewStatusEvent extends ReviewStreamEvent {
 /// [feedbackForClaude] back to the Daytona instance for corrections.
 /// Repeat up to [kMaxReviewRetryAttempts] times.
 class TemplateReviewerService {
+  /// Critical HTML tags checked for unclosed occurrences during syntax validation.
+  static const List<String> _criticalTags = [
+    'html',
+    'head',
+    'body',
+    'table',
+    'div',
+    'style',
+  ];
+
   final IOpenAiService _openAiService;
 
   TemplateReviewerService({required IOpenAiService openAiService})
@@ -206,6 +242,21 @@ class TemplateReviewerService {
     String? previousCss,
     SchemaDefinition? previousSchema,
   }) async* {
+    // Validate scenario-required parameters
+    if (scenario == ReviewScenario.editingExisting ||
+        scenario == ReviewScenario.schemaChange) {
+      if (previousHtml == null || previousCss == null) {
+        throw ArgumentError(
+          'previousHtml and previousCss are required for $scenario scenario',
+        );
+      }
+    }
+    if (scenario == ReviewScenario.schemaChange && previousSchema == null) {
+      throw ArgumentError(
+        'previousSchema is required for schemaChange scenario',
+      );
+    }
+
     // Step 1: Basic HTML/CSS syntax validation
     yield const ReviewStatusEvent(
       'Performing initial HTML/CSS syntax validation...',
@@ -224,11 +275,30 @@ class TemplateReviewerService {
       return;
     }
 
+    // Step 2: Attempt actual Jinja2 rendering with sample payload
     yield const ReviewStatusEvent(
-      'Syntax validation passed. Starting AI-powered comprehensive review...',
+      'Attempting Jinja2 template rendering with sample data...',
     );
 
-    // Step 2: AI-powered comprehensive review
+    final renderingError = _attemptJinjaRendering(
+      htmlContent: htmlContent,
+      schema: schema,
+    );
+    if (renderingError != null) {
+      yield ReviewCompleteEvent(
+        ReviewError(
+          errorMessage: renderingError,
+          attemptsMade: 0,
+        ),
+      );
+      return;
+    }
+
+    yield const ReviewStatusEvent(
+      'Jinja2 rendering passed. Starting AI-powered comprehensive review...',
+    );
+
+    // Step 3: AI-powered comprehensive review
     final prompt = _buildReviewPrompt(
       htmlContent: htmlContent,
       cssContent: cssContent,
@@ -302,8 +372,7 @@ class TemplateReviewerService {
     }
 
     // Check for unclosed critical tags
-    final criticalTags = ['html', 'head', 'body', 'table', 'div', 'style'];
-    for (final tag in criticalTags) {
+    for (final tag in _criticalTags) {
       final openCount = RegExp('<$tag[\\s>]', caseSensitive: false)
           .allMatches(html)
           .length;
@@ -385,6 +454,101 @@ class TemplateReviewerService {
       'matching end tags, and CSS braces are balanced.',
     );
     return buffer.toString();
+  }
+
+  // ==========================================================================
+  // JINJA2 RENDERING VALIDATION
+  // ==========================================================================
+
+  /// Attempts to render the HTML template through the Jinja2 engine with
+  /// a sample payload derived from the schema.
+  ///
+  /// This catches real template errors that regex-based validation cannot:
+  /// - Jinja2 syntax errors (malformed expressions, invalid filters)
+  /// - Undefined variable access (when the template uses strict mode)
+  /// - Template runtime errors (type mismatches, invalid operations)
+  ///
+  /// Returns null if rendering succeeds, or an error message string if it fails.
+  String? _attemptJinjaRendering({
+    required String htmlContent,
+    required SchemaDefinition schema,
+  }) {
+    try {
+      final environment = Environment(
+        blockStart: '{%',
+        blockEnd: '%}',
+        variableStart: '{{',
+        variableEnd: '}}',
+        commentStart: '{#',
+        commentEnd: '#}',
+        trimBlocks: true,
+        leftStripBlocks: true,
+      );
+
+      final template = environment.fromString(htmlContent);
+
+      // Build a sample payload from the schema so the template has data to render
+      final samplePayload = _generateSamplePayload(schema);
+
+      // Add the language variable which is always available in the context
+      final context = <String, dynamic>{
+        ...samplePayload,
+        'language': SupportedLanguages.english.name,
+      };
+
+      template.render(context);
+      return null;
+    } on TemplateSyntaxError catch (e) {
+      return 'Jinja2 template syntax error: ${e.message}';
+    } on UndefinedError catch (e) {
+      return 'Jinja2 undefined variable error: ${e.message}';
+    } on TemplateRuntimeError catch (e) {
+      return 'Jinja2 template runtime error: ${e.message}';
+    } on TemplateError catch (e) {
+      return 'Jinja2 template error: ${e.message}';
+    } catch (e) {
+      return 'Jinja2 rendering failed: $e';
+    }
+  }
+
+  /// Generates a sample payload from a [SchemaDefinition] with placeholder
+  /// values for each field type.
+  ///
+  /// This is used to feed the Jinja2 renderer with valid data so that
+  /// template expressions can be evaluated. The values are intentionally
+  /// simple placeholders -- the goal is only to verify the template renders
+  /// without errors, not to produce meaningful output.
+  Map<String, dynamic> _generateSamplePayload(SchemaDefinition schema) {
+    final payload = <String, dynamic>{};
+    for (final entry in schema.properties.entries) {
+      payload[entry.key] = _generateSampleValue(entry.value);
+    }
+    return payload;
+  }
+
+  /// Generates a sample value for a single [SchemaProperty].
+  Object _generateSampleValue(SchemaProperty property) {
+    return switch (property) {
+      SchemaPropertyString() => kSampleStringValue,
+      SchemaPropertyInteger() => kSampleIntValue,
+      SchemaPropertyDouble() => kSampleDoubleValue,
+      SchemaPropertyBoolean() => kSampleBoolValue,
+      SchemaPropertyEnum(:final enumValues) =>
+        enumValues.isNotEmpty ? enumValues.first : kSampleEnumFallback,
+      SchemaPropertyArray(:final items) => [
+        _generateSampleValue(items),
+        _generateSampleValue(items),
+      ],
+      SchemaPropertyObjectWithUndefinedProperties() => <String, dynamic>{
+        kSampleObjectKey: kSampleObjectValue,
+      },
+      SchemaPropertyStructuredObjectWithDefinedProperties(
+        :final properties,
+      ) =>
+        properties.map(
+          (key, value) => MapEntry(key, _generateSampleValue(value)),
+        ),
+    };
   }
 
   // ==========================================================================

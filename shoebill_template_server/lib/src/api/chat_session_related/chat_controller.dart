@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:shoebill_template_server/server.dart';
 import 'package:shoebill_template_server/src/api/pdf_related/entities/schema_property_extensions.dart';
@@ -9,6 +8,39 @@ import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/services/daytona_claude_code_service.dart';
 import 'package:shoebill_template_server/src/services/template_reviewer_service.dart';
+
+// ============================================================================
+// TEMPLATE CURRENT STATE EXTENSION
+// ============================================================================
+
+/// Extension on [TemplateCurrentState] providing direct access to common
+/// properties shared by both [NewTemplateState] and [DeployReadyTemplateState].
+///
+/// This eliminates the need for repeated switch expressions to extract these
+/// fields throughout the controller.
+extension TemplateCurrentStateCommonFields on TemplateCurrentState {
+  PdfContent get pdfContent => switch (this) {
+    NewTemplateState(:final pdfContent) => pdfContent,
+    DeployReadyTemplateState(:final pdfContent) => pdfContent,
+  };
+
+  SchemaDefinition get schemaDefinition => switch (this) {
+    NewTemplateState(:final schemaDefinition) => schemaDefinition,
+    DeployReadyTemplateState(:final schemaDefinition) => schemaDefinition,
+  };
+
+  SupportedLanguages get referenceLanguage => switch (this) {
+    NewTemplateState(:final referenceLanguage) => referenceLanguage,
+    DeployReadyTemplateState(:final referenceLanguage) => referenceLanguage,
+  };
+
+  String get referenceStringifiedPayloadJson => switch (this) {
+    NewTemplateState(:final referenceStringifiedPayloadJson) =>
+      referenceStringifiedPayloadJson,
+    DeployReadyTemplateState(:final referenceStringifiedPayloadJson) =>
+      referenceStringifiedPayloadJson,
+  };
+}
 
 // ============================================================================
 // CHAT CONTROLLER INTERFACE
@@ -70,6 +102,16 @@ class ChatControllerImpl implements IChatController {
   final DaytonaClaudeCodeService _daytonaService;
   final TemplateReviewerService _reviewerService;
 
+  /// Helper to reduce boilerplate when constructing [ChatMessageResponse].
+  ChatMessageResponse _chatMsg(
+    ChatActor role,
+    ChatUIStyle style,
+    String content,
+  ) =>
+      ChatMessageResponse(
+        message: ChatMessage(role: role, style: style, content: content),
+      );
+
   @override
   bool isAlreadyProcessingMessage = false;
 
@@ -110,7 +152,7 @@ class ChatControllerImpl implements IChatController {
       );
       final previousHtml = currentHtmlContent;
       final previousCss = currentCssContent;
-      final previousSchema = _extractPreviousSchema(templateState);
+      final previousSchema = templateState.schemaDefinition;
 
       // Enter the generation + review loop
       yield* _generateAndReviewLoop(
@@ -125,12 +167,10 @@ class ChatControllerImpl implements IChatController {
         schemaChangePayload: schemaChangePayload,
       );
     } catch (e) {
-      yield ChatMessageResponse(
-        message: ChatMessage(
-          role: ChatActor.system,
-          style: ChatUIStyle.error,
-          content: 'An unexpected error occurred: $e',
-        ),
+      yield _chatMsg(
+        ChatActor.system,
+        ChatUIStyle.error,
+        'An unexpected error occurred: $e',
       );
     } finally {
       isAlreadyProcessingMessage = false;
@@ -161,13 +201,10 @@ class ChatControllerImpl implements IChatController {
       attempt++;
 
       if (attempt > 1) {
-        yield ChatMessageResponse(
-          message: ChatMessage(
-            role: ChatActor.system,
-            style: ChatUIStyle.normal,
-            content:
-                'Retry attempt $attempt of $kMaxDaytonaRetryAttempts...',
-          ),
+        yield _chatMsg(
+          ChatActor.system,
+          ChatUIStyle.normal,
+          'Retry attempt $attempt of $kMaxDaytonaRetryAttempts...',
         );
       }
 
@@ -188,13 +225,7 @@ class ChatControllerImpl implements IChatController {
             if (isLocal) print('Thinking: $thinking');
             if (!daytonaStreamController.isClosed) {
               daytonaStreamController.add(
-                ChatMessageResponse(
-                  message: ChatMessage(
-                    role: ChatActor.ai,
-                    content: thinking,
-                    style: ChatUIStyle.thinkingChunk,
-                  ),
-                ),
+                _chatMsg(ChatActor.ai, ChatUIStyle.thinkingChunk, thinking),
               );
             }
           },
@@ -207,12 +238,10 @@ class ChatControllerImpl implements IChatController {
             }
             if (!daytonaStreamController.isClosed) {
               daytonaStreamController.add(
-                ChatMessageResponse(
-                  message: ChatMessage(
-                    role: ChatActor.ai,
-                    style: ChatUIStyle.thinkingChunk,
-                    content: 'Using tool: $toolName',
-                  ),
+                _chatMsg(
+                  ChatActor.ai,
+                  ChatUIStyle.thinkingChunk,
+                  'Using tool: $toolName',
                 ),
               );
             }
@@ -221,13 +250,7 @@ class ChatControllerImpl implements IChatController {
             if (isLocal) print('Text: $text');
             if (!daytonaStreamController.isClosed) {
               daytonaStreamController.add(
-                ChatMessageResponse(
-                  message: ChatMessage(
-                    role: ChatActor.ai,
-                    content: text,
-                    style: ChatUIStyle.normal,
-                  ),
-                ),
+                _chatMsg(ChatActor.ai, ChatUIStyle.normal, text),
               );
             }
           },
@@ -253,12 +276,10 @@ class ChatControllerImpl implements IChatController {
       try {
         daytonaResult = await daytonaResultCompleter.future;
       } catch (e) {
-        yield ChatMessageResponse(
-          message: ChatMessage(
-            role: ChatActor.ai,
-            style: ChatUIStyle.error,
-            content: 'Daytona execution failed: $e',
-          ),
+        yield _chatMsg(
+          ChatActor.ai,
+          ChatUIStyle.error,
+          'Daytona execution failed: $e',
         );
         return;
       }
@@ -275,25 +296,20 @@ class ChatControllerImpl implements IChatController {
       currentCssContent = daytonaResult.cssContent;
 
       // --- Step 2: Yield success from Daytona ---
-      yield ChatMessageResponse(
-        message: ChatMessage(
-          role: ChatActor.ai,
-          style: ChatUIStyle.success,
-          content: daytonaResult.summaryText.isNotEmpty
-              ? daytonaResult.summaryText
-              : 'Template generation completed.',
-        ),
+      yield _chatMsg(
+        ChatActor.ai,
+        ChatUIStyle.success,
+        daytonaResult.summaryText.isNotEmpty
+            ? daytonaResult.summaryText
+            : 'Template generation completed.',
       );
 
       // --- Step 3: Announce verification ---
-      yield ChatMessageResponse(
-        message: ChatMessage(
-          role: ChatActor.system,
-          style: ChatUIStyle.normal,
-          content:
-              'The AI has completed its modifications. '
-              'Now verifying the template for errors and completeness...',
-        ),
+      yield _chatMsg(
+        ChatActor.system,
+        ChatUIStyle.normal,
+        'The AI has completed its modifications. '
+        'Now verifying the template for errors and completeness...',
       );
 
       // --- Step 4: Run reviewer with streaming ---
@@ -311,20 +327,16 @@ class ChatControllerImpl implements IChatController {
       )) {
         switch (event) {
           case ReviewThinkingEvent(:final thinkingChunk):
-            yield ChatMessageResponse(
-              message: ChatMessage(
-                role: ChatActor.system,
-                content: thinkingChunk.thinkingText,
-                style: ChatUIStyle.thinkingChunk,
-              ),
+            yield _chatMsg(
+              ChatActor.system,
+              ChatUIStyle.thinkingChunk,
+              thinkingChunk.thinkingText,
             );
           case ReviewStatusEvent(:final message):
-            yield ChatMessageResponse(
-              message: ChatMessage(
-                role: ChatActor.system,
-                content: message,
-                style: ChatUIStyle.normal,
-              ),
+            yield _chatMsg(
+              ChatActor.system,
+              ChatUIStyle.normal,
+              message,
             );
           case ReviewCompleteEvent(:final result):
             reviewResult = result;
@@ -333,14 +345,11 @@ class ChatControllerImpl implements IChatController {
 
       // If reviewer stream completed without a result, treat as error
       if (reviewResult == null) {
-        yield ChatMessageResponse(
-          message: ChatMessage(
-            role: ChatActor.system,
-            style: ChatUIStyle.error,
-            content:
-                'Template verification completed without producing a result. '
-                'The template has been saved but may contain issues.',
-          ),
+        yield _chatMsg(
+          ChatActor.system,
+          ChatUIStyle.error,
+          'Template verification completed without producing a result. '
+          'The template has been saved but may contain issues.',
         );
         yield _buildTemplateStateResponse(
           templateState: templateState,
@@ -354,12 +363,10 @@ class ChatControllerImpl implements IChatController {
       // --- Step 5: Handle review result ---
       switch (reviewResult) {
         case ReviewApproved(:final feedbackForUser):
-          yield ChatMessageResponse(
-            message: ChatMessage(
-              role: ChatActor.system,
-              style: ChatUIStyle.success,
-              content: feedbackForUser,
-            ),
+          yield _chatMsg(
+            ChatActor.system,
+            ChatUIStyle.success,
+            feedbackForUser,
           );
           yield _buildTemplateStateResponse(
             templateState: templateState,
@@ -375,28 +382,23 @@ class ChatControllerImpl implements IChatController {
           :final issues,
         ):
           if (attempt >= kMaxDaytonaRetryAttempts) {
-            yield ChatMessageResponse(
-              message: ChatMessage(
-                role: ChatActor.system,
-                style: ChatUIStyle.error,
-                content:
-                    'The template could not be fully validated after '
-                    '$kMaxDaytonaRetryAttempts attempts. '
-                    'Issues found: ${issues.join("; ")}. '
-                    'Please try rephrasing your request or simplifying '
-                    'the template requirements.',
-              ),
+            yield _chatMsg(
+              ChatActor.system,
+              ChatUIStyle.error,
+              'The template could not be fully validated after '
+              '$kMaxDaytonaRetryAttempts attempts. '
+              'Issues found: ${issues.join("; ")}. '
+              'Please try rephrasing your request or simplifying '
+              'the template requirements.',
             );
             return;
           }
 
           // Inform user about what is being fixed
-          yield ChatMessageResponse(
-            message: ChatMessage(
-              role: ChatActor.system,
-              style: ChatUIStyle.normal,
-              content: feedbackForUser,
-            ),
+          yield _chatMsg(
+            ChatActor.system,
+            ChatUIStyle.normal,
+            feedbackForUser,
           );
 
           // Build a new scenario with reviewer feedback for retry
@@ -408,14 +410,11 @@ class ChatControllerImpl implements IChatController {
           );
 
         case ReviewError(:final errorMessage):
-          yield ChatMessageResponse(
-            message: ChatMessage(
-              role: ChatActor.system,
-              style: ChatUIStyle.error,
-              content:
-                  'Template verification encountered an error: $errorMessage. '
-                  'The template has been saved but may contain issues.',
-            ),
+          yield _chatMsg(
+            ChatActor.system,
+            ChatUIStyle.error,
+            'Template verification encountered an error: $errorMessage. '
+            'The template has been saved but may contain issues.',
           );
           yield _buildTemplateStateResponse(
             templateState: templateState,
@@ -453,22 +452,13 @@ class ChatControllerImpl implements IChatController {
       DaytonaSuccess() => '', // Unreachable
     };
 
-    yield ChatMessageResponse(
-      message: ChatMessage(
-        role: ChatActor.ai,
-        style: ChatUIStyle.error,
-        content: errorMessage,
-      ),
-    );
+    yield _chatMsg(ChatActor.ai, ChatUIStyle.error, errorMessage);
 
-    yield ChatMessageResponse(
-      message: ChatMessage(
-        role: ChatActor.system,
-        style: ChatUIStyle.error,
-        content:
-            'The template generation failed. Please try again or contact '
-            'support if the issue persists.',
-      ),
+    yield _chatMsg(
+      ChatActor.system,
+      ChatUIStyle.error,
+      'The template generation failed. Please try again or contact '
+      'support if the issue persists.',
     );
   }
 
@@ -500,10 +490,7 @@ class ChatControllerImpl implements IChatController {
     if (schemaChangePayload != null &&
         currentHtmlContent != null &&
         currentCssContent != null) {
-      final currentSchemaJson = _getSchemaJsonStringFromDefinition(
-        _extractPreviousSchema(templateState) ??
-            _extractSchemaDefinition(templateState, null),
-      );
+      final currentSchemaJson = templateState.schemaDefinition.toSchemaString();
       return TemplateScenario.changeSchema(
         userPrompt: message,
         currentSchemaJson: currentSchemaJson,
@@ -625,23 +612,15 @@ Do NOT start from scratch - modify the existing files to address the specific is
     // needed to construct a DeployReadyTemplateState, so we extract them
     // uniformly regardless of the concrete type.
     final effectiveSchema = schemaChangePayload?.newSchemaDefinition ??
-        _extractSchemaDefinition(templateState, null);
+        templateState.schemaDefinition;
     final effectivePayload =
         schemaChangePayload?.newExamplePayloadStringified ??
-            _getPayloadJsonString(templateState, null);
-    final referenceLanguage = switch (templateState) {
-      NewTemplateState(:final referenceLanguage) => referenceLanguage,
-      DeployReadyTemplateState(:final referenceLanguage) => referenceLanguage,
-    };
-    final pdfContent = switch (templateState) {
-      NewTemplateState(:final pdfContent) => pdfContent,
-      DeployReadyTemplateState(:final pdfContent) => pdfContent,
-    };
+            templateState.referenceStringifiedPayloadJson;
 
     final deployState = DeployReadyTemplateState(
-      pdfContent: pdfContent,
+      pdfContent: templateState.pdfContent,
       schemaDefinition: effectiveSchema,
-      referenceLanguage: referenceLanguage,
+      referenceLanguage: templateState.referenceLanguage,
       htmlContent: htmlContent,
       cssContent: cssContent,
       referenceStringifiedPayloadJson: effectivePayload,
@@ -663,20 +642,7 @@ Do NOT start from scratch - modify the existing files to address the specific is
     if (schemaChangePayload != null) {
       return schemaChangePayload.newSchemaDefinition;
     }
-    return switch (templateState) {
-      NewTemplateState(:final schemaDefinition) => schemaDefinition,
-      DeployReadyTemplateState(:final schemaDefinition) => schemaDefinition,
-    };
-  }
-
-  /// Extracts the previous/current schema definition (before any change).
-  SchemaDefinition? _extractPreviousSchema(
-    TemplateCurrentState templateState,
-  ) {
-    return switch (templateState) {
-      NewTemplateState(:final schemaDefinition) => schemaDefinition,
-      DeployReadyTemplateState(:final schemaDefinition) => schemaDefinition,
-    };
+    return templateState.schemaDefinition;
   }
 
   /// Gets the schema as a JSON string for Daytona prompts.
@@ -688,16 +654,7 @@ Do NOT start from scratch - modify the existing files to address the specific is
       templateState,
       schemaChangePayload,
     );
-    return _getSchemaJsonStringFromDefinition(schema);
-  }
-
-  /// Converts a [SchemaDefinition] to a formatted JSON string.
-  String _getSchemaJsonStringFromDefinition(SchemaDefinition schema) {
-    final schemaMap = <String, dynamic>{};
-    for (final entry in schema.properties.entries) {
-      schemaMap[entry.key] = entry.value.toSchemaJson();
-    }
-    return const JsonEncoder.withIndent('  ').convert(schemaMap);
+    return schema.toSchemaString();
   }
 
   /// Gets the example payload JSON string for Daytona prompts.
@@ -708,11 +665,6 @@ Do NOT start from scratch - modify the existing files to address the specific is
     if (schemaChangePayload != null) {
       return schemaChangePayload.newExamplePayloadStringified;
     }
-    return switch (templateState) {
-      NewTemplateState(:final referenceStringifiedPayloadJson) =>
-        referenceStringifiedPayloadJson,
-      DeployReadyTemplateState(:final referenceStringifiedPayloadJson) =>
-        referenceStringifiedPayloadJson,
-    };
+    return templateState.referenceStringifiedPayloadJson;
   }
 }

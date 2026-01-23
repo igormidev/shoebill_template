@@ -7,9 +7,19 @@ import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
 
-class CreateTemplateEssentialsEndpoint extends Endpoint {
-  // String generatePromptForChangingSchema() async {}
+sealed class CreateTemplateEssentialsResult {}
 
+class TemplateEssentialThinkingResult extends CreateTemplateEssentialsResult {
+  final AiThinkingChunk thinkingChunk;
+  TemplateEssentialThinkingResult({required this.thinkingChunk});
+}
+
+class TemplateEssentialFinalResult extends CreateTemplateEssentialsResult {
+  final TemplateEssential template;
+  TemplateEssentialFinalResult({required this.template});
+}
+
+class CreateTemplateEssentialsEndpoint extends Endpoint {
   /// Creates template essentials from a JSON payload.
   /// The AI will analyze the payload and generate:
   /// - A title and description for the template
@@ -18,10 +28,9 @@ class CreateTemplateEssentialsEndpoint extends Endpoint {
   /// - The detected reference language
   ///
   /// Returns a stream that yields either:
-  /// - `AiThinkingChunk` during AI reasoning
-  /// - `TemplateEssential` when the final result is ready
-  Stream<({TemplateEssential? template, AiThinkingChunk? aiThinkingChunk})>
-  call(
+  /// - [TemplateEssentialThinkingResult] during AI reasoning
+  /// - [TemplateEssentialFinalResult] when the final result is ready
+  Stream<CreateTemplateEssentialsResult> call(
     Session session, {
     required String stringifiedPayload,
   }) async* {
@@ -52,25 +61,22 @@ class CreateTemplateEssentialsEndpoint extends Endpoint {
           properties: schemaProperties,
         )) {
       if (result is AiSchemaThinkItem) {
-        yield (
-          template: null,
-          aiThinkingChunk: result.thinkingChunk,
+        yield TemplateEssentialThinkingResult(
+          thinkingChunk: result.thinkingChunk,
         );
       } else if (result is AiSchemaResultItem) {
         final templateEssential = _parseTemplateEssentialFromAiResponse(
           result.result,
-          payload,
         );
-        yield (
-          template: templateEssential,
-          aiThinkingChunk: null,
-        );
+        yield TemplateEssentialFinalResult(template: templateEssential);
       }
     }
   }
 
   /// Builds the sophisticated prompt for analyzing the JSON payload
   String _buildAnalysisPrompt(String prettyJson) {
+    final languageNames =
+        SupportedLanguages.values.map((e) => e.name).toList();
     return '''
 You are an expert PDF template architect and JSON schema analyst. Your task is to analyze a user-provided JSON payload and generate comprehensive template essentials for a Jinja2-based HTML/CSS PDF generation system.
 
@@ -218,7 +224,7 @@ For a JSON like `{"invoice": {"number": "INV-001", "items": [...], "customer": {
 ## SUPPORTED LANGUAGES FOR referenceLanguage
 
 Use EXACTLY one of these values:
-english, simplifiedMandarinChinese, traditionalChinese, spanish, french, brazilianPortuguese, portugalPortuguese, russian, ukrainian, polish, indonesian, malay, german, dutch, japanese, swahili, turkish, vietnamese, korean, italian, filipino, romanian, swedish, czech
+${languageNames.join(', ')}
 
 ## SCHEMA TYPE DEFINITIONS
 
@@ -244,6 +250,8 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
 
   /// Builds the schema properties for the expected AI response
   Map<String, SchemaProperty> _buildResponseSchemaProperties() {
+    final languageNames =
+        SupportedLanguages.values.map((e) => e.name).toList();
     return {
       'pdfContent': SchemaPropertyStructuredObjectWithDefinedProperties(
         nullable: false,
@@ -281,32 +289,7 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
       'referenceLanguage': SchemaPropertyEnum(
         nullable: false,
         description: 'The detected language of the content',
-        enumValues: [
-          'english',
-          'simplifiedMandarinChinese',
-          'traditionalChinese',
-          'spanish',
-          'french',
-          'brazilianPortuguese',
-          'portugalPortuguese',
-          'russian',
-          'ukrainian',
-          'polish',
-          'indonesian',
-          'malay',
-          'german',
-          'dutch',
-          'japanese',
-          'swahili',
-          'turkish',
-          'vietnamese',
-          'korean',
-          'italian',
-          'filipino',
-          'romanian',
-          'swedish',
-          'czech',
-        ],
+        enumValues: languageNames,
       ),
     };
   }
@@ -314,35 +297,43 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
   /// Parses the AI response into a TemplateEssential object
   TemplateEssential _parseTemplateEssentialFromAiResponse(
     Map<String, dynamic> aiResponse,
-    Map<String, dynamic> originalPayload,
   ) {
-    // Parse pdfContent
-    final pdfContentJson = aiResponse['pdfContent'] as Map<String, dynamic>;
-    final pdfContent = PdfContent(
-      name: pdfContentJson['name'] as String,
-      description: pdfContentJson['description'] as String,
-    );
+    try {
+      // Parse pdfContent
+      final pdfContentJson = aiResponse['pdfContent'] as Map<String, dynamic>;
+      final pdfContent = PdfContent(
+        name: pdfContentJson['name'] as String,
+        description: pdfContentJson['description'] as String,
+      );
 
-    // Parse schemaDefinition
-    final schemaDefJson =
-        aiResponse['schemaDefinition'] as Map<String, dynamic>;
-    final propertiesJson = schemaDefJson['properties'] as Map<String, dynamic>;
-    final properties = _parseSchemaProperties(propertiesJson);
-    final schemaDefinition = SchemaDefinition(properties: properties);
+      // Parse schemaDefinition
+      final schemaDefJson =
+          aiResponse['schemaDefinition'] as Map<String, dynamic>;
+      final propertiesJson =
+          schemaDefJson['properties'] as Map<String, dynamic>;
+      final properties = _parseSchemaProperties(propertiesJson);
+      final schemaDefinition = SchemaDefinition(properties: properties);
 
-    // Parse suggestedPrompt
-    final suggestedPrompt = aiResponse['suggestedPrompt'] as String;
+      // Parse suggestedPrompt
+      final suggestedPrompt = aiResponse['suggestedPrompt'] as String;
 
-    // Parse referenceLanguage
-    final languageStr = aiResponse['referenceLanguage'] as String;
-    final referenceLanguage = SupportedLanguages.fromJson(languageStr);
+      // Parse referenceLanguage
+      final languageStr = aiResponse['referenceLanguage'] as String;
+      final referenceLanguage = SupportedLanguages.fromJson(languageStr);
 
-    return TemplateEssential(
-      pdfContent: pdfContent,
-      schemaDefinition: schemaDefinition,
-      suggestedPrompt: suggestedPrompt,
-      referenceLanguage: referenceLanguage,
-    );
+      return TemplateEssential(
+        pdfContent: pdfContent,
+        schemaDefinition: schemaDefinition,
+        suggestedPrompt: suggestedPrompt,
+        referenceLanguage: referenceLanguage,
+      );
+    } catch (e) {
+      throw ShoebillException(
+        title: 'AI Response Parsing Error',
+        description:
+            'Failed to parse template essentials from AI response: $e',
+      );
+    }
   }
 
   /// Recursively parses schema properties from JSON
@@ -362,73 +353,82 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
 
   /// Parses a single schema property from JSON
   SchemaProperty _parseSchemaProperty(Map<String, dynamic> json) {
-    final type = json['type'] as String;
-    final nullable = json['nullable'] as bool? ?? false;
-    final description = json['description'] as String?;
+    try {
+      final type = json['type'] as String;
+      final nullable = json['nullable'] as bool? ?? false;
+      final description = json['description'] as String?;
 
-    switch (type) {
-      case 'string':
-        return SchemaPropertyString(
-          nullable: nullable,
-          description: description,
-          shouldBeTranslated: json['shouldBeTranslated'] as bool? ?? false,
-        );
+      switch (type) {
+        case 'string':
+          return SchemaPropertyString(
+            nullable: nullable,
+            description: description,
+            shouldBeTranslated: json['shouldBeTranslated'] as bool? ?? false,
+          );
 
-      case 'integer':
-        return SchemaPropertyInteger(
-          nullable: nullable,
-          description: description,
-        );
+        case 'integer':
+          return SchemaPropertyInteger(
+            nullable: nullable,
+            description: description,
+          );
 
-      case 'double':
-        return SchemaPropertyDouble(
-          nullable: nullable,
-          description: description,
-        );
+        case 'double':
+          return SchemaPropertyDouble(
+            nullable: nullable,
+            description: description,
+          );
 
-      case 'boolean':
-        return SchemaPropertyBoolean(
-          nullable: nullable,
-          description: description,
-        );
+        case 'boolean':
+          return SchemaPropertyBoolean(
+            nullable: nullable,
+            description: description,
+          );
 
-      case 'enum':
-        final enumValues = (json['possibleEnumValues'] as List<dynamic>)
-            .cast<String>();
-        return SchemaPropertyEnum(
-          nullable: nullable,
-          description: description,
-          enumValues: enumValues,
-        );
+        case 'enum':
+          final enumValues = (json['possibleEnumValues'] as List<dynamic>)
+              .cast<String>();
+          return SchemaPropertyEnum(
+            nullable: nullable,
+            description: description,
+            enumValues: enumValues,
+          );
 
-      case 'array':
-        final itemsJson = json['items'] as Map<String, dynamic>;
-        return SchemaPropertyArray(
-          nullable: nullable,
-          description: description,
-          items: _parseSchemaProperty(itemsJson),
-        );
+        case 'array':
+          final itemsJson = json['items'] as Map<String, dynamic>;
+          return SchemaPropertyArray(
+            nullable: nullable,
+            description: description,
+            items: _parseSchemaProperty(itemsJson),
+          );
 
-      case 'dynamic_object_with_undefined_properties':
-        return SchemaPropertyObjectWithUndefinedProperties(
-          nullable: nullable,
-          description: description,
-        );
+        case 'dynamic_object_with_undefined_properties':
+          return SchemaPropertyObjectWithUndefinedProperties(
+            nullable: nullable,
+            description: description,
+          );
 
-      case 'structured_object_with_defined_properties':
-        final nestedProperties = json['properties'] as Map<String, dynamic>;
-        return SchemaPropertyStructuredObjectWithDefinedProperties(
-          nullable: nullable,
-          description: description,
-          properties: _parseSchemaProperties(nestedProperties),
-        );
+        case 'structured_object_with_defined_properties':
+          final nestedProperties =
+              json['properties'] as Map<String, dynamic>;
+          return SchemaPropertyStructuredObjectWithDefinedProperties(
+            nullable: nullable,
+            description: description,
+            properties: _parseSchemaProperties(nestedProperties),
+          );
 
-      default:
-        // Fallback to dynamic object for unknown types
-        return SchemaPropertyObjectWithUndefinedProperties(
-          nullable: nullable,
-          description: description,
-        );
+        default:
+          // Fallback to dynamic object for unknown types
+          return SchemaPropertyObjectWithUndefinedProperties(
+            nullable: nullable,
+            description: description,
+          );
+      }
+    } catch (e) {
+      throw ShoebillException(
+        title: 'AI Response Parsing Error',
+        description:
+            'Failed to parse schema property from AI response: $e',
+      );
     }
   }
 }

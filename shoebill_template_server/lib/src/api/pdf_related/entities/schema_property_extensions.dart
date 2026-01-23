@@ -6,6 +6,14 @@ import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
 
+/// The initial path segment used when recursively descending into JSON
+/// structures for validation, translation extraction, and translation application.
+const String _kRootPath = 'root';
+
+/// A reusable JSON encoder that produces human-readable output with
+/// two-space indentation.
+final _kPrettyJsonEncoder = JsonEncoder.withIndent('  ');
+
 /// Gets the global OpenAiService instance.
 IOpenAiService _getOpenAiService() => GetIt.instance<IOpenAiService>();
 
@@ -59,77 +67,114 @@ extension SchemaPropertyExtension on SchemaProperty {
 
   /// Returns a formatted JSON string representation
   String toSchemaString() =>
-      JsonEncoder.withIndent('  ').convert(toSchemaJson());
+      _kPrettyJsonEncoder.convert(toSchemaJson());
 }
 
 /// Static methods for SchemaProperty that can't be in extension
 class SchemaPropertyParser {
   /// Creates a SchemaProperty from a JSON map
   static SchemaProperty fromJson(Map<String, dynamic> json) {
-    final type = json['type'] as String;
-    final nullable = json['nullable'] as bool;
+    final rawType = json['type'];
+    if (rawType == null || rawType is! String) {
+      throw ShoebillException(
+        title: 'Invalid schema property JSON',
+        description:
+            'Expected "type" to be a non-null String, but got: $rawType',
+      );
+    }
+    final type = rawType;
+
+    final rawNullable = json['nullable'];
+    if (rawNullable == null || rawNullable is! bool) {
+      throw ShoebillException(
+        title: 'Invalid schema property JSON',
+        description:
+            'Expected "nullable" to be a non-null bool, but got: $rawNullable',
+      );
+    }
+    final nullable = rawNullable;
+
     final description = json['description'] as String?;
 
-    switch (type) {
-      case 'string':
-        return SchemaPropertyString(
-          nullable: nullable,
-          description: description,
-          shouldBeTranslated: json['shouldBeTranslated'] as bool? ?? false,
-        );
-      case 'integer':
-        return SchemaPropertyInteger(
-          nullable: nullable,
-          description: description,
-        );
-      case 'double':
-        return SchemaPropertyDouble(
-          nullable: nullable,
-          description: description,
-        );
-      case 'boolean':
-        return SchemaPropertyBoolean(
-          nullable: nullable,
-          description: description,
-        );
-      case 'enum':
-        final enumValues = (json['possibleEnumValues'] as List<dynamic>)
-            .cast<String>();
-        return SchemaPropertyEnum(
-          enumValues: enumValues,
-          nullable: nullable,
-          description: description,
-        );
-      case 'array':
-        final items = fromJson(json['items'] as Map<String, dynamic>);
-        return SchemaPropertyArray(
-          items: items,
-          nullable: nullable,
-          description: description,
-        );
-      case 'dynamic_object_with_undefined_properties':
-        return SchemaPropertyObjectWithUndefinedProperties(
-          nullable: nullable,
-          description: description,
-        );
-      case 'structured_object_with_defined_properties':
-        final propertiesJson = json['properties'] as Map<String, dynamic>;
-        final properties = propertiesJson.map(
-          (key, value) => MapEntry(
-            key,
-            fromJson(value as Map<String, dynamic>),
-          ),
-        );
-        return SchemaPropertyStructuredObjectWithDefinedProperties(
-          properties: properties,
-          nullable: nullable,
-          description: description,
-        );
-      default:
-        throw ShoebillException(
-          title: 'Unknown schema property type',
-          description: 'Unknown SchemaProperty type: $type',
-        );
+    try {
+      switch (type) {
+        case 'string':
+          return SchemaPropertyString(
+            nullable: nullable,
+            description: description,
+            shouldBeTranslated: json['shouldBeTranslated'] as bool? ?? false,
+          );
+        case 'integer':
+          return SchemaPropertyInteger(
+            nullable: nullable,
+            description: description,
+          );
+        case 'double':
+          return SchemaPropertyDouble(
+            nullable: nullable,
+            description: description,
+          );
+        case 'boolean':
+          return SchemaPropertyBoolean(
+            nullable: nullable,
+            description: description,
+          );
+        case 'enum':
+          final rawEnumValues = json['possibleEnumValues'];
+          if (rawEnumValues == null || rawEnumValues is! List<dynamic>) {
+            throw ShoebillException(
+              title: 'Invalid schema property JSON',
+              description:
+                  'Expected "possibleEnumValues" to be a non-null List '
+                  'for enum type, but got: $rawEnumValues',
+            );
+          }
+          final enumValues =
+              rawEnumValues.map((e) => e as String).toList();
+          return SchemaPropertyEnum(
+            enumValues: enumValues,
+            nullable: nullable,
+            description: description,
+          );
+        case 'array':
+          final items = fromJson(json['items'] as Map<String, dynamic>);
+          return SchemaPropertyArray(
+            items: items,
+            nullable: nullable,
+            description: description,
+          );
+        case 'dynamic_object_with_undefined_properties':
+          return SchemaPropertyObjectWithUndefinedProperties(
+            nullable: nullable,
+            description: description,
+          );
+        case 'structured_object_with_defined_properties':
+          final propertiesJson = json['properties'] as Map<String, dynamic>;
+          final properties = propertiesJson.map(
+            (key, value) => MapEntry(
+              key,
+              fromJson(value as Map<String, dynamic>),
+            ),
+          );
+          return SchemaPropertyStructuredObjectWithDefinedProperties(
+            properties: properties,
+            nullable: nullable,
+            description: description,
+          );
+        default:
+          throw ShoebillException(
+            title: 'Unknown schema property type',
+            description: 'Unknown SchemaProperty type: $type',
+          );
+      }
+    } on ShoebillException {
+      rethrow;
+    } catch (e) {
+      throw ShoebillException(
+        title: 'Failed to parse schema property',
+        description:
+            'Error parsing SchemaProperty of type "$type" from JSON: $e',
+      );
     }
   }
 }
@@ -170,7 +215,7 @@ extension SchemaDefinitionExt on SchemaDefinition {
     _extractTranslatableStrings(
       schema: toSchemaProperty(),
       value: sourceJson,
-      path: 'root',
+      path: _kRootPath,
       result: translatableStrings,
     );
 
@@ -205,18 +250,18 @@ extension SchemaDefinitionExt on SchemaDefinition {
     final targetJson = _applyTranslations(
       schema: toSchemaProperty(),
       value: sourceJson,
-      path: 'root',
+      path: _kRootPath,
       translations: translatedStrings,
     );
 
-    return JsonEncoder.withIndent('  ').convert(targetJson);
+    return _kPrettyJsonEncoder.convert(targetJson);
   }
 }
 
 /// Helper to extract all translatable strings from JSON based on schema.
 void _extractTranslatableStrings({
   required SchemaProperty schema,
-  required dynamic value,
+  required Object? value,
   required String path,
   required Map<String, String> result,
 }) {
@@ -338,9 +383,9 @@ List<Map<String, String>> _chunkMap(
 }
 
 /// Reconstructs JSON with translated values applied.
-dynamic _applyTranslations({
+Object? _applyTranslations({
   required SchemaProperty schema,
-  required dynamic value,
+  required Object? value,
   required String path,
   required Map<String, String> translations,
 }) {
@@ -437,12 +482,12 @@ extension SchemaPropertyStructuredObjectValidation
   /// If a field is nullable it can be absent or null, but if it is present it must follow the schema.
   /// Returns null if valid, error message if invalid.
   String? validateJsonFollowsSchemaStructure(Map<String, dynamic> model) {
-    return _validateValueForSchema(this, model, 'root');
+    return _validateValueForSchema(this, model, _kRootPath);
   }
 
   static String? _validateValueForSchema(
     SchemaProperty schema,
-    dynamic value,
+    Object? value,
     String path,
   ) {
     if (value == null) {
@@ -539,7 +584,7 @@ extension SchemaDefinitionExtension on SchemaDefinition {
 
   /// Returns a formatted JSON string representation
   String toSchemaString() =>
-      JsonEncoder.withIndent('  ').convert(toSchemaJson());
+      _kPrettyJsonEncoder.convert(toSchemaJson());
 
   /// Converts to a SchemaPropertyStructuredObjectWithDefinedProperties
   SchemaPropertyStructuredObjectWithDefinedProperties toSchemaProperty() =>
@@ -603,24 +648,33 @@ extension SchemaPropertyToOpenRouterSchema on SchemaProperty {
         :final properties,
       ):
         schema['type'] = 'object';
-        final nestedProperties = <String, dynamic>{};
-        final nestedRequired = <String>[];
-
-        for (final entry in properties.entries) {
-          nestedProperties[entry.key] =
-              entry.value.toOpenRouterJsonSchema();
-          if (!entry.value.nullable) {
-            nestedRequired.add(entry.key);
-          }
-        }
-
-        schema['properties'] = nestedProperties;
-        schema['required'] = nestedRequired;
-        schema['additionalProperties'] = false;
+        schema.addAll(_buildOpenRouterPropertiesSchema(properties));
     }
 
     return schema;
   }
+}
+
+/// Builds the properties, required, and additionalProperties entries
+/// for a set of [SchemaProperty] fields in OpenRouter JSON Schema format.
+Map<String, dynamic> _buildOpenRouterPropertiesSchema(
+  Map<String, SchemaProperty> properties,
+) {
+  final schemaProperties = <String, dynamic>{};
+  final requiredFields = <String>[];
+
+  for (final entry in properties.entries) {
+    schemaProperties[entry.key] = entry.value.toOpenRouterJsonSchema();
+    if (!entry.value.nullable) {
+      requiredFields.add(entry.key);
+    }
+  }
+
+  return {
+    'properties': schemaProperties,
+    'required': requiredFields,
+    'additionalProperties': false,
+  };
 }
 
 /// Extension to convert `Map<String, SchemaProperty>` to OpenRouter JSON Schema
@@ -628,26 +682,9 @@ extension SchemaPropertiesMapToOpenRouter on Map<String, SchemaProperty> {
   /// Converts a map of SchemaProperty to OpenRouter JSON Schema format.
   /// This produces a complete JSON Schema object suitable for the response_format parameter.
   Map<String, dynamic> toOpenRouterJsonSchema() {
-    final requiredFields = <String>[];
-    final schemaProperties = <String, dynamic>{};
-
-    for (final entry in entries) {
-      final key = entry.key;
-      final prop = entry.value;
-
-      schemaProperties[key] = prop.toOpenRouterJsonSchema();
-
-      // Non-nullable fields are required
-      if (!prop.nullable) {
-        requiredFields.add(key);
-      }
-    }
-
     return {
       'type': 'object',
-      'properties': schemaProperties,
-      'required': requiredFields,
-      'additionalProperties': false,
+      ..._buildOpenRouterPropertiesSchema(this),
     };
   }
 }

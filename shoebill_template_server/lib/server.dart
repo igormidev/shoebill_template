@@ -98,7 +98,7 @@ void run(List<String> args) async {
     () => () => OpenAiService(openRouterApiKey),
   );
 
-  getIt.registerSingleton<PdfController>(PdfController());
+  getIt.registerSingleton<IPdfController>(PdfController());
   getIt.registerSingleton<IGetLocaleOfIpService>(GetLocaleOfIpService());
 
   // Start the server.

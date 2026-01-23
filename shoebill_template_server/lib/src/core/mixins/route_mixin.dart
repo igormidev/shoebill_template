@@ -5,27 +5,30 @@ import 'package:serverpod/serverpod.dart';
 import 'package:shoebill_template_server/src/generated/entities/others/supported_languages.dart';
 
 mixin RouteMixin on Route {
+  static const kLanguageParam = 'language';
+  static const kUuidParam = 'uuid';
+
   SupportedLanguages? getLanguageCode(Request request) {
     final queryParameters = request.queryParameters.raw;
-    final code = queryParameters['language'];
+    final code = queryParameters[kLanguageParam];
     return SupportedLanguages.values.firstWhereOrNull(
       (lang) => lang.name == code,
     );
   }
 
-  (String uuid, Response? error) validateUuid(Request request) {
+  (String?, Response?) validateUuid(Request request) {
     final queryParameters = request.queryParameters.raw;
-    final String? uuid = queryParameters['uuid'];
+    final String? uuid = queryParameters[kUuidParam];
     final isValidUuid = uuid != null && Uuid.isValidUUID(fromString: uuid);
     if (!isValidUuid) {
       return (
-        '',
-        Response.badRequest(
-          body: Body.fromString(
-            uuid == null
-                ? 'Missing UUID in query parameters (should be uuid v4 or v7). Pass the uuid as "?uuid=" in query param field'
-                : 'Invalid UUID in query parameters (should be uuid v4 or v7)',
-          ),
+        null,
+        createErrorResponse(
+          400,
+          'Bad Request',
+          uuid == null
+              ? 'Missing UUID in query parameters (should be uuid v4 or v7). Pass the uuid as "?uuid=" in query param field'
+              : 'Invalid UUID in query parameters (should be uuid v4 or v7)',
         ),
       );
     }
@@ -88,7 +91,14 @@ Map<String, dynamic>? tryDecode(String source) {
   }
 }
 
-String sha1OfString(String input) {
-  final digest = sha1.convert(utf8.encode(input));
+/// Produces a SHA-256 hash of the given [input] string.
+///
+/// Used for generating session identifiers by hashing language + IP combinations.
+/// SHA-256 is used instead of SHA-1 because the resulting hash is exposed as a
+/// URL query parameter (`sI`) and serves as a session token. SHA-1's known
+/// collision vulnerabilities could allow an attacker to forge session IDs,
+/// potentially manipulating which language variant of a PDF is served.
+String hashString(String input) {
+  final digest = sha256.convert(utf8.encode(input));
   return digest.toString();
 }

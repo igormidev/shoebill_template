@@ -49,6 +49,8 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as developer;
+import 'dart:math';
 
 import 'package:http/http.dart' as http;
 import 'package:shoebill_template_server/src/core/utils/consts.dart';
@@ -704,27 +706,25 @@ class DaytonaClaudeCodeService {
     }
   }
 
-  /// Prompt for creating a brand new Jinja2 template.
-  String _buildCreateNewPrompt(CreateNewTemplateScenario scenario) {
+  /// Builds a prompt from the common template structure.
+  ///
+  /// All prompts share the same skeleton: role intro, context section,
+  /// task section, common instructions, and final summary.
+  String _buildPromptFromTemplate({
+    required String taskDescription,
+    required String contextSection,
+    required String taskSection,
+  }) {
     return '''
-You are a Jinja2 template expert. Your task is to create a professional HTML/CSS template for PDF generation.
+You are a Jinja2 template expert. Your task is to $taskDescription.
 
 ## Context
 
-The user wants to create a new Jinja2 HTML/CSS template from scratch.
-Read the following uploaded files to understand the requirements:
-
-- @$kFileNameUserPrompt - The user's description of what they want
-- @$kFileNamePayloadExample - An example JSON payload that will be passed to the template
-- @$kFileNameCurrentSchema - The JSON schema defining the structure of the payload
+$contextSection
 
 ## Your Task
 
-1. Read @$kFileNameUserPrompt to understand what the user wants
-2. Read @$kFileNameCurrentSchema to understand the available variables
-3. Read @$kFileNamePayloadExample to see a real example of the data
-4. Create the HTML template file (@$kFileNameHtml) using Jinja2 syntax
-5. Create the CSS file (@$kFileNameCss) with professional styling
+$taskSection
 
 $kCommonPromptInstructions
 
@@ -732,46 +732,54 @@ $kFinalSummaryInstruction
 ''';
   }
 
+  /// Prompt for creating a brand new Jinja2 template.
+  String _buildCreateNewPrompt(CreateNewTemplateScenario scenario) {
+    return _buildPromptFromTemplate(
+      taskDescription:
+          'create a professional HTML/CSS template for PDF generation',
+      contextSection: '''The user wants to create a new Jinja2 HTML/CSS template from scratch.
+Read the following uploaded files to understand the requirements:
+
+- @$kFileNameUserPrompt - The user's description of what they want
+- @$kFileNamePayloadExample - An example JSON payload that will be passed to the template
+- @$kFileNameCurrentSchema - The JSON schema defining the structure of the payload''',
+      taskSection: '''1. Read @$kFileNameUserPrompt to understand what the user wants
+2. Read @$kFileNameCurrentSchema to understand the available variables
+3. Read @$kFileNamePayloadExample to see a real example of the data
+4. Create the HTML template file (@$kFileNameHtml) using Jinja2 syntax
+5. Create the CSS file (@$kFileNameCss) with professional styling''',
+    );
+  }
+
   /// Prompt for editing an existing template.
   String _buildEditExistingPrompt(EditExistingTemplateScenario scenario) {
-    return '''
-You are a Jinja2 template expert. Your task is to modify an existing HTML/CSS template for PDF generation.
-
-## Context
-
-The user wants to edit an existing Jinja2 HTML/CSS template.
+    return _buildPromptFromTemplate(
+      taskDescription:
+          'modify an existing HTML/CSS template for PDF generation',
+      contextSection: '''The user wants to edit an existing Jinja2 HTML/CSS template.
 Read the following uploaded files:
 
 - @$kFileNameUserPrompt - The user's description of changes they want
 - @$kFileNameHtml - The current HTML template (Jinja2)
 - @$kFileNameCss - The current CSS styles
 - @$kFileNamePayloadExample - An example JSON payload
-- @$kFileNameCurrentSchema - The JSON schema for the payload
-
-## Your Task
-
-1. Read @$kFileNameUserPrompt to understand what changes the user wants
+- @$kFileNameCurrentSchema - The JSON schema for the payload''',
+      taskSection: '''1. Read @$kFileNameUserPrompt to understand what changes the user wants
 2. Read the current @$kFileNameHtml and @$kFileNameCss to understand the existing template
 3. Read @$kFileNameCurrentSchema to understand available variables
 4. Modify the HTML and/or CSS according to the user's request
 5. Save the updated files as @$kFileNameHtml and @$kFileNameCss
 
-IMPORTANT: Preserve all existing multi-language support. If you add new hardcoded strings, they must also support all languages.
-
-$kCommonPromptInstructions
-
-$kFinalSummaryInstruction
-''';
+IMPORTANT: Preserve all existing multi-language support. If you add new hardcoded strings, they must also support all languages.''',
+    );
   }
 
   /// Prompt for changing the schema of an existing template.
   String _buildChangeSchemaPrompt(ChangeSchemaTemplateScenario scenario) {
-    return '''
-You are a Jinja2 template expert. Your task is to update an existing HTML/CSS template to accommodate a new data schema.
-
-## Context
-
-The user is changing the data schema for their template. The template must be updated to work with the new schema while maintaining the overall design.
+    return _buildPromptFromTemplate(
+      taskDescription:
+          'update an existing HTML/CSS template to accommodate a new data schema',
+      contextSection: '''The user is changing the data schema for their template. The template must be updated to work with the new schema while maintaining the overall design.
 
 Read the following uploaded files:
 
@@ -780,11 +788,8 @@ Read the following uploaded files:
 - @$kFileNameCss - The current CSS styles
 - @$kFileNameCurrentSchema - The CURRENT/OLD schema (what the template currently uses)
 - @$kFileNameNewTargetSchema - The NEW schema (what the template must now support)
-- @$kFileNamePayloadExample - An example payload matching the NEW schema
-
-## Your Task
-
-1. Read @$kFileNameUserPrompt to understand the user's intent
+- @$kFileNamePayloadExample - An example payload matching the NEW schema''',
+      taskSection: '''1. Read @$kFileNameUserPrompt to understand the user's intent
 2. Compare @$kFileNameCurrentSchema with @$kFileNameNewTargetSchema to understand what changed:
    - Identify new fields that need to be displayed
    - Identify removed fields that should be cleaned up
@@ -798,12 +803,8 @@ Read the following uploaded files:
 5. Update @$kFileNameCss if new sections need styling
 6. Save the updated files as @$kFileNameHtml and @$kFileNameCss
 
-CRITICAL: Ensure NO references to old schema fields remain. The template must work entirely with the new schema.
-
-$kCommonPromptInstructions
-
-$kFinalSummaryInstruction
-''';
+CRITICAL: Ensure NO references to old schema fields remain. The template must work entirely with the new schema.''',
+    );
   }
 
   // --------------------------------------------------------------------------
@@ -824,13 +825,34 @@ $kFinalSummaryInstruction
     final escapedPrompt = _escapeForShell(prompt);
 
     // Build the Claude Code command
-    final resumeFlag = previousSessionId != null
-        ? '--resume $previousSessionId'
-        : '';
+    // Validate previousSessionId format (UUID or alphanumeric-dash pattern)
+    // to prevent shell injection via crafted session IDs.
+    String resumeFlag = '';
+    if (previousSessionId != null) {
+      if (!RegExp(r'^[a-zA-Z0-9-]+$').hasMatch(previousSessionId)) {
+        throw ArgumentError(
+          'Invalid previousSessionId format: must contain only '
+          'alphanumeric characters and hyphens.',
+        );
+      }
+      resumeFlag = '--resume $previousSessionId';
+    }
+
+    // Security: Write API key to a temporary file with restricted permissions
+    // instead of exposing it inline in the shell command string where it could
+    // be captured in process listings, logs, or shell history.
+    final random = Random.secure();
+    final keyFileName = '.anthropic_key_${random.nextInt(999999999)}';
+    final keyFilePath = '/tmp/$keyFileName';
+    final escapedApiKey = _escapeForShell(anthropicApiKey);
 
     final command = '''
+mkdir -p $kSandboxWorkDir && \\
+printf '%s' '$escapedApiKey' > $keyFilePath && \\
+chmod 600 $keyFilePath && \\
 cd $kSandboxWorkDir && \\
-export ANTHROPIC_API_KEY=$anthropicApiKey && \\
+export ANTHROPIC_API_KEY=\$(cat $keyFilePath) && \\
+rm -f $keyFilePath && \\
 claude --dangerously-skip-permissions \\
   -p '$escapedPrompt' \\
   --model $kDaytonaClaudeModel \\
@@ -902,9 +924,13 @@ claude --dangerously-skip-permissions \\
               break;
           }
         }
-      } catch (_) {
-        // Not valid JSON - might be regular terminal output
+      } catch (e) {
+        // Not valid JSON - might be regular terminal output.
+        // Log parse failures for lines that look like JSON (debug aid).
         final trimmed = line.trim();
+        if (trimmed.startsWith('{')) {
+          developer.log('[DaytonaService] Failed to parse JSON stream line: $e');
+        }
         if (trimmed.isNotEmpty && !trimmed.startsWith('{')) {
           onText?.call(trimmed);
         }
@@ -913,6 +939,7 @@ claude --dangerously-skip-permissions \\
   }
 
   /// Extracts session_id from Claude Code stream-json system messages.
+  /// Invokes [onSessionId] at most once per call.
   void _extractSessionId(
     Map<String, dynamic> json,
     void Function(String sessionId)? onSessionId,
@@ -926,6 +953,7 @@ claude --dangerously-skip-permissions \\
       final sessionId = json['session_id'] as String?;
       if (sessionId != null) {
         onSessionId(sessionId);
+        return;
       }
     }
 
@@ -935,6 +963,7 @@ claude --dangerously-skip-permissions \\
       final sessionId = json['session_id'] as String?;
       if (sessionId != null) {
         onSessionId(sessionId);
+        return;
       }
     }
 
@@ -943,6 +972,7 @@ claude --dangerously-skip-permissions \\
       final sessionId = json['session_id'] as String;
       if (sessionId.isNotEmpty) {
         onSessionId(sessionId);
+        return;
       }
     }
   }
@@ -1021,7 +1051,6 @@ claude --dangerously-skip-permissions \\
             headers: _headers,
             body: jsonEncode({
               'image': kSandboxImage,
-              'envVars': {'ANTHROPIC_API_KEY': anthropicApiKey},
               'resources': {
                 'cpu': kSandboxCpu,
                 'memory': kSandboxMemoryGb,
@@ -1073,8 +1102,10 @@ claude --dangerously-skip-permissions \\
             return false;
           }
         }
-      } catch (_) {
-        // Continue polling
+      } catch (e) {
+        // Log polling errors but continue - transient network issues are expected
+        developer.log('[DaytonaService] Sandbox poll attempt ${i + 1} failed for '
+            '$sandboxId: $e');
       }
       await Future.delayed(kSandboxPollInterval);
     }
@@ -1090,8 +1121,11 @@ claude --dangerously-skip-permissions \\
             headers: _headers,
           )
           .timeout(kSandboxDeletionTimeout);
-    } catch (_) {
-      // Best-effort cleanup - sandbox will auto-delete anyway
+    } catch (e) {
+      // Best-effort cleanup - sandbox will auto-delete anyway.
+      // Log so operators can monitor cleanup failures.
+      developer.log('[DaytonaService] Failed to delete sandbox $sandboxId '
+          '(will auto-delete): $e');
     }
   }
 
@@ -1099,14 +1133,42 @@ claude --dangerously-skip-permissions \\
   // FILE OPERATIONS
   // --------------------------------------------------------------------------
 
+  /// Validates that a file name contains only safe characters.
+  /// Allows alphanumeric characters, dots, underscores, and hyphens.
+  static final _safeFileNamePattern = RegExp(r'^[a-zA-Z0-9._-]+$');
+
+  /// Uploads file content to the sandbox via exec using base64 encoding.
+  /// This avoids shell injection risks (no HEREDOC delimiter collision attacks).
+  Future<_CommandResult> _uploadFileViaExec(
+    String sandboxId,
+    String filePath,
+    String content,
+  ) async {
+    final base64Content = base64Encode(utf8.encode(content));
+    return _executeCommand(
+      sandboxId,
+      "mkdir -p $kSandboxWorkDir && echo '$base64Content' | base64 -d > $filePath",
+    );
+  }
+
   /// Uploads a single file to the sandbox.
   Future<DaytonaClaudeCodeResult?> _uploadFileToSandbox(
     String sandboxId, {
     required String fileName,
     required String content,
   }) async {
+    // Validate fileName to prevent shell injection in fallback commands.
+    if (!_safeFileNamePattern.hasMatch(fileName)) {
+      return DaytonaFileUploadError(
+        'Invalid file name: contains unsafe characters. '
+        'Only alphanumeric, dots, underscores, and hyphens are allowed.',
+        fileName,
+      );
+    }
+
+    final filePath = '$kSandboxWorkDir/$fileName';
+
     try {
-      final filePath = '$kSandboxWorkDir/$fileName';
       final response = await _httpClient
           .post(
             Uri.parse('$apiUrl/toolbox/$sandboxId/toolbox/files/upload'),
@@ -1122,11 +1184,11 @@ claude --dangerously-skip-permissions \\
         return null; // Success
       }
 
-      // Fallback: Try using exec to write the file
-      final escapedContent = _escapeForShell(content);
-      final writeResult = await _executeCommand(
+      // Fallback: Use base64 encoding via exec command.
+      final writeResult = await _uploadFileViaExec(
         sandboxId,
-        "mkdir -p $kSandboxWorkDir && cat > $filePath << 'HEREDOC_EOF'\n$escapedContent\nHEREDOC_EOF",
+        filePath,
+        content,
       );
 
       if (writeResult.exitCode != 0) {
@@ -1140,17 +1202,17 @@ claude --dangerously-skip-permissions \\
     } catch (e) {
       // Try exec-based fallback on exception
       try {
-        final filePath = '$kSandboxWorkDir/$fileName';
-        final escapedContent = content
-            .replaceAll('\\', '\\\\')
-            .replaceAll("'", "'\\''");
-        final writeResult = await _executeCommand(
+        final writeResult = await _uploadFileViaExec(
           sandboxId,
-          "mkdir -p $kSandboxWorkDir && printf '%s' '$escapedContent' > $filePath",
+          filePath,
+          content,
         );
         if (writeResult.exitCode == 0) return null;
-      } catch (_) {
-        // Both methods failed
+        developer.log('[DaytonaService] File upload exec fallback failed for '
+            '$fileName: ${writeResult.stderr}');
+      } catch (fallbackError) {
+        developer.log('[DaytonaService] File upload fallback exception for '
+            '$fileName: $fallbackError');
       }
       return DaytonaFileUploadError(
         'Failed to upload file: $e',
@@ -1160,23 +1222,32 @@ claude --dangerously-skip-permissions \\
   }
 
   /// Downloads a file from the sandbox by file name.
+  /// Tries the canonical work directory path first, then falls back to
+  /// a find command to locate the file anywhere in the sandbox.
   Future<String?> _downloadFileFromSandbox(
     String sandboxId,
     String fileName,
   ) async {
-    final paths = [
-      '$kSandboxWorkDir/$fileName',
-      '/home/daytona/$fileName',
-      fileName,
-      './$fileName',
-    ];
+    // Try the canonical path where Claude Code is instructed to write files
+    final canonicalPath = '$kSandboxWorkDir/$fileName';
+    final content = await _downloadFile(sandboxId, canonicalPath);
+    if (content != null && content.trim().isNotEmpty) {
+      return content;
+    }
 
-    for (final path in paths) {
-      final content = await _downloadFile(sandboxId, path);
-      if (content != null && content.trim().isNotEmpty) {
-        return content;
+    // Fallback: use find to locate the file anywhere in the workspace
+    final findResult = await _executeCommand(
+      sandboxId,
+      'find $kSandboxWorkDir -name "$fileName" -type f 2>/dev/null | head -1',
+    );
+    if (findResult.exitCode == 0 && findResult.stdout?.trim().isNotEmpty == true) {
+      final foundPath = findResult.stdout!.trim();
+      final foundContent = await _downloadFile(sandboxId, foundPath);
+      if (foundContent != null && foundContent.trim().isNotEmpty) {
+        return foundContent;
       }
     }
+
     return null;
   }
 
@@ -1217,8 +1288,9 @@ claude --dangerously-skip-permissions \\
       if (response.statusCode == 200) {
         return response.body;
       }
-    } catch (_) {
-      // Try fallback with cat command
+    } catch (e) {
+      // Log download API failure; will try fallback with cat command
+      developer.log('[DaytonaService] File download API failed for $path: $e');
     }
 
     // Fallback: Use exec to cat the file
@@ -1227,8 +1299,9 @@ claude --dangerously-skip-permissions \\
       if (catResult.exitCode == 0 && catResult.stdout != null) {
         return catResult.stdout;
       }
-    } catch (_) {
-      // File not found at this path
+    } catch (e) {
+      // File not found or cat command failed at this path
+      developer.log('[DaytonaService] File cat fallback failed for $path: $e');
     }
     return null;
   }

@@ -17,6 +17,13 @@ import 'package:shoebill_template_server/src/generated/protocol.dart';
 /// 2. The rendered HTML is combined with the CSS stylesheet into a complete HTML document
 /// 3. Headless Chrome (via Puppeteer) renders the full document and exports it as a PDF
 ///
+/// ## Browser Lifecycle
+///
+/// The browser instance is lazily created on the first render call and reused for all
+/// subsequent renders. Each render creates a new page (tab) within the shared browser,
+/// which is closed after the PDF is generated. Call [disposeBrowser] to shut down the
+/// browser when the service is being torn down.
+///
 /// ## Usage Example
 ///
 /// ```dart
@@ -90,49 +97,124 @@ import 'package:shoebill_template_server/src/generated/protocol.dart';
 /// - Browser launch failures
 /// - PDF generation failures
 /// - Invalid or empty template/CSS content
+/// - CSS content containing potential injection patterns
 ///
-/// ## Performance Considerations
+/// ## Security
 ///
-/// - Browser instances are created and destroyed per call to avoid memory leaks
-/// - For high-frequency usage, consider implementing a browser pool externally
-/// - The Google Fonts CDN link is loaded during page rendering; ensure network access
-/// - Template compilation is done per-call; for repeated renders of the same template,
-///   consider caching the compiled [Template] object externally
+/// CSS content is sanitized before being embedded in the HTML document. Any content
+/// that could break out of the `<style>` tag context (e.g., `</style>`) is rejected
+/// to prevent HTML/script injection attacks.
 mixin JinjaPdfRendererMixin {
+  // ─── Font Configuration ─────────────────────────────────────────────────
+
   /// The default font family used in PDF rendering.
   ///
-  /// "Noto Sans CJK" provides comprehensive Unicode support including
+  /// "Noto Sans CJK SC" provides comprehensive Unicode support including
   /// Latin, Cyrillic, CJK (Chinese, Japanese, Korean), and many other scripts.
   /// This ensures proper rendering for all [SupportedLanguages].
-  static const String kDefaultFontFamily = 'Noto Sans CJK SC';
+  static const String _kDefaultFontFamily = 'Noto Sans CJK SC';
 
   /// The Google Fonts CDN URL for loading Noto Sans SC (Simplified Chinese variant
   /// that also covers Latin, Cyrillic, and other scripts).
-  static const String kDefaultFontUrl =
+  static const String _kDefaultFontUrl =
       'https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@100..900&display=swap';
 
+  // ─── Page Layout Configuration ──────────────────────────────────────────
+
   /// Default page margins for PDF output in CSS units.
-  static const String kDefaultPageMarginTop = '15mm';
-  static const String kDefaultPageMarginBottom = '15mm';
-  static const String kDefaultPageMarginLeft = '10mm';
-  static const String kDefaultPageMarginRight = '10mm';
+  static const String _kDefaultPageMarginTop = '15mm';
+  static const String _kDefaultPageMarginBottom = '15mm';
+  static const String _kDefaultPageMarginLeft = '10mm';
+  static const String _kDefaultPageMarginRight = '10mm';
+
+  // ─── Timing Configuration ───────────────────────────────────────────────
 
   /// Maximum time to wait for the page to render before timing out.
-  static const Duration kPageRenderTimeout = Duration(seconds: 30);
+  static const Duration _kPageRenderTimeout = Duration(seconds: 30);
+
+  // ─── Browser Configuration ──────────────────────────────────────────────
+
+  /// Chrome launch arguments for headless PDF rendering.
+  ///
+  /// These flags configure Chrome for server-side, sandboxed rendering:
+  /// - `--no-sandbox`: Required for running in containerized environments
+  /// - `--disable-setuid-sandbox`: Companion to --no-sandbox
+  /// - `--disable-dev-shm-usage`: Prevents /dev/shm exhaustion in Docker
+  /// - `--disable-gpu`: GPU not needed for PDF rendering
+  /// - `--font-render-hinting=none`: Consistent font rendering across platforms
+  static const List<String> _kBrowserArgs = [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-gpu',
+    '--font-render-hinting=none',
+  ];
+
+  // ─── CSS Sanitization ───────────────────────────────────────────────────
+
+  /// Pattern that detects attempts to break out of a `<style>` tag context.
+  ///
+  /// Matches `</style` (case-insensitive) which is the minimum needed to close
+  /// a style element, regardless of trailing characters (`>`, whitespace, attributes).
+  static final RegExp _kStyleBreakoutPattern =
+      RegExp(r'<\s*/\s*style', caseSensitive: false);
+
+  /// Pattern that detects `<script` tags injected through CSS content.
+  static final RegExp _kScriptTagPattern =
+      RegExp(r'<\s*script', caseSensitive: false);
+
+  // ─── Browser Singleton ──────────────────────────────────────────────────
+
+  /// The shared browser instance, lazily created on first use.
+  Browser? _browser;
+
+  /// Returns the shared browser instance, launching one if necessary.
+  ///
+  /// If the browser was previously closed or disconnected, a new instance
+  /// is created transparently.
+  Future<Browser> _getOrCreateBrowser() async {
+    if (_browser == null || !_browser!.isConnected) {
+      _browser = await puppeteer.launch(
+        headless: true,
+        args: _kBrowserArgs,
+      );
+    }
+    return _browser!;
+  }
+
+  /// Disposes the shared browser instance.
+  ///
+  /// Call this when the service is being shut down to release system resources.
+  /// After calling this, the next [renderPdfFromJinja] call will launch a new
+  /// browser automatically.
+  Future<void> disposeBrowser() async {
+    final browser = _browser;
+    _browser = null;
+    if (browser != null) {
+      try {
+        await browser.close();
+      } catch (_) {
+        // Ignore close errors during shutdown
+      }
+    }
+  }
+
+  // ─── Public API ─────────────────────────────────────────────────────────
 
   /// Renders a PDF document from a Jinja2 HTML template with CSS styling.
   ///
   /// This method performs the complete rendering pipeline:
   /// 1. Validates inputs (non-empty template and CSS)
-  /// 2. Compiles and renders the Jinja2 template with the payload context
-  /// 3. Constructs a full HTML document with embedded CSS and font imports
-  /// 4. Launches headless Chrome to render the document
-  /// 5. Exports the rendered page as a PDF (A4, with backgrounds)
+  /// 2. Sanitizes CSS content to prevent injection attacks
+  /// 3. Compiles and renders the Jinja2 template with the payload context
+  /// 4. Constructs a full HTML document with embedded CSS and font imports
+  /// 5. Uses the shared headless Chrome instance to render and export as PDF
   ///
   /// Parameters:
   /// - [htmlTemplate]: The Jinja2 HTML template string containing template syntax
   ///   (variables `{{ }}`, control structures `{% %}`, etc.)
-  /// - [cssContent]: The CSS stylesheet content to apply to the rendered HTML
+  /// - [cssContent]: The CSS stylesheet content to apply to the rendered HTML.
+  ///   Must not contain HTML tags or attempts to break out of the style context.
   /// - [payload]: A map of variables to inject into the template context.
   ///   All keys become available as top-level variables in the template.
   /// - [language]: The target language for rendering. This is injected into the
@@ -142,6 +224,7 @@ mixin JinjaPdfRendererMixin {
   ///
   /// Throws [ShoebillException] if:
   /// - The template or CSS content is empty
+  /// - The CSS content contains injection patterns (e.g., `</style>`, `<script>`)
   /// - The template contains syntax errors
   /// - A required template variable is missing from the payload
   /// - The browser fails to launch or render
@@ -155,22 +238,27 @@ mixin JinjaPdfRendererMixin {
     // ─── 1. Input Validation ───────────────────────────────────────────
     _validateInputs(htmlTemplate: htmlTemplate, cssContent: cssContent);
 
-    // ─── 2. Render Jinja2 Template ─────────────────────────────────────
+    // ─── 2. CSS Sanitization ───────────────────────────────────────────
+    _validateCssSafety(cssContent);
+
+    // ─── 3. Render Jinja2 Template ─────────────────────────────────────
     final String renderedHtml = _renderJinjaTemplate(
       htmlTemplate: htmlTemplate,
       payload: payload,
       language: language,
     );
 
-    // ─── 3. Build Full HTML Document ───────────────────────────────────
+    // ─── 4. Build Full HTML Document ───────────────────────────────────
     final String fullHtmlDocument = _buildFullHtmlDocument(
       renderedBody: renderedHtml,
       cssContent: cssContent,
     );
 
-    // ─── 4. Generate PDF via Headless Chrome ───────────────────────────
+    // ─── 5. Generate PDF via Headless Chrome ───────────────────────────
     return _generatePdfFromHtml(fullHtmlDocument);
   }
+
+  // ─── Private Implementation ─────────────────────────────────────────────
 
   /// Validates that the template and CSS inputs are non-empty and usable.
   ///
@@ -191,6 +279,37 @@ mixin JinjaPdfRendererMixin {
         title: 'Empty CSS content',
         description:
             'The CSS content string is empty. A valid CSS stylesheet is required to style the PDF.',
+      );
+    }
+  }
+
+  /// Validates that CSS content does not contain patterns that could break
+  /// out of the `<style>` tag context and inject arbitrary HTML or scripts.
+  ///
+  /// This prevents attacks where CSS content like:
+  /// ```
+  /// body { color: red; } </style><script>alert('xss')</script><style>
+  /// ```
+  /// could escape the style context and execute JavaScript.
+  ///
+  /// Throws [ShoebillException] if unsafe patterns are detected.
+  void _validateCssSafety(String cssContent) {
+    if (_kStyleBreakoutPattern.hasMatch(cssContent)) {
+      throw ShoebillException(
+        title: 'Invalid CSS content',
+        description:
+            'The CSS content contains a closing "</style>" tag pattern, which is not '
+            'valid CSS and could indicate an injection attempt. Remove any HTML tags '
+            'from the CSS content.',
+      );
+    }
+    if (_kScriptTagPattern.hasMatch(cssContent)) {
+      throw ShoebillException(
+        title: 'Invalid CSS content',
+        description:
+            'The CSS content contains a "<script>" tag pattern, which is not '
+            'valid CSS and could indicate an injection attempt. Remove any HTML tags '
+            'from the CSS content.',
       );
     }
   }
@@ -220,9 +339,6 @@ mixin JinjaPdfRendererMixin {
         // Trim whitespace around blocks for cleaner output
         trimBlocks: true,
         leftStripBlocks: true,
-        // The default `undefined` callback returns null for missing variables,
-        // and the default `finalize` converts null to empty string ''.
-        // This means undefined variables render as empty strings gracefully.
       );
 
       final template = environment.fromString(htmlTemplate);
@@ -280,11 +396,14 @@ mixin JinjaPdfRendererMixin {
   ///
   /// The generated document includes:
   /// - UTF-8 charset declaration
-  /// - Google Fonts import for "Noto Sans CJK SC" (multi-language support)
+  /// - Google Fonts import for "Noto Sans SC" (multi-language support)
   /// - Base styles with the default font family
   /// - Print-specific CSS for page sizing and margins
   /// - The user-provided CSS embedded in a <style> block
   /// - The rendered HTML body content
+  ///
+  /// **Security note:** The [cssContent] must be validated via [_validateCssSafety]
+  /// before being passed to this method.
   String _buildFullHtmlDocument({
     required String renderedBody,
     required String cssContent,
@@ -296,7 +415,7 @@ mixin JinjaPdfRendererMixin {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="$kDefaultFontUrl" rel="stylesheet">
+  <link href="$_kDefaultFontUrl" rel="stylesheet">
   <style>
     /* ─── Base Reset & Defaults ─────────────────────────── */
     *, *::before, *::after {
@@ -308,7 +427,7 @@ mixin JinjaPdfRendererMixin {
     html, body {
       width: 100%;
       height: 100%;
-      font-family: "$kDefaultFontFamily", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+      font-family: "$_kDefaultFontFamily", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
       font-size: 14px;
       line-height: 1.5;
       color: #1a1a1a;
@@ -319,10 +438,10 @@ mixin JinjaPdfRendererMixin {
     /* ─── Print / Page Configuration ────────────────────── */
     @page {
       size: A4;
-      margin-top: $kDefaultPageMarginTop;
-      margin-bottom: $kDefaultPageMarginBottom;
-      margin-left: $kDefaultPageMarginLeft;
-      margin-right: $kDefaultPageMarginRight;
+      margin-top: $_kDefaultPageMarginTop;
+      margin-bottom: $_kDefaultPageMarginBottom;
+      margin-left: $_kDefaultPageMarginLeft;
+      margin-right: $_kDefaultPageMarginRight;
     }
 
     /* ─── Page Break Utilities ──────────────────────────── */
@@ -340,7 +459,11 @@ $renderedBody
 </html>''';
   }
 
-  /// Launches headless Chrome, loads the full HTML document, and generates a PDF.
+  /// Uses the shared headless Chrome instance to render the HTML and generate a PDF.
+  ///
+  /// A new page (tab) is created for each render call and is always closed
+  /// after completion, even if an error occurs. The browser itself persists
+  /// across calls for efficiency.
   ///
   /// The PDF is generated with:
   /// - A4 paper format
@@ -353,29 +476,30 @@ $renderedBody
   /// Throws [ShoebillException] if the browser cannot be launched or
   /// PDF generation fails.
   Future<Uint8List> _generatePdfFromHtml(String fullHtmlDocument) async {
-    Browser? browser;
+    final Browser browser;
     try {
-      browser = await puppeteer.launch(
-        headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-gpu',
-          '--font-render-hinting=none',
-        ],
+      browser = await _getOrCreateBrowser();
+    } catch (e) {
+      throw ShoebillException(
+        title: 'Browser launch failed',
+        description:
+            'Failed to launch headless Chrome for PDF rendering: $e. '
+            'Ensure Chrome/Chromium is installed and accessible.',
       );
+    }
 
-      final page = await browser.newPage();
+    Page? page;
+    try {
+      page = await browser.newPage();
 
       // Set the HTML content and wait for fonts and resources to load
       await page.setContent(
         fullHtmlDocument,
         wait: Until.networkAlmostIdle,
+        timeout: _kPageRenderTimeout,
       );
 
-      // Ensure we render with screen media type for accurate CSS rendering
-      // before switching to print for PDF generation
+      // Use print media type for accurate PDF rendering with @page rules
       await page.emulateMediaType(MediaType.print);
 
       // Generate the PDF
@@ -405,16 +529,15 @@ $renderedBody
         title: 'PDF generation failed',
         description:
             'Failed to generate PDF from the rendered HTML document: $e. '
-            'This may be caused by a browser launch failure (ensure Chrome/Chromium '
-            'is installed), network issues loading fonts, or malformed HTML/CSS.',
+            'This may be caused by network issues loading fonts, or malformed HTML/CSS.',
       );
     } finally {
-      // Always close the browser to free resources
-      if (browser != null) {
+      // Always close the page to free tab resources, even on error
+      if (page != null) {
         try {
-          await browser.close();
+          await page.close();
         } catch (_) {
-          // Ignore close errors - the PDF was already generated
+          // Ignore page close errors - best-effort cleanup
         }
       }
     }

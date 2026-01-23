@@ -74,8 +74,6 @@ class AiResultItem extends AiStreamResult {
   AiResultItem(this.result);
 }
 
-abstract class AiStreamSchemaResult {}
-
 class AiSchemaThinkItem extends AiStreamResult {
   final AiThinkingChunk thinkingChunk;
   AiSchemaThinkItem(this.thinkingChunk);
@@ -86,9 +84,20 @@ class AiSchemaResultItem extends AiStreamResult {
   AiSchemaResultItem(this.result);
 }
 
+/// Represents a parsed SSE delta with optional thinking and content chunks.
+class _ParsedDelta {
+  final List<AiThinkingChunk> thinkingChunks;
+  final String? content;
+
+  const _ParsedDelta({required this.thinkingChunks, this.content});
+}
+
 /// OpenAI service implementation with per-instance chat history
 class OpenAiService implements IOpenAiService {
   final String _apiKey;
+
+  /// Reusable HTTP client for all requests made by this service instance.
+  final HttpClient _httpClient = HttpClient();
 
   /// Chat history for this instance
   final List<AiChatMessage> _history = [];
@@ -105,10 +114,138 @@ class OpenAiService implements IOpenAiService {
     _history.clear();
   }
 
+  /// Closes the underlying HTTP client. Call when this service is no longer needed.
+  void dispose() {
+    _httpClient.close();
+  }
+
   /// Adds a message to the history
   void _addToHistory(ChatRole role, String content) {
     _history.add(AiChatMessage(role: role, content: content));
   }
+
+  // ===========================================================================
+  // SSE Parsing Utilities
+  // ===========================================================================
+
+  /// Processes raw SSE chunks from an HTTP response stream and yields
+  /// individual parsed JSON event maps. Handles line buffering, skips
+  /// comments/empty lines, and detects the `[DONE]` sentinel.
+  ///
+  /// The [onDone] callback is invoked when the `data: [DONE]` line is received,
+  /// allowing the caller to perform finalization before the stream ends.
+  Stream<Map<String, dynamic>> _parseSseStream(
+    HttpClientResponse response, {
+    Future<void> Function()? onDone,
+  }) async* {
+    final lineBuffer = StringBuffer();
+
+    await for (final chunk in response.transform(utf8.decoder)) {
+      lineBuffer.write(chunk);
+      final bufferContent = lineBuffer.toString();
+      final lines = bufferContent.split('\n');
+
+      // Keep incomplete last line in buffer
+      lineBuffer.clear();
+      if (!bufferContent.endsWith('\n')) {
+        lineBuffer.write(lines.removeLast());
+      }
+
+      for (final line in lines) {
+        final trimmedLine = line.trim();
+
+        // Skip empty lines and SSE comments
+        if (trimmedLine.isEmpty || trimmedLine.startsWith(':')) {
+          continue;
+        }
+
+        // Check for stream end
+        if (trimmedLine == 'data: [DONE]') {
+          await onDone?.call();
+          return;
+        }
+
+        // Parse SSE data
+        if (trimmedLine.startsWith('data: ')) {
+          final jsonStr = trimmedLine.substring(6);
+          try {
+            final json = jsonDecode(jsonStr) as Map<String, dynamic>;
+
+            // Check for error in stream
+            if (json.containsKey('error')) {
+              final error = json['error'];
+              throw ShoebillException(
+                title: 'OpenRouter streaming error',
+                description:
+                    'Error received during streaming: ${jsonEncode(error)}',
+              );
+            }
+
+            yield json;
+          } on FormatException {
+            // Skip malformed JSON chunks
+            continue;
+          }
+        }
+      }
+    }
+  }
+
+  /// Extracts the delta from a parsed SSE JSON event, returning thinking
+  /// chunks and content text. Returns `null` if the event has no usable delta.
+  _ParsedDelta? _extractDelta(Map<String, dynamic> json) {
+    final choices = json['choices'] as List<dynamic>?;
+    if (choices == null || choices.isEmpty) return null;
+
+    final delta = choices[0]['delta'] as Map<String, dynamic>?;
+    if (delta == null) return null;
+
+    final thinkingChunks = <AiThinkingChunk>[];
+
+    // Check for reasoning/thinking content
+    final reasoning = delta['reasoning'] as String?;
+    if (reasoning != null && reasoning.isNotEmpty) {
+      thinkingChunks.add(AiThinkingChunk(thinkingText: reasoning));
+    }
+
+    // Check for reasoning_details array (newer format)
+    final reasoningDetails = delta['reasoning_details'] as List<dynamic>?;
+    if (reasoningDetails != null) {
+      for (final detail in reasoningDetails) {
+        if (detail is Map<String, dynamic>) {
+          final text = detail['text'] as String?;
+          final summary = detail['summary'] as String?;
+          final thinkingText = text ?? summary;
+          if (thinkingText != null && thinkingText.isNotEmpty) {
+            thinkingChunks.add(AiThinkingChunk(thinkingText: thinkingText));
+          }
+        }
+      }
+    }
+
+    // Extract regular content
+    final content = delta['content'] as String?;
+
+    return _ParsedDelta(
+      thinkingChunks: thinkingChunks,
+      content: (content != null && content.isNotEmpty) ? content : null,
+    );
+  }
+
+  /// Prepares an [HttpClientRequest] to the OpenRouter API with standard
+  /// headers (Authorization, Content-Type) already set.
+  Future<HttpClientRequest> _createApiRequest() async {
+    final request = await _httpClient.postUrl(
+      Uri.parse(kOpenRouterApiUrl),
+    );
+    request.headers.set('Authorization', 'Bearer $_apiKey');
+    request.headers.set('Content-Type', 'application/json');
+    return request;
+  }
+
+  // ===========================================================================
+  // Public API Implementations
+  // ===========================================================================
 
   @override
   Future<String> generatePrompt({
@@ -176,56 +313,46 @@ Return the translated JSON:''';
     required String model,
     required String prompt,
   }) async {
-    final client = HttpClient();
-    try {
-      final request = await client.postUrl(
-        Uri.parse(kOpenRouterApiUrl),
+    final request = await _createApiRequest();
+
+    final body = jsonEncode({
+      'model': model,
+      'messages': [
+        {'role': 'user', 'content': prompt},
+      ],
+    });
+
+    request.write(body);
+
+    final response = await request.close();
+    final responseBody = await response.transform(utf8.decoder).join();
+
+    if (response.statusCode != 200) {
+      throw ShoebillException(
+        title: 'OpenRouter API error',
+        description: 'Request failed with status ${response.statusCode}: $responseBody',
       );
-
-      request.headers.set('Authorization', 'Bearer $_apiKey');
-      request.headers.set('Content-Type', 'application/json');
-
-      final body = jsonEncode({
-        'model': model,
-        'messages': [
-          {'role': 'user', 'content': prompt},
-        ],
-      });
-
-      request.write(body);
-
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
-
-      if (response.statusCode != 200) {
-        throw ShoebillException(
-          title: 'OpenRouter API error',
-          description: 'Request failed with status ${response.statusCode}: $responseBody',
-        );
-      }
-
-      final json = jsonDecode(responseBody) as Map<String, dynamic>;
-      final choices = json['choices'] as List<dynamic>?;
-      if (choices == null || choices.isEmpty) {
-        throw ShoebillException(
-          title: 'Invalid OpenRouter response',
-          description: 'No choices in OpenRouter response: $responseBody',
-        );
-      }
-
-      final message = choices[0]['message'] as Map<String, dynamic>?;
-      final content = message?['content'] as String?;
-      if (content == null) {
-        throw ShoebillException(
-          title: 'Invalid OpenRouter response',
-          description: 'No content in OpenRouter response: $responseBody',
-        );
-      }
-
-      return content;
-    } finally {
-      client.close();
     }
+
+    final json = jsonDecode(responseBody) as Map<String, dynamic>;
+    final choices = json['choices'] as List<dynamic>?;
+    if (choices == null || choices.isEmpty) {
+      throw ShoebillException(
+        title: 'Invalid OpenRouter response',
+        description: 'No choices in OpenRouter response: $responseBody',
+      );
+    }
+
+    final message = choices[0]['message'] as Map<String, dynamic>?;
+    final content = message?['content'] as String?;
+    if (content == null) {
+      throw ShoebillException(
+        title: 'Invalid OpenRouter response',
+        description: 'No content in OpenRouter response: $responseBody',
+      );
+    }
+
+    return content;
   }
 
   @override
@@ -239,141 +366,62 @@ Return the translated JSON:''';
     // Add user message to history
     _addToHistory(ChatRole.user, prompt);
 
-    final client = HttpClient();
     final contentBuffer = StringBuffer();
 
-    try {
-      final request = await client.postUrl(
-        Uri.parse(kOpenRouterApiUrl),
+    final request = await _createApiRequest();
+
+    // Build messages from history
+    final messages = _history.map((m) => m.toJson()).toList();
+
+    final body = <String, dynamic>{
+      'model': effectiveModel,
+      'stream': true,
+      'messages': messages,
+    };
+
+    // Add web search plugin if requested
+    if (shouldUseInternetSearchTool) {
+      body['plugins'] = [
+        {'id': 'web'},
+      ];
+    }
+
+    request.write(jsonEncode(body));
+
+    final response = await request.close();
+
+    if (response.statusCode != 200) {
+      final errorBody = await response.transform(utf8.decoder).join();
+      throw ShoebillException(
+        title: 'OpenRouter API error',
+        description: 'Streaming request failed with status ${response.statusCode}: $errorBody',
       );
+    }
 
-      request.headers.set('Authorization', 'Bearer $_apiKey');
-      request.headers.set('Content-Type', 'application/json');
-
-      // Build messages from history
-      final messages = _history.map((m) => m.toJson()).toList();
-
-      final body = <String, dynamic>{
-        'model': effectiveModel,
-        'stream': true,
-        'messages': messages,
-      };
-
-      // Add web search plugin if requested
-      if (shouldUseInternetSearchTool) {
-        body['plugins'] = [
-          {'id': 'web'},
-        ];
-      }
-
-      request.write(jsonEncode(body));
-
-      final response = await request.close();
-
-      if (response.statusCode != 200) {
-        final errorBody = await response.transform(utf8.decoder).join();
-        throw ShoebillException(
-          title: 'OpenRouter API error',
-          description: 'Streaming request failed with status ${response.statusCode}: $errorBody',
-        );
-      }
-
-      // Process SSE stream
-      final lineBuffer = StringBuffer();
-
-      await for (final chunk in response.transform(utf8.decoder)) {
-        lineBuffer.write(chunk);
-        final bufferContent = lineBuffer.toString();
-        final lines = bufferContent.split('\n');
-
-        // Keep incomplete last line in buffer
-        lineBuffer.clear();
-        if (!bufferContent.endsWith('\n')) {
-          lineBuffer.write(lines.removeLast());
-        }
-
-        for (final line in lines) {
-          final trimmedLine = line.trim();
-
-          // Skip empty lines and SSE comments
-          if (trimmedLine.isEmpty || trimmedLine.startsWith(':')) {
-            continue;
-          }
-
-          // Check for stream end
-          if (trimmedLine == 'data: [DONE]') {
-            // Add assistant response to history
-            if (contentBuffer.isNotEmpty) {
-              _addToHistory(ChatRole.assistant, contentBuffer.toString());
-            }
-            return;
-          }
-
-          // Parse SSE data
-          if (trimmedLine.startsWith('data: ')) {
-            final jsonStr = trimmedLine.substring(6);
-            try {
-              final json = jsonDecode(jsonStr) as Map<String, dynamic>;
-
-              // Check for error in stream
-              if (json.containsKey('error')) {
-                final error = json['error'];
-                throw ShoebillException(
-                  title: 'OpenRouter streaming error',
-                  description: 'Error received during streaming: ${jsonEncode(error)}',
-                );
-              }
-
-              final choices = json['choices'] as List<dynamic>?;
-              if (choices == null || choices.isEmpty) continue;
-
-              final delta = choices[0]['delta'] as Map<String, dynamic>?;
-              if (delta == null) continue;
-
-              // Check for reasoning/thinking content
-              final reasoning = delta['reasoning'] as String?;
-              if (reasoning != null && reasoning.isNotEmpty) {
-                yield AiThinkItem(AiThinkingChunk(thinkingText: reasoning));
-              }
-
-              // Check for reasoning_details array (newer format)
-              final reasoningDetails =
-                  delta['reasoning_details'] as List<dynamic>?;
-              if (reasoningDetails != null) {
-                for (final detail in reasoningDetails) {
-                  if (detail is Map<String, dynamic>) {
-                    final text = detail['text'] as String?;
-                    final summary = detail['summary'] as String?;
-                    final thinkingText = text ?? summary;
-                    if (thinkingText != null && thinkingText.isNotEmpty) {
-                      yield AiThinkItem(
-                        AiThinkingChunk(thinkingText: thinkingText),
-                      );
-                    }
-                  }
-                }
-              }
-
-              // Check for regular content
-              final content = delta['content'] as String?;
-              if (content != null && content.isNotEmpty) {
-                contentBuffer.write(content);
-                yield AiResultItem(content);
-              }
-            } on FormatException {
-              // Skip malformed JSON chunks
-              continue;
-            }
-          }
-        }
-      }
-
-      // Add final response to history if stream ended without [DONE]
+    // Process SSE stream using shared parser
+    var doneCallbackFired = false;
+    await for (final json in _parseSseStream(response, onDone: () async {
+      doneCallbackFired = true;
       if (contentBuffer.isNotEmpty) {
         _addToHistory(ChatRole.assistant, contentBuffer.toString());
       }
-    } finally {
-      client.close();
+    })) {
+      final parsed = _extractDelta(json);
+      if (parsed == null) continue;
+
+      for (final chunk in parsed.thinkingChunks) {
+        yield AiThinkItem(chunk);
+      }
+
+      if (parsed.content != null) {
+        contentBuffer.write(parsed.content);
+        yield AiResultItem(parsed.content!);
+      }
+    }
+
+    // Only add if stream ended without [DONE]
+    if (!doneCallbackFired && contentBuffer.isNotEmpty) {
+      _addToHistory(ChatRole.assistant, contentBuffer.toString());
     }
   }
 
@@ -406,255 +454,134 @@ Return the translated JSON:''';
     // Add user message to history
     _addToHistory(ChatRole.user, prompt);
 
-    final client = HttpClient();
+    final request = await _createApiRequest();
 
-    try {
-      final request = await client.postUrl(
-        Uri.parse(kOpenRouterApiUrl),
-      );
+    // Build messages from history
+    final messages = _history.map((m) => m.toJson()).toList();
 
-      request.headers.set('Authorization', 'Bearer $_apiKey');
-      request.headers.set('Content-Type', 'application/json');
+    // Build JSON Schema for OpenRouter structured output
+    final jsonSchema = properties.toOpenRouterJsonSchema();
 
-      // Build messages from history
-      final messages = _history.map((m) => m.toJson()).toList();
-
-      // Build JSON Schema for OpenRouter structured output
-      final jsonSchema = properties.toOpenRouterJsonSchema();
-
-      final body = <String, dynamic>{
-        'model': effectiveModel,
-        'stream': true,
-        'messages': messages,
-        'response_format': {
-          'type': 'json_schema',
-          'json_schema': {
-            'name': 'response_schema',
-            'strict': true,
-            'schema': jsonSchema,
-          },
+    final body = <String, dynamic>{
+      'model': effectiveModel,
+      'stream': true,
+      'messages': messages,
+      'response_format': {
+        'type': 'json_schema',
+        'json_schema': {
+          'name': 'response_schema',
+          'strict': true,
+          'schema': jsonSchema,
         },
-      };
+      },
+    };
 
-      // Add web search plugin if requested
-      if (shouldUseInternetSearchTool) {
-        body['plugins'] = [
-          {'id': 'web'},
-        ];
+    // Add web search plugin if requested
+    if (shouldUseInternetSearchTool) {
+      body['plugins'] = [
+        {'id': 'web'},
+      ];
+    }
+
+    request.write(jsonEncode(body));
+
+    final response = await request.close();
+
+    if (response.statusCode != 200) {
+      final errorBody = await response.transform(utf8.decoder).join();
+      throw ShoebillException(
+        title: 'OpenRouter API error',
+        description: 'Schema streaming request failed with status ${response.statusCode}: $errorBody',
+      );
+    }
+
+    // Process SSE stream and accumulate JSON content
+    final contentBuffer = StringBuffer();
+
+    await for (final json in _parseSseStream(response)) {
+      final parsed = _extractDelta(json);
+      if (parsed == null) continue;
+
+      for (final chunk in parsed.thinkingChunks) {
+        yield AiSchemaThinkItem(chunk);
       }
 
-      request.write(jsonEncode(body));
-
-      final response = await request.close();
-
-      if (response.statusCode != 200) {
-        final errorBody = await response.transform(utf8.decoder).join();
-        throw ShoebillException(
-          title: 'OpenRouter API error',
-          description: 'Schema streaming request failed with status ${response.statusCode}: $errorBody',
-        );
+      if (parsed.content != null) {
+        contentBuffer.write(parsed.content);
       }
+    }
 
-      // Process SSE stream and accumulate JSON content
-      final lineBuffer = StringBuffer();
-      final contentBuffer = StringBuffer();
+    // Finalize: parse accumulated content and validate against schema
+    final fullContent = contentBuffer.toString().trim();
+    if (fullContent.isNotEmpty) {
+      _addToHistory(ChatRole.assistant, fullContent);
 
-      await for (final chunk in response.transform(utf8.decoder)) {
-        lineBuffer.write(chunk);
-        final bufferContent = lineBuffer.toString();
-        final lines = bufferContent.split('\n');
+      yield* _validateAndYieldSchemaResult(
+        fullContent: fullContent,
+        properties: properties,
+        shouldUseInternetSearchTool: shouldUseInternetSearchTool,
+        model: model,
+        retriesRemaining: retriesRemaining,
+      );
+    }
+  }
 
-        // Keep incomplete last line in buffer
-        lineBuffer.clear();
-        if (!bufferContent.endsWith('\n')) {
-          lineBuffer.write(lines.removeLast());
-        }
+  /// Parses the accumulated content as JSON, validates it against the schema,
+  /// and either yields the result or retries on failure.
+  Stream<AiStreamResult> _validateAndYieldSchemaResult({
+    required String fullContent,
+    required Map<String, SchemaProperty> properties,
+    required bool shouldUseInternetSearchTool,
+    required String? model,
+    required int retriesRemaining,
+  }) async* {
+    try {
+      final parsed = jsonDecode(fullContent) as Map<String, dynamic>;
 
-        for (final line in lines) {
-          final trimmedLine = line.trim();
+      // Validate against schema
+      final schemaObj = SchemaPropertyStructuredObjectWithDefinedProperties(
+        nullable: false,
+        properties: properties,
+      );
+      final validationError =
+          schemaObj.validateJsonFollowsSchemaStructure(parsed);
 
-          // Skip empty lines and SSE comments
-          if (trimmedLine.isEmpty || trimmedLine.startsWith(':')) {
-            continue;
-          }
-
-          // Check for stream end
-          if (trimmedLine == 'data: [DONE]') {
-            final fullContent = contentBuffer.toString().trim();
-
-            // Add assistant response to history
-            if (fullContent.isNotEmpty) {
-              _addToHistory(ChatRole.assistant, fullContent);
-            }
-
-            // Parse and validate the response
-            if (fullContent.isNotEmpty) {
-              try {
-                final parsed = jsonDecode(fullContent) as Map<String, dynamic>;
-
-                // Validate against schema
-                final schemaObj =
-                    SchemaPropertyStructuredObjectWithDefinedProperties(
-                      nullable: false,
-                      properties: properties,
-                    );
-                final validationError = schemaObj
-                    .validateJsonFollowsSchemaStructure(parsed);
-
-                if (validationError != null) {
-                  // Schema validation failed - retry if we have retries remaining
-                  if (retriesRemaining > 0) {
-                    // Add error message and retry
-                    yield* _retryWithValidationError(
-                      validationError: validationError,
-                      properties: properties,
-                      shouldUseInternetSearchTool: shouldUseInternetSearchTool,
-                      model: model,
-                      retriesRemaining: retriesRemaining - 1,
-                    );
-                    return;
-                  } else {
-                    throw ShoebillException(
-                      title: 'Schema validation failed',
-                      description: 'Schema validation failed after retries: $validationError',
-                    );
-                  }
-                }
-
-                yield AiSchemaResultItem(parsed);
-              } on FormatException catch (e) {
-                if (retriesRemaining > 0) {
-                  yield* _retryWithValidationError(
-                    validationError: 'JSON parsing error: $e',
-                    properties: properties,
-                    shouldUseInternetSearchTool: shouldUseInternetSearchTool,
-                    model: model,
-                    retriesRemaining: retriesRemaining - 1,
-                  );
-                  return;
-                }
-                throw ShoebillException(
-                  title: 'JSON response parsing failed',
-                  description: 'Failed to parse final JSON response: $e\nContent was: $fullContent',
-                );
-              }
-            }
-            return;
-          }
-
-          // Parse SSE data
-          if (trimmedLine.startsWith('data: ')) {
-            final jsonStr = trimmedLine.substring(6);
-            try {
-              final json = jsonDecode(jsonStr) as Map<String, dynamic>;
-
-              // Check for error in stream
-              if (json.containsKey('error')) {
-                final error = json['error'];
-                throw ShoebillException(
-                  title: 'OpenRouter streaming error',
-                  description: 'Error received during schema streaming: ${jsonEncode(error)}',
-                );
-              }
-
-              final choices = json['choices'] as List<dynamic>?;
-              if (choices == null || choices.isEmpty) continue;
-
-              final delta = choices[0]['delta'] as Map<String, dynamic>?;
-              if (delta == null) continue;
-
-              // Check for reasoning/thinking content
-              final reasoning = delta['reasoning'] as String?;
-              if (reasoning != null && reasoning.isNotEmpty) {
-                yield AiSchemaThinkItem(
-                  AiThinkingChunk(thinkingText: reasoning),
-                );
-              }
-
-              // Check for reasoning_details array (newer format)
-              final reasoningDetails =
-                  delta['reasoning_details'] as List<dynamic>?;
-              if (reasoningDetails != null) {
-                for (final detail in reasoningDetails) {
-                  if (detail is Map<String, dynamic>) {
-                    final text = detail['text'] as String?;
-                    final summary = detail['summary'] as String?;
-                    final thinkingText = text ?? summary;
-                    if (thinkingText != null && thinkingText.isNotEmpty) {
-                      yield AiSchemaThinkItem(
-                        AiThinkingChunk(thinkingText: thinkingText),
-                      );
-                    }
-                  }
-                }
-              }
-
-              // Accumulate content for final JSON parsing
-              final content = delta['content'] as String?;
-              if (content != null) {
-                contentBuffer.write(content);
-              }
-            } on FormatException {
-              // Skip malformed JSON chunks
-              continue;
-            }
-          }
-        }
-      }
-
-      // If we exit the loop without [DONE], try to parse accumulated content
-      final fullContent = contentBuffer.toString().trim();
-      if (fullContent.isNotEmpty) {
-        _addToHistory(ChatRole.assistant, fullContent);
-
-        try {
-          final parsed = jsonDecode(fullContent) as Map<String, dynamic>;
-
-          // Validate against schema
-          final schemaObj = SchemaPropertyStructuredObjectWithDefinedProperties(
-            nullable: false,
+      if (validationError != null) {
+        if (retriesRemaining > 0) {
+          yield* _retryWithValidationError(
+            validationError: validationError,
             properties: properties,
+            shouldUseInternetSearchTool: shouldUseInternetSearchTool,
+            model: model,
+            retriesRemaining: retriesRemaining - 1,
           );
-          final validationError = schemaObj.validateJsonFollowsSchemaStructure(
-            parsed,
-          );
-
-          if (validationError != null && retriesRemaining > 0) {
-            yield* _retryWithValidationError(
-              validationError: validationError,
-              properties: properties,
-              shouldUseInternetSearchTool: shouldUseInternetSearchTool,
-              model: model,
-              retriesRemaining: retriesRemaining - 1,
-            );
-            return;
-          } else if (validationError != null) {
-            throw ShoebillException(
-              title: 'Schema validation failed',
-              description: 'Schema validation failed: $validationError',
-            );
-          }
-
-          yield AiSchemaResultItem(parsed);
-        } on FormatException catch (e) {
-          if (retriesRemaining > 0) {
-            yield* _retryWithValidationError(
-              validationError: 'JSON parsing error: $e',
-              properties: properties,
-              shouldUseInternetSearchTool: shouldUseInternetSearchTool,
-              model: model,
-              retriesRemaining: retriesRemaining - 1,
-            );
-            return;
-          }
+          return;
+        } else {
           throw ShoebillException(
-            title: 'JSON response parsing failed',
-            description: 'Failed to parse final JSON response: $e\nContent was: $fullContent',
+            title: 'Schema validation failed',
+            description:
+                'Schema validation failed after retries: $validationError',
           );
         }
       }
-    } finally {
-      client.close();
+
+      yield AiSchemaResultItem(parsed);
+    } on FormatException catch (e) {
+      if (retriesRemaining > 0) {
+        yield* _retryWithValidationError(
+          validationError: 'JSON parsing error: $e',
+          properties: properties,
+          shouldUseInternetSearchTool: shouldUseInternetSearchTool,
+          model: model,
+          retriesRemaining: retriesRemaining - 1,
+        );
+        return;
+      }
+      throw ShoebillException(
+        title: 'JSON response parsing failed',
+        description:
+            'Failed to parse final JSON response: $e\nContent was: $fullContent',
+      );
     }
   }
 

@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer' as developer;
 
-import 'package:get_it/get_it.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:shoebill_template_server/src/api/pdf_related/entities/schema_property_extensions.dart';
 import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
-import 'package:shoebill_template_server/src/services/pdf_controller.dart';
 
 /// POST endpoint that creates a new [ShoebillTemplateBaseline] and its first
 /// [ShoebillTemplateBaselineImplementation].
@@ -25,10 +24,9 @@ import 'package:shoebill_template_server/src/services/pdf_controller.dart';
 ///     `implementationId`.
 ///   - 400: Missing parameters or payload does not conform to schema.
 ///   - 404: Template version not found or schema not found.
-///   - 500: Internal server error (database failure).
+///   - 500: Internal server error.
 class PdfGenerateEndpoint extends Route with RouteMixin {
   PdfGenerateEndpoint() : super(methods: {Method.post});
-  final PdfController pdfController = GetIt.instance<PdfController>();
 
   @override
   FutureOr<Result> handleCall(Session session, Request request) async {
@@ -51,8 +49,7 @@ class PdfGenerateEndpoint extends Route with RouteMixin {
       return createErrorResponse(
         400,
         'Missing versionId',
-        'The "versionId" query parameter is required. '
-            'It must be the integer ID of the ShoebillTemplateVersion.',
+        'The "versionId" query parameter is required.',
       );
     }
 
@@ -90,18 +87,15 @@ class PdfGenerateEndpoint extends Route with RouteMixin {
       return createErrorResponse(
         404,
         'Template version not found',
-        'No ShoebillTemplateVersion found with ID: $versionId',
+        'No template version found for the provided ID.',
       );
     }
 
     // 5. Load and validate the schema
     final SchemaDefinition? schema = templateVersion.schema;
     if (schema == null) {
-      return createErrorResponse(
-        404,
-        'Schema not found',
-        'No SchemaDefinition is associated with the '
-            'ShoebillTemplateVersion (ID: $versionId).',
+      return _logAndCreateInternalError(
+        'Schema missing for template version ID: $versionId',
       );
     }
 
@@ -161,12 +155,30 @@ class PdfGenerateEndpoint extends Route with RouteMixin {
         201,
         body: Body.fromString(responseBody, mimeType: MimeType.json),
       );
-    } catch (e) {
-      return createErrorResponse(
-        500,
-        'Database error',
-        'An error occurred while creating the baseline: $e',
+    } catch (e, stackTrace) {
+      return _logAndCreateInternalError(
+        'Failed to create baseline: $e',
+        stackTrace: stackTrace,
       );
     }
+  }
+
+  /// Logs detailed error information server-side and returns a generic
+  /// 500 error response to the client without leaking internals.
+  Response _logAndCreateInternalError(
+    String internalMessage, {
+    StackTrace? stackTrace,
+  }) {
+    developer.log(
+      internalMessage,
+      name: 'PdfGenerateEndpoint',
+      error: internalMessage,
+      stackTrace: stackTrace,
+    );
+    return createErrorResponse(
+      500,
+      'Internal server error',
+      'An unexpected error occurred. Please try again later.',
+    );
   }
 }

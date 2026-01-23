@@ -1,39 +1,83 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 
 import 'package:http/http.dart' as http;
 import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
+
+/// Default language returned when geolocation fails or the country is unknown.
+const SupportedLanguages _kDefaultLanguage = SupportedLanguages.english;
+
+/// Timeout for HTTP requests to the IP geolocation API.
+const Duration _kGeolocationRequestTimeout = Duration(seconds: 5);
+
+/// Fields requested from the ip-api.com endpoint.
+const String _kGeolocationApiFields = 'status,message,countryCode,regionName';
 
 abstract class IGetLocaleOfIpService {
   Future<SupportedLanguages> detectLanguageForCurrentUser(String ip);
 }
 
 class GetLocaleOfIpService implements IGetLocaleOfIpService {
+  GetLocaleOfIpService({http.Client? httpClient})
+      : _httpClient = httpClient ?? http.Client();
+
+  final http.Client _httpClient;
+
   /// Detect the user's language based on their IP address.
   ///
   /// Note: ip-api.com free endpoint is **HTTP only** and for **non-commercial** use.
   /// For production SaaS you'll want their pro (HTTPS) or another provider.
+  ///
+  /// Returns [_kDefaultLanguage] if the geolocation request fails for any
+  /// reason (network error, timeout, invalid response, etc.).
   @override
   Future<SupportedLanguages> detectLanguageForCurrentUser(String ip) async {
-    // Call ip-api.com JSON endpoint (no API key).
-    // We only ask for what we need: status, message, countryCode, regionName.
     final uri = Uri.parse(
       '$kIpGeolocationApiBaseUrl$ip'
-      '?fields=status,message,countryCode,regionName',
+      '?fields=$_kGeolocationApiFields',
     );
 
-    final response = await http.get(uri);
-
-    if (response.statusCode != 200) {
-      // Fallback if ip-api is down or rate-limited.
-      return _getDefaultLanguage();
+    final http.Response response;
+    try {
+      response = await _httpClient.get(uri).timeout(_kGeolocationRequestTimeout);
+    } on Exception catch (e) {
+      developer.log(
+        'IP geolocation request failed for IP "$ip": $e',
+        name: 'GetLocaleOfIpService',
+        level: 900, // WARNING
+      );
+      return _kDefaultLanguage;
     }
 
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode != 200) {
+      developer.log(
+        'IP geolocation returned HTTP ${response.statusCode} for IP "$ip"',
+        name: 'GetLocaleOfIpService',
+        level: 900,
+      );
+      return _kDefaultLanguage;
+    }
+
+    final Map<String, dynamic> data;
+    try {
+      data = jsonDecode(response.body) as Map<String, dynamic>;
+    } on FormatException catch (e) {
+      developer.log(
+        'Failed to parse geolocation response for IP "$ip": $e',
+        name: 'GetLocaleOfIpService',
+        level: 900,
+      );
+      return _kDefaultLanguage;
+    }
 
     if (data['status'] != 'success') {
-      // e.g. "private range", "reserved range", "invalid query"
-      return _getDefaultLanguage();
+      developer.log(
+        'IP geolocation lookup failed for IP "$ip": ${data['message'] ?? 'unknown reason'}',
+        name: 'GetLocaleOfIpService',
+        level: 800, // INFO
+      );
+      return _kDefaultLanguage;
     }
 
     final countryCode = (data['countryCode'] as String?)?.toUpperCase();
@@ -56,7 +100,7 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
     required String? countryCode,
     required String? regionName,
   }) {
-    if (countryCode == null) return SupportedLanguages.english;
+    if (countryCode == null) return _kDefaultLanguage;
 
     final code = countryCode.toUpperCase();
 
@@ -150,10 +194,6 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
     }
 
     // Final fallback
-    return _getDefaultLanguage();
-  }
-
-  SupportedLanguages _getDefaultLanguage() {
-    return SupportedLanguages.english;
+    return _kDefaultLanguage;
   }
 }
