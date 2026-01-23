@@ -17,6 +17,14 @@ dependencies:
   uuid: ^4.5.2
   get_it: ^9.2.0
 
+  # Jinja2 template engine port for Dart - used for rendering HTML templates
+  # with variables, control structures, and filters
+  jinja: ^0.6.5
+
+  # Headless Chrome automation - used for high-quality HTML/CSS to PDF conversion
+  # with full CSS support including page breaks, backgrounds, and custom fonts
+  puppeteer: ^3.20.0
+
 dev_dependencies:
   lints: '>=3.0.0 <7.0.0'
   serverpod_test: 3.1.1
