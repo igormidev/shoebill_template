@@ -464,9 +464,10 @@ CRITICAL REVIEW CRITERIA (apply to ALL scenarios):
    - ALL hardcoded strings (labels, headers, footers, static text) MUST have language conditionals
    - Language conditionals should use the pattern: {% if language == "en" %}English{% elif language == "ja" %}Japanese{% elif ... %}...{% endif %}
    - The template must support ALL languages from the SupportedLanguages enum:
-     english, mandarinChinese, hindi, spanish, french, modernStandardArabic, bengali,
-     brazilianPortuguese, russian, urdu, indonesian, german, dutch, japanese, swahili,
-     marathi, telugu, turkish, tamil, vietnamese, korean, italian, thai, filipino
+     english, simplifiedMandarinChinese, traditionalChinese, spanish, french,
+     brazilianPortuguese, portugalPortuguese, russian, ukrainian, polish,
+     indonesian, malay, german, dutch, japanese, swahili, turkish, vietnamese,
+     korean, italian, filipino, romanian, swedish, czech
    - The "language" variable is always available in the template context
    - Payload strings marked with shouldBeTranslated are handled externally (already translated before reaching the template)
    - Only HARDCODED strings in the template itself need language conditionals

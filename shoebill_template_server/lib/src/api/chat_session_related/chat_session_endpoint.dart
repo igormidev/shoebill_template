@@ -1,13 +1,16 @@
 import 'dart:async';
 
+import 'package:get_it/get_it.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:shoebill_template_server/src/api/chat_session_related/chat_controller.dart';
 import 'package:shoebill_template_server/src/api/pdf_related/entities/schema_property_extensions.dart';
 import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
 import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
-import 'package:shoebill_template_server/src/services/daytona_claude_streaming.dart';
+import 'package:shoebill_template_server/src/services/ai_services.dart';
+import 'package:shoebill_template_server/src/services/daytona_claude_code_service.dart';
 import 'package:shoebill_template_server/src/services/pdf_controller.dart';
+import 'package:shoebill_template_server/src/services/template_reviewer_service.dart';
 
 typedef SessionUUID = String;
 typedef TimesRefreshed = int;
@@ -45,9 +48,12 @@ class ChatSessionEndpoint extends Endpoint {
   final Uuid _uuidGenerator = Uuid();
 
   ChatControllerImpl get newChat => ChatControllerImpl(
-    codding: DaytonaClaudeCodeService(
-      daytonaApiKey: '',
-      anthropicApiKey: '',
+    daytonaService: DaytonaClaudeCodeService(
+      daytonaApiKey: const String.fromEnvironment('DAYTONA_API_KEY'),
+      anthropicApiKey: const String.fromEnvironment('ANTHROPIC_API_KEY'),
+    ),
+    reviewerService: TemplateReviewerService(
+      openAiService: GetIt.instance<IOpenAiService>(),
     ),
   );
 
@@ -330,35 +336,44 @@ class ChatSessionEndpoint extends Endpoint {
 
     refreshSession(sessionUUID);
 
+    final templateState = _sessionTemplateInfo[sessionUUID]!;
+
     // Stream messages from the chat controller
     _processMessages(
       controller: controller,
       currentSession: currentSession,
       sessionUUID: sessionUUID,
       message: message,
+      templateState: templateState,
+      schemaChange: schemaChange,
     );
 
     return controller.stream;
   }
 
   /// Processes messages from the chat controller and streams them as responses.
-  /// At the end, emits the current [TemplateCurrentState] so the client can
-  /// display the updated template.
+  /// The chat controller yields [SendMessageStreamResponseItem] (which includes
+  /// both [ChatMessageResponse] and [TemplateStateResponse]) directly.
   Future<void> _processMessages({
     required StreamController<SendMessageStreamResponseItem> controller,
     required IChatController currentSession,
     required SessionUUID sessionUUID,
     required String message,
+    required TemplateCurrentState templateState,
+    NewSchemaChangePayload? schemaChange,
   }) async {
     try {
-      await for (final msg in currentSession.sendMessage(message: message)) {
-        controller.add(ChatMessageResponse(message: msg));
-      }
+      await for (final msg in currentSession.sendMessage(
+        message: message,
+        templateState: templateState,
+        schemaChangePayload: schemaChange,
+      )) {
+        controller.add(msg);
 
-      // After all messages are processed, emit the current template state
-      final currentState = _sessionTemplateInfo[sessionUUID];
-      if (currentState != null) {
-        controller.add(TemplateStateResponse(currentState: currentState));
+        // If the controller yielded a TemplateStateResponse, update session state
+        if (msg is TemplateStateResponse) {
+          _sessionTemplateInfo[sessionUUID] = msg.currentState;
+        }
       }
     } catch (e) {
       controller.add(

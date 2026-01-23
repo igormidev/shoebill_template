@@ -47,10 +47,10 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
   /// Heuristic mapping from country / region to your SupportedLanguages enum.
   ///
   /// Values must match your supported_languages.spy.yaml:
-  ///   english, mandarinChinese, hindi, spanish, french, modernStandardArabic,
-  ///   bengali, brazilianPortuguese, russian, urdu, indonesian, german, japanese,
-  ///   swahili, marathi, telugu, turkish, tamil, vietnamese, korean, italian,
-  ///   thai, filipino
+  ///   english, simplifiedMandarinChinese, traditionalChinese, spanish, french,
+  ///   brazilianPortuguese, portugalPortuguese, russian, ukrainian, polish,
+  ///   indonesian, malay, german, dutch, japanese, swahili, turkish, vietnamese,
+  ///   korean, italian, filipino, romanian, swedish, czech
   SupportedLanguages _mapCountryToSupportedLanguage({
     required String? countryCode,
     required String? regionName,
@@ -58,45 +58,8 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
     if (countryCode == null) return SupportedLanguages.english;
 
     final code = countryCode.toUpperCase();
-    final region = regionName?.toLowerCase() ?? '';
-
-    // ----- India: try to distinguish some regional languages -----
-    if (code == 'IN') {
-      if (region.contains('maharashtra')) {
-        return SupportedLanguages.marathi;
-      }
-      if (region.contains('andhra pradesh') || region.contains('telangana')) {
-        return SupportedLanguages.telugu;
-      }
-      if (region.contains('tamil nadu')) {
-        return SupportedLanguages.tamil;
-      }
-      // Default for India: treat as Hindi.
-      return SupportedLanguages.hindi;
-    }
 
     // ----- Country groups for specific languages -----
-    const arabicCountries = {
-      'SA',
-      'AE',
-      'QA',
-      'OM',
-      'KW',
-      'BH',
-      'EG',
-      'DZ',
-      'MA',
-      'TN',
-      'LY',
-      'JO',
-      'LB',
-      'SY',
-      'IQ',
-      'YE',
-      'SD',
-      'PS',
-    };
-
     const spanishCountries = {
       'ES',
       'MX',
@@ -120,38 +83,42 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
       'PR',
     };
 
-    const frenchCountries = {'FR', 'BE', 'CH', 'CA', 'SN', 'ML', 'CI', 'CM'};
-
-    const portugueseCountries = {'BR', 'PT', 'AO', 'MZ'};
+    const frenchCountries = {'FR', 'BE', 'SN', 'ML', 'CI', 'CM'};
 
     const russianCountries = {'RU', 'BY', 'KZ', 'KG'};
 
-    const germanCountries = {'DE', 'AT', 'CH', 'LI', 'LU'};
+    const germanCountries = {'DE', 'AT', 'LI', 'LU'};
 
-    const swahiliCountries = {'KE', 'TZ', 'UG', 'RW', 'BI', 'CD', 'SO', 'MZ'};
+    const swahiliCountries = {'KE', 'TZ', 'UG', 'RW', 'BI', 'CD', 'SO'};
 
     const englishCountries = {'US', 'GB', 'IE', 'CA', 'AU', 'NZ', 'ZA'};
 
     // ----- Single-country mappings -----
-    if (code == 'BD') return SupportedLanguages.bengali; // Bangladesh
-    if (code == 'PK') return SupportedLanguages.urdu; // Pakistan
     if (code == 'ID') return SupportedLanguages.indonesian; // Indonesia
+    if (code == 'MY') return SupportedLanguages.malay; // Malaysia
     if (code == 'VN') return SupportedLanguages.vietnamese; // Vietnam
     if (code == 'KR') return SupportedLanguages.korean; // South Korea
     if (code == 'JP') return SupportedLanguages.japanese; // Japan
     if (code == 'IT') return SupportedLanguages.italian; // Italy
     if (code == 'TR') return SupportedLanguages.turkish; // Turkey
-    if (code == 'TH') return SupportedLanguages.thai; // Thailand
     if (code == 'PH') return SupportedLanguages.filipino; // Philippines
+    if (code == 'UA') return SupportedLanguages.ukrainian; // Ukraine
+    if (code == 'PL') return SupportedLanguages.polish; // Poland
+    if (code == 'RO') return SupportedLanguages.romanian; // Romania
+    if (code == 'SE') return SupportedLanguages.swedish; // Sweden
+    if (code == 'CZ') return SupportedLanguages.czech; // Czech Republic
+    if (code == 'NL') return SupportedLanguages.dutch; // Netherlands
+    if (code == 'BR') return SupportedLanguages.brazilianPortuguese; // Brazil
+    if (code == 'PT') return SupportedLanguages.portugalPortuguese; // Portugal
 
-    // Mandarin Chinese (simplified heuristic).
-    if (code == 'CN' || code == 'TW' || code == 'SG') {
-      return SupportedLanguages.mandarinChinese;
+    // Simplified Mandarin Chinese (mainland China, Singapore).
+    if (code == 'CN' || code == 'SG') {
+      return SupportedLanguages.simplifiedMandarinChinese;
     }
 
-    // Modern Standard Arabic.
-    if (arabicCountries.contains(code)) {
-      return SupportedLanguages.modernStandardArabic;
+    // Traditional Chinese (Taiwan, Hong Kong).
+    if (code == 'TW' || code == 'HK') {
+      return SupportedLanguages.traditionalChinese;
     }
 
     if (spanishCountries.contains(code)) {
@@ -162,11 +129,6 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
       return SupportedLanguages.french;
     }
 
-    // Treat all Lusophone countries as brazilianPortuguese in this enum.
-    if (portugueseCountries.contains(code)) {
-      return SupportedLanguages.brazilianPortuguese;
-    }
-
     if (russianCountries.contains(code)) {
       return SupportedLanguages.russian;
     }
@@ -174,6 +136,9 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
     if (germanCountries.contains(code)) {
       return SupportedLanguages.german;
     }
+
+    // German-speaking part of Switzerland defaults to German.
+    if (code == 'CH') return SupportedLanguages.german;
 
     if (swahiliCountries.contains(code)) {
       return SupportedLanguages.swahili;
