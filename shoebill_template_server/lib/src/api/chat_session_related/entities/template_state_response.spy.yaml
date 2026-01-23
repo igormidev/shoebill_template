@@ -1,0 +1,4 @@
+class: TemplateStateResponse
+extends: SendMessageStreamResponseItem
+fields:
+    currentState: TemplateCurrentState

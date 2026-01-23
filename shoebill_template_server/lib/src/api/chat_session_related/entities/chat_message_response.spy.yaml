@@ -1,0 +1,4 @@
+class: ChatMessageResponse
+extends: SendMessageStreamResponseItem
+fields:
+    message: ChatMessage

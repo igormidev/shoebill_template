@@ -1,0 +1,4 @@
+class: NewSchemaChangePayload
+fields:
+    newSchemaDefinition: SchemaDefinition
+    newExamplePayloadStringified: String

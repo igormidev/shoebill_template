@@ -1,7 +1,0 @@
-class: PdfImplementationPayload
-table: pdf_implementation_payload
-fields:
-    stringifiedJson: String
-    language: SupportedLanguages
-    createdAt: DateTime, default=now
-    pdfDeclaration: PdfDeclaration?, relation(name=pdf_declaration_implementations)

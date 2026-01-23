@@ -4,5 +4,6 @@ fields:
     pdfContent: PdfContent
     schemaDefinition: SchemaDefinition
     referenceLanguage: SupportedLanguages
-    pythonGeneratorScript: String
+    htmlContent: String
+    cssContent: String
     referenceStringifiedPayloadJson: String
