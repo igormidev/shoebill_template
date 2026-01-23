@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 
 abstract class IGetLocaleOfIpService {
@@ -17,7 +18,7 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
     // Call ip-api.com JSON endpoint (no API key).
     // We only ask for what we need: status, message, countryCode, regionName.
     final uri = Uri.parse(
-      'http://ip-api.com/json/$ip'
+      '$kIpGeolocationApiBaseUrl$ip'
       '?fields=status,message,countryCode,regionName',
     );
 

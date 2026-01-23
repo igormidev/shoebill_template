@@ -126,7 +126,10 @@ class SchemaPropertyParser {
           description: description,
         );
       default:
-        throw ArgumentError('Unknown SchemaProperty type: $type');
+        throw ShoebillException(
+          title: 'Unknown schema property type',
+          description: 'Unknown SchemaProperty type: $type',
+        );
     }
   }
 }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:shoebill_template_server/src/api/pdf_related/entities/schema_property_extensions.dart';
+import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 
 /// Message role for chat history
@@ -51,7 +52,7 @@ abstract interface class IOpenAiService {
     required Map<String, SchemaProperty> properties,
     bool shouldUseInternetSearchTool = false,
     String? model,
-    int maxRetries = 2,
+    int maxRetries = kAiServiceDefaultRetryCount,
   });
 
   /// Clears the chat history for this instance
@@ -94,7 +95,7 @@ class OpenAiService implements IOpenAiService {
 
   OpenAiService(this._apiKey);
 
-  static const _defaultModel = 'google/gemini-2.5-flash-lite';
+  static const _defaultModel = kDefaultAiModel;
 
   @override
   List<AiChatMessage> get history => List.unmodifiable(_history);
@@ -159,12 +160,14 @@ Return the translated JSON:''';
       if (decoded is Map<String, dynamic>) {
         return decoded.map((key, value) => MapEntry(key, value.toString()));
       }
-      throw FormatException(
-        'Expected JSON object, got: ${decoded.runtimeType}',
+      throw ShoebillException(
+        title: 'Invalid translation response format',
+        description: 'Expected JSON object, got: ${decoded.runtimeType}',
       );
     } catch (e) {
-      throw FormatException(
-        'Failed to parse translation response as JSON: $e\nResponse was: $response',
+      throw ShoebillException(
+        title: 'Translation response parsing failed',
+        description: 'Failed to parse translation response as JSON: $e\nResponse was: $response',
       );
     }
   }
@@ -176,7 +179,7 @@ Return the translated JSON:''';
     final client = HttpClient();
     try {
       final request = await client.postUrl(
-        Uri.parse('https://openrouter.ai/api/v1/chat/completions'),
+        Uri.parse(kOpenRouterApiUrl),
       );
 
       request.headers.set('Authorization', 'Bearer $_apiKey');
@@ -195,24 +198,27 @@ Return the translated JSON:''';
       final responseBody = await response.transform(utf8.decoder).join();
 
       if (response.statusCode != 200) {
-        throw HttpException(
-          'OpenRouter API error: ${response.statusCode} - $responseBody',
+        throw ShoebillException(
+          title: 'OpenRouter API error',
+          description: 'Request failed with status ${response.statusCode}: $responseBody',
         );
       }
 
       final json = jsonDecode(responseBody) as Map<String, dynamic>;
       final choices = json['choices'] as List<dynamic>?;
       if (choices == null || choices.isEmpty) {
-        throw FormatException(
-          'No choices in OpenRouter response: $responseBody',
+        throw ShoebillException(
+          title: 'Invalid OpenRouter response',
+          description: 'No choices in OpenRouter response: $responseBody',
         );
       }
 
       final message = choices[0]['message'] as Map<String, dynamic>?;
       final content = message?['content'] as String?;
       if (content == null) {
-        throw FormatException(
-          'No content in OpenRouter response: $responseBody',
+        throw ShoebillException(
+          title: 'Invalid OpenRouter response',
+          description: 'No content in OpenRouter response: $responseBody',
         );
       }
 
@@ -238,7 +244,7 @@ Return the translated JSON:''';
 
     try {
       final request = await client.postUrl(
-        Uri.parse('https://openrouter.ai/api/v1/chat/completions'),
+        Uri.parse(kOpenRouterApiUrl),
       );
 
       request.headers.set('Authorization', 'Bearer $_apiKey');
@@ -266,8 +272,9 @@ Return the translated JSON:''';
 
       if (response.statusCode != 200) {
         final errorBody = await response.transform(utf8.decoder).join();
-        throw HttpException(
-          'OpenRouter API error: ${response.statusCode} - $errorBody',
+        throw ShoebillException(
+          title: 'OpenRouter API error',
+          description: 'Streaming request failed with status ${response.statusCode}: $errorBody',
         );
       }
 
@@ -311,8 +318,9 @@ Return the translated JSON:''';
               // Check for error in stream
               if (json.containsKey('error')) {
                 final error = json['error'];
-                throw HttpException(
-                  'OpenRouter streaming error: ${jsonEncode(error)}',
+                throw ShoebillException(
+                  title: 'OpenRouter streaming error',
+                  description: 'Error received during streaming: ${jsonEncode(error)}',
                 );
               }
 
@@ -375,7 +383,7 @@ Return the translated JSON:''';
     required Map<String, SchemaProperty> properties,
     bool shouldUseInternetSearchTool = false,
     String? model,
-    int maxRetries = 2,
+    int maxRetries = kAiServiceDefaultRetryCount,
   }) async* {
     yield* _streamWithSchemaAndValidation(
       prompt: prompt,
@@ -402,7 +410,7 @@ Return the translated JSON:''';
 
     try {
       final request = await client.postUrl(
-        Uri.parse('https://openrouter.ai/api/v1/chat/completions'),
+        Uri.parse(kOpenRouterApiUrl),
       );
 
       request.headers.set('Authorization', 'Bearer $_apiKey');
@@ -441,8 +449,9 @@ Return the translated JSON:''';
 
       if (response.statusCode != 200) {
         final errorBody = await response.transform(utf8.decoder).join();
-        throw HttpException(
-          'OpenRouter API error: ${response.statusCode} - $errorBody',
+        throw ShoebillException(
+          title: 'OpenRouter API error',
+          description: 'Schema streaming request failed with status ${response.statusCode}: $errorBody',
         );
       }
 
@@ -505,8 +514,9 @@ Return the translated JSON:''';
                     );
                     return;
                   } else {
-                    throw FormatException(
-                      'Schema validation failed after retries: $validationError',
+                    throw ShoebillException(
+                      title: 'Schema validation failed',
+                      description: 'Schema validation failed after retries: $validationError',
                     );
                   }
                 }
@@ -523,8 +533,9 @@ Return the translated JSON:''';
                   );
                   return;
                 }
-                throw FormatException(
-                  'Failed to parse final JSON response: $e\nContent was: $fullContent',
+                throw ShoebillException(
+                  title: 'JSON response parsing failed',
+                  description: 'Failed to parse final JSON response: $e\nContent was: $fullContent',
                 );
               }
             }
@@ -540,8 +551,9 @@ Return the translated JSON:''';
               // Check for error in stream
               if (json.containsKey('error')) {
                 final error = json['error'];
-                throw HttpException(
-                  'OpenRouter streaming error: ${jsonEncode(error)}',
+                throw ShoebillException(
+                  title: 'OpenRouter streaming error',
+                  description: 'Error received during schema streaming: ${jsonEncode(error)}',
                 );
               }
 
@@ -617,8 +629,9 @@ Return the translated JSON:''';
             );
             return;
           } else if (validationError != null) {
-            throw FormatException(
-              'Schema validation failed: $validationError',
+            throw ShoebillException(
+              title: 'Schema validation failed',
+              description: 'Schema validation failed: $validationError',
             );
           }
 
@@ -634,8 +647,9 @@ Return the translated JSON:''';
             );
             return;
           }
-          throw FormatException(
-            'Failed to parse final JSON response: $e\nContent was: $fullContent',
+          throw ShoebillException(
+            title: 'JSON response parsing failed',
+            description: 'Failed to parse final JSON response: $e\nContent was: $fullContent',
           );
         }
       }

@@ -87,5 +87,58 @@ const Duration kLegacySandboxDeleteTimeout = Duration(seconds: 10);
 /// HTTP timeout for sandbox creation requests.
 const Duration kSandboxCreationTimeout = Duration(seconds: 60);
 
+/// HTTP timeout for sandbox deletion requests (best-effort cleanup).
+const Duration kSandboxDeletionTimeout = Duration(seconds: 15);
+
+/// HTTP timeout for file upload operations to sandboxes.
+const Duration kFileUploadTimeout = Duration(seconds: 30);
+
 /// HTTP timeout for file download operations.
 const Duration kFileDownloadTimeout = Duration(seconds: 30);
+
+/// Default timeout for command execution inside a sandbox when no explicit
+/// timeout is provided.
+const Duration kDefaultCommandExecutionTimeout = Duration(minutes: 10);
+
+/// Additional buffer time added to the HTTP request timeout beyond the
+/// command execution timeout itself, to allow for network overhead.
+const Duration kCommandExecutionHttpBuffer = Duration(seconds: 30);
+
+// ============================================================================
+// DAYTONA SANDBOX RESOURCE CONSTANTS
+// ============================================================================
+
+/// Number of CPU cores allocated to each Daytona sandbox.
+const int kSandboxCpu = 2;
+
+/// Memory in GB allocated to each Daytona sandbox.
+const int kSandboxMemoryGb = 4;
+
+/// Disk space in GB allocated to each Daytona sandbox.
+const int kSandboxDiskGb = 10;
+
+// ============================================================================
+// AI SERVICE CONSTANTS
+// ============================================================================
+
+/// Default number of retry attempts for AI service schema validation.
+/// When a structured response fails schema validation, the service retries
+/// up to this many times before reporting failure.
+const int kAiServiceDefaultRetryCount = 2;
+
+/// The OpenRouter API URL for chat completions.
+const String kOpenRouterApiUrl =
+    'https://openrouter.ai/api/v1/chat/completions';
+
+/// The default AI model used for general-purpose generation tasks.
+/// Gemini 2.5 Flash Lite provides a good balance of speed and quality.
+const String kDefaultAiModel = 'google/gemini-2.5-flash-lite';
+
+// ============================================================================
+// IP GEOLOCATION CONSTANTS
+// ============================================================================
+
+/// Base URL for the ip-api.com geolocation service.
+/// Note: The free endpoint is HTTP only and for non-commercial use.
+/// For production SaaS, use their pro (HTTPS) endpoint or another provider.
+const String kIpGeolocationApiBaseUrl = 'http://ip-api.com/json/';

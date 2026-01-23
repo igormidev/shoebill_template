@@ -51,6 +51,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:shoebill_template_server/src/core/utils/consts.dart';
 
 // ============================================================================
 // CONSTANTS
@@ -1021,7 +1022,11 @@ claude --dangerously-skip-permissions \\
             body: jsonEncode({
               'image': kSandboxImage,
               'envVars': {'ANTHROPIC_API_KEY': anthropicApiKey},
-              'resources': {'cpu': 2, 'memory': 4, 'disk': 10},
+              'resources': {
+                'cpu': kSandboxCpu,
+                'memory': kSandboxMemoryGb,
+                'disk': kSandboxDiskGb,
+              },
               'autoStopInterval': kAutoStopIntervalMinutes,
               'autoArchiveInterval': kAutoArchiveIntervalMinutes,
               'autoDeleteInterval': kAutoDeleteIntervalMinutes,
@@ -1029,7 +1034,7 @@ claude --dangerously-skip-permissions \\
               'labels': {'purpose': 'jinja2-template-generation'},
             }),
           )
-          .timeout(const Duration(seconds: 60));
+          .timeout(kSandboxCreationTimeout);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
@@ -1084,7 +1089,7 @@ claude --dangerously-skip-permissions \\
             Uri.parse('$apiUrl/sandbox/$sandboxId'),
             headers: _headers,
           )
-          .timeout(const Duration(seconds: 15));
+          .timeout(kSandboxDeletionTimeout);
     } catch (_) {
       // Best-effort cleanup - sandbox will auto-delete anyway
     }
@@ -1111,7 +1116,7 @@ claude --dangerously-skip-permissions \\
               'content': base64Encode(utf8.encode(content)),
             }),
           )
-          .timeout(const Duration(seconds: 30));
+          .timeout(kFileUploadTimeout);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return null; // Success
@@ -1207,7 +1212,7 @@ claude --dangerously-skip-permissions \\
 
       final response = await _httpClient
           .get(uri, headers: _headers)
-          .timeout(const Duration(seconds: 30));
+          .timeout(kFileDownloadTimeout);
 
       if (response.statusCode == 200) {
         return response.body;
@@ -1238,7 +1243,7 @@ claude --dangerously-skip-permissions \\
     String command, {
     Duration? timeout,
   }) async {
-    final effectiveTimeout = timeout ?? const Duration(minutes: 10);
+    final effectiveTimeout = timeout ?? kDefaultCommandExecutionTimeout;
     try {
       final response = await _httpClient
           .post(
@@ -1251,7 +1256,7 @@ claude --dangerously-skip-permissions \\
               'timeout': effectiveTimeout.inSeconds,
             }),
           )
-          .timeout(effectiveTimeout + const Duration(seconds: 30));
+          .timeout(effectiveTimeout + kCommandExecutionHttpBuffer);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;

@@ -129,8 +129,9 @@ void _sendPasswordResetCode(
   session.log('[EmailIdp] Password reset code ($email): $verificationCode');
 }
 
-final noOpenAiException = Exception(
-  'Open Router Service API key is not set in the passwords configuration.',
+final noOpenAiException = ShoebillException(
+  title: 'Missing API key',
+  description: 'Open Router Service API key is not set in the passwords configuration.',
 );
 
 late final bool isLocal;

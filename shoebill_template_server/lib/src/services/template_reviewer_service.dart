@@ -248,7 +248,7 @@ class TemplateReviewerService {
         prompt: prompt,
         properties: reviewSchema,
         model: kReviewerModel,
-        maxRetries: 2,
+        maxRetries: kAiServiceDefaultRetryCount,
       )) {
         switch (streamItem) {
           case AiThinkItem(:final thinkingChunk):
