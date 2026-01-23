@@ -339,14 +339,14 @@ class ChatSessionEndpoint extends Endpoint {
     final templateState = _sessionTemplateInfo[sessionUUID]!;
 
     // Stream messages from the chat controller
-    _processMessages(
+    unawaited(_processMessages(
       controller: controller,
       currentSession: currentSession,
       sessionUUID: sessionUUID,
       message: message,
       templateState: templateState,
       schemaChange: schemaChange,
-    );
+    ));
 
     return controller.stream;
   }

@@ -12,10 +12,10 @@ class MockOpenAiService implements ai_svc.IOpenAiService {
   /// Captures the texts that were sent for translation
   Map<String, String>? lastTextsToTranslate;
 
-  final List<ai_svc.ChatMessage> _history = [];
+  final List<ai_svc.AiChatMessage> _history = [];
 
   @override
-  List<ai_svc.ChatMessage> get history => List.unmodifiable(_history);
+  List<ai_svc.AiChatMessage> get history => List.unmodifiable(_history);
 
   @override
   void clearHistory() {

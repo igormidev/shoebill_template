@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:test/test.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
-import 'package:shoebill_template_server/src/generated/protocol.dart' hide ChatMessage;
+import 'package:shoebill_template_server/src/generated/protocol.dart';
 
 /// Mock HttpClient for testing SSE streaming responses
 class MockHttpClient implements HttpClient {
@@ -110,7 +110,7 @@ class MockHttpClientResponse implements HttpClientResponse {
         }
       }
       if (!response._controller.isClosed) {
-        response._controller.close();
+        await response._controller.close();
       }
     });
     return response;
@@ -500,17 +500,17 @@ Please provide a corrected response that matches the exact schema requirements. 
   void _addUserMessage(String content) {
     // Access parent's history management through overriding
     // We need to use a different approach since _history is private
-    _testHistory.add(ChatMessage(role: ChatRole.user, content: content));
+    _testHistory.add(AiChatMessage(role: ChatRole.user, content: content));
   }
 
   void _addAssistantMessage(String content) {
-    _testHistory.add(ChatMessage(role: ChatRole.assistant, content: content));
+    _testHistory.add(AiChatMessage(role: ChatRole.assistant, content: content));
   }
 
-  final List<ChatMessage> _testHistory = [];
+  final List<AiChatMessage> _testHistory = [];
 
   @override
-  List<ChatMessage> get history => List.unmodifiable(_testHistory);
+  List<AiChatMessage> get history => List.unmodifiable(_testHistory);
 
   @override
   void clearHistory() {
@@ -675,16 +675,16 @@ Please provide a corrected response that matches the exact schema requirements. 
 }
 
 void main() {
-  group('ChatMessage', () {
-    test('creates ChatMessage with correct properties', () {
-      final message = ChatMessage(role: ChatRole.user, content: 'Hello');
+  group('AiChatMessage', () {
+    test('creates AiChatMessage with correct properties', () {
+      final message = AiChatMessage(role: ChatRole.user, content: 'Hello');
 
       expect(message.role, equals(ChatRole.user));
       expect(message.content, equals('Hello'));
     });
 
     test('toJson returns correct map', () {
-      final message = ChatMessage(role: ChatRole.assistant, content: 'Hi');
+      final message = AiChatMessage(role: ChatRole.assistant, content: 'Hi');
       final json = message.toJson();
 
       expect(json['role'], equals('assistant'));
@@ -693,15 +693,15 @@ void main() {
 
     test('toJson works for all roles', () {
       expect(
-        ChatMessage(role: ChatRole.user, content: 'u').toJson()['role'],
+        AiChatMessage(role: ChatRole.user, content: 'u').toJson()['role'],
         equals('user'),
       );
       expect(
-        ChatMessage(role: ChatRole.assistant, content: 'a').toJson()['role'],
+        AiChatMessage(role: ChatRole.assistant, content: 'a').toJson()['role'],
         equals('assistant'),
       );
       expect(
-        ChatMessage(role: ChatRole.system, content: 's').toJson()['role'],
+        AiChatMessage(role: ChatRole.system, content: 's').toJson()['role'],
         equals('system'),
       );
     });
@@ -732,7 +732,7 @@ void main() {
 
       expect(
         () => (historyList as List).add(
-          ChatMessage(role: ChatRole.user, content: 'test'),
+          AiChatMessage(role: ChatRole.user, content: 'test'),
         ),
         throwsA(isA<UnsupportedError>()),
       );

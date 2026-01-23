@@ -9,11 +9,11 @@ import 'package:shoebill_template_server/src/generated/protocol.dart';
 enum ChatRole { user, assistant, system }
 
 /// Represents a message in the chat history
-class ChatMessage {
+class AiChatMessage {
   final ChatRole role;
   final String content;
 
-  const ChatMessage({required this.role, required this.content});
+  const AiChatMessage({required this.role, required this.content});
 
   Map<String, dynamic> toJson() => {
     'role': role.name,
@@ -58,7 +58,7 @@ abstract interface class IOpenAiService {
   void clearHistory();
 
   /// Gets the current chat history
-  List<ChatMessage> get history;
+  List<AiChatMessage> get history;
 }
 
 abstract class AiStreamResult {}
@@ -90,14 +90,14 @@ class OpenAiService implements IOpenAiService {
   final String _apiKey;
 
   /// Chat history for this instance
-  final List<ChatMessage> _history = [];
+  final List<AiChatMessage> _history = [];
 
   OpenAiService(this._apiKey);
 
   static const _defaultModel = 'google/gemini-2.5-flash-lite';
 
   @override
-  List<ChatMessage> get history => List.unmodifiable(_history);
+  List<AiChatMessage> get history => List.unmodifiable(_history);
 
   @override
   void clearHistory() {
@@ -106,7 +106,7 @@ class OpenAiService implements IOpenAiService {
 
   /// Adds a message to the history
   void _addToHistory(ChatRole role, String content) {
-    _history.add(ChatMessage(role: role, content: content));
+    _history.add(AiChatMessage(role: role, content: content));
   }
 
   @override
