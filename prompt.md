@@ -63,6 +63,9 @@ By the way, the `ChatSessionEndpoint.sendMessage` should have a optional paramet
 Also, the server should check with `SchemaDefinition.validateJsonFollowsSchemaStructure` the stringified payload just to check if the frontend did not sent a broken thing... This json should be set as the `NewTemplateState.referenceStringifiedPayloadJson` as well and the schema as well. By the way add 2 string variables "htmlContent" and "cssContent" to the `DeployReadyTemplateState` implementation so it can be later mapped to `ShoebillTemplateVersionInput` fields when creating/updating the template version.
 The client side will be done later. Don't touch nothing related to the client side (flutter app) - this will be done later. In fact it should not be only 
 
+## sendMessage response
+Currently the sendMessage response is a 
+
 ## Prompt/chat to claude code instance
 
 Now lets go to the part where the user is chating. We will do a TOTAL refactor in the current prompt that is today and in the response as well. Well, the first thing that you should do is guarantee that we will use the approach of Jinja2. The function that currently returns a Python script should return a CSS and an HTML file, the stringified version of those files.
@@ -75,9 +78,63 @@ Please garantee that you will tell to the claude code instances that will work o
 
 About the font part: Say for the ai to use the default font as "Noto Sans CJK" 
 
+The prompt of claude code will vary depending on some conditions but there are basicly 3 structures:
+
+### Prompt for creating a template
+A prompt for when the user is creating the css and html for the first time (the template did not exist yet and the user is explaning how it should be - probably it will be the same suggested prompt of @shoebill_template_server/lib/src/api/chat_session_related/create_template_essentials_endpoint.dart )
+This prompt will have no HTML or CSS attatched to it since the user is creating now...
+What we will attatch is:
+- The json payload example as json (.json file)
+- The schema payload as json (.json file)
+- A readme file that represents the prompt of the user (user_specification_prompt.md)
+
+### Prompt for editing the template
+If the template already exists then the initial prompt will be something like:
+- The current state of html file (.html file)
+- The current state of the css file (css file)
+- The json payload example as json (.json file)
+- The schema payload as json (.json file)
+- A readme file that represents the prompt of the user (user_specification_prompt.md)
+
+### Change the schema
+If the template already exists then the initial prompt will be something like:
+- The current state of html file (.html file)
+- The current state of the css file (css file)
+- The json payload example as json (.json file)
+- The schema payload as it currently is (current_schema.json file)
+- The schema payloadas how it should be (new_target_schema.json file)
+- A readme file that represents the prompt of the user (user_specification_prompt.md)
+
+#### FOR ALL PROMPTS ABOVE:
+
+You should upload both files to the daytona sandbox and in the prompt to claude code you will make reference to both (you can use "@" to tag the files, this is how claude code expect to see the tagged files). So you will build a prompt that explains that the instance task is to create a jinja2 compatible template and you will explain to the claude code that the user had send a description of what he wants and that the claude code should see the readme. Also, tell for the ai in the prompt for in the end create a new claude code instance to review the html and css file and see if it is fully ok with the prompt of the user in the md file - base yourself in this prompt that in the final part I ask you to create a instance to review - write similar. Remember to update the html/css files when doing the follow up messages... Manage all of this gracefully.
+
+Some parts will be common to all prompts - for those parts, you can create hardcoded strings that will be used in 2 or more so this way we won't repeat text ( DRY - dont repeat yourself )
+
 ## Prompt verification
 This will complement the section above.
-In a `ChatMessage` you can see that there are 3 actors - the user (the client that is using the saas), the ai that here we will trait it as the claude code instance in daytona.
+In a `ChatMessage` you can see that there are 3 actors
+    - The user: the client that is using the saas and sending messages
+    - The ai: here we will trait it as the claude code instance running in daytona
+    - The system: Any hardcoded response or even review of ai other ai
+
+When the daytona endpoints ends, you should send a new messages with something like (don't follow the content string strict, I typed it as example):
+```message
+ChatMessage(
+  role: ChatActor.system,
+  content: "Great. the AI had ended is modification... Now I will verify if there is any error or if there is something missing",
+  style: ChatUIStyle.normal,
+)
+```
+Ps: the previous message before this is one with `ChatUIStyle.success` of the `ChatActor.ai` - so now we add a follow up message of the ai saying that it will verify. I want to create a chat dynamic between 3 people where the user asks something, the ai (daytona claude code) is the executor that does what the user asked for and the system (that under the hood will also be a other AI) will review that and provide feedback so we continue to iterate until everything is perfect and the user will be able to view the interaction between that "executor" and "reviewer" (we will lock the textfield in the ui so the user can't send other messages until the reviewer agrees that the goal/intent of the message of the user has achieved).
+
+I want that, when ever the claude code instance ends, we will then use the `IOpenAiService.streamPromptGenerationWithSchemaResponse` of @shoebill_template_server/lib/src/services/ai_services.dart to validate the html and css that the claude code produced. We will use a scheam because we will use a bolean for a variable that will determine if the review was positive or negative and need changes. More then that, the schema will also have the message of AI. This AI will see if the claude code AI had completed with successs the task. It will return a prompt and a bolean that indicates if the task was done or not. Also add a third string that will be the text for the user, something like: "I will ask the instance to fix X, Y and Z that is not aligned with A, B and C that you asked for. Also the ai forgot to implement X that is mandatory for the pdf to work as expected".
+
+Also, before doing the AI part the code could run the mixin that tests the HTML and CSS to see if it works in the first place and if it does not you can call the claude code instance right away notifying that it is not working and the error message.
+
+This should work in a loop - the ai can do at max 6 fix attempts... if after 6 tries it does not work it will stream to the user a message with error text explaining that it did not work...
+
+This reviewer AI will have a very big and complext prompt so it has the max context as possible. DO NOT MAKE THE PROMPT SMALL. Also, you should have 3 types of prompt the same way - one for when creating, other from when editing only ui and one when editing the schema. The review prompts will be very well writen so you can say "The schema was X and the new schema is not Y - see if the new implementation did not let anything pass" and you can put the HTML and CSS texts. You will not send files with `IOpenAiService` - just attatch as plain text in the prompt - there is no problem if the prompt stays giant. For the review, use "google/gemini-3-flash-preview" with max think mode. You should continue to use open router of course.
 
 ## Daytona claude code session 
 Daytona charges me for time that a session is opened. So after claude code returned a answer I want you to stop to then return with claude code id. Ask the instance to web research claude code documentation to see how session id works.
@@ -93,6 +150,13 @@ So the pattern would be:
     4. Start Claude in the new sandbox, and resume using the saved session ID.
 
 This way memory will be preserved but we won't spend money for time that the user is not using the chat...
+
+Use haiku 4.5 for the claude code instance that is running in daytona
+
+The response of daytona should be a string that represents the html file, a string that represents the css file and also the ai text that it returns in the end that is a summary of what was done. By the way, lets change the response of `ChatControllerImpl.sendMessage` and `ChatSessionEndpoint.sendMessage`. It will not be a `ChatMessage` anymore. It will be a abstract "spy.yaml" class named "SendMessageStreamResponseItem" and it will have two implementations; one will be a class that will have as only atribute a `ChatMessage` (so we can continue to have the same behavior we have today) and the other will be a class with the only variable as the `TemplateCurrentState` so we can return to the client how is the current state after all modifications done by daytona instance because we will later display the pdf in the ui ( by the way, create a endpoint that receives a html, css and final ai message and returns a Uint8List that is the pdf - this could use a mixin so it has the same exact logic of the visualize route that also generates ).
+
+Also, when doing the task you should stream the thinking process to the client by chat messages...
+`ChatMessage.style` should be `ChatUIStyle.thinkingChunk`
 
 ## Other considerations for @shoebill_template_server/lib/src/api/pdf_related/pdf_visualize_route.dart
 This part will suffer a general refactor in the sense that it will stop using the Python script and it will start using the Jinja2 framework. So, it will read the HTML and CSS file instead of the Python file that it currently reads, and it will generate with the Python script the Jinja2 file.

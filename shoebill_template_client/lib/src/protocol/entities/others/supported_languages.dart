@@ -14,54 +14,56 @@ import 'package:serverpod_client/serverpod_client.dart' as _i1;
 
 enum SupportedLanguages implements _i1.SerializableModel {
   english,
-  mandarinChinese,
-  hindi,
+  simplifiedMandarinChinese,
+  traditionalChinese,
   spanish,
   french,
-  modernStandardArabic,
-  bengali,
   brazilianPortuguese,
+  portugalPortuguese,
   russian,
-  urdu,
+  ukrainian,
+  polish,
   indonesian,
+  malay,
   german,
   dutch,
   japanese,
   swahili,
-  marathi,
-  telugu,
   turkish,
-  tamil,
   vietnamese,
   korean,
   italian,
-  thai,
-  filipino;
+  filipino,
+  romanian,
+  swedish,
+  czech;
 
   static SupportedLanguages fromJson(String name) {
     switch (name) {
       case 'english':
         return SupportedLanguages.english;
-      case 'mandarinChinese':
-        return SupportedLanguages.mandarinChinese;
-      case 'hindi':
-        return SupportedLanguages.hindi;
+      case 'simplifiedMandarinChinese':
+        return SupportedLanguages.simplifiedMandarinChinese;
+      case 'traditionalChinese':
+        return SupportedLanguages.traditionalChinese;
       case 'spanish':
         return SupportedLanguages.spanish;
       case 'french':
         return SupportedLanguages.french;
-      case 'modernStandardArabic':
-        return SupportedLanguages.modernStandardArabic;
-      case 'bengali':
-        return SupportedLanguages.bengali;
       case 'brazilianPortuguese':
         return SupportedLanguages.brazilianPortuguese;
+      case 'portugalPortuguese':
+        return SupportedLanguages.portugalPortuguese;
       case 'russian':
         return SupportedLanguages.russian;
-      case 'urdu':
-        return SupportedLanguages.urdu;
+      case 'ukrainian':
+        return SupportedLanguages.ukrainian;
+      case 'polish':
+        return SupportedLanguages.polish;
       case 'indonesian':
         return SupportedLanguages.indonesian;
+      case 'malay':
+        return SupportedLanguages.malay;
       case 'german':
         return SupportedLanguages.german;
       case 'dutch':
@@ -70,24 +72,22 @@ enum SupportedLanguages implements _i1.SerializableModel {
         return SupportedLanguages.japanese;
       case 'swahili':
         return SupportedLanguages.swahili;
-      case 'marathi':
-        return SupportedLanguages.marathi;
-      case 'telugu':
-        return SupportedLanguages.telugu;
       case 'turkish':
         return SupportedLanguages.turkish;
-      case 'tamil':
-        return SupportedLanguages.tamil;
       case 'vietnamese':
         return SupportedLanguages.vietnamese;
       case 'korean':
         return SupportedLanguages.korean;
       case 'italian':
         return SupportedLanguages.italian;
-      case 'thai':
-        return SupportedLanguages.thai;
       case 'filipino':
         return SupportedLanguages.filipino;
+      case 'romanian':
+        return SupportedLanguages.romanian;
+      case 'swedish':
+        return SupportedLanguages.swedish;
+      case 'czech':
+        return SupportedLanguages.czech;
       default:
         throw ArgumentError(
           'Value "$name" cannot be converted to "SupportedLanguages"',

@@ -16,9 +16,9 @@ class ChatMessage {
   const ChatMessage({required this.role, required this.content});
 
   Map<String, dynamic> toJson() => {
-        'role': role.name,
-        'content': content,
-      };
+    'role': role.name,
+    'content': content,
+  };
 }
 
 /// Factory function type for creating OpenAiService instances
@@ -94,7 +94,7 @@ class OpenAiService implements IOpenAiService {
 
   OpenAiService(this._apiKey);
 
-  static const _defaultModel = 'openai/gpt-4.1-mini';
+  static const _defaultModel = 'google/gemini-2.5-flash-lite';
 
   @override
   List<ChatMessage> get history => List.unmodifiable(_history);
@@ -133,7 +133,8 @@ class OpenAiService implements IOpenAiService {
     }
 
     final inputJson = jsonEncode(textsToTranslate);
-    final prompt = '''
+    final prompt =
+        '''
 You are a professional translator. Translate the following JSON object's values from $sourceLanguage to $targetLanguage.
 
 IMPORTANT RULES:
@@ -147,7 +148,10 @@ $inputJson
 
 Return the translated JSON:''';
 
-    final response = await _callOpenRouter(model: effectiveModel, prompt: prompt);
+    final response = await _callOpenRouter(
+      model: effectiveModel,
+      prompt: prompt,
+    );
 
     // Parse the response as JSON
     try {
@@ -482,11 +486,11 @@ Return the translated JSON:''';
                 // Validate against schema
                 final schemaObj =
                     SchemaPropertyStructuredObjectWithDefinedProperties(
-                  nullable: false,
-                  properties: properties,
-                );
-                final validationError =
-                    schemaObj.validateJsonFollowsSchemaStructure(parsed);
+                      nullable: false,
+                      properties: properties,
+                    );
+                final validationError = schemaObj
+                    .validateJsonFollowsSchemaStructure(parsed);
 
                 if (validationError != null) {
                   // Schema validation failed - retry if we have retries remaining
@@ -595,13 +599,13 @@ Return the translated JSON:''';
           final parsed = jsonDecode(fullContent) as Map<String, dynamic>;
 
           // Validate against schema
-          final schemaObj =
-              SchemaPropertyStructuredObjectWithDefinedProperties(
+          final schemaObj = SchemaPropertyStructuredObjectWithDefinedProperties(
             nullable: false,
             properties: properties,
           );
-          final validationError =
-              schemaObj.validateJsonFollowsSchemaStructure(parsed);
+          final validationError = schemaObj.validateJsonFollowsSchemaStructure(
+            parsed,
+          );
 
           if (validationError != null && retriesRemaining > 0) {
             yield* _retryWithValidationError(
@@ -648,7 +652,8 @@ Return the translated JSON:''';
     required String? model,
     required int retriesRemaining,
   }) async* {
-    final retryPrompt = '''
+    final retryPrompt =
+        '''
 Your previous response did not match the expected schema. Here is the validation error:
 
 $validationError
