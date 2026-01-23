@@ -14,7 +14,7 @@ class CreateTemplateEssentialsEndpoint extends Endpoint {
   /// The AI will analyze the payload and generate:
   /// - A title and description for the template
   /// - A schema definition that matches the JSON structure
-  /// - A suggested prompt for PDF generation
+  /// - A suggested prompt for Jinja2 HTML/CSS template generation
   /// - The detected reference language
   ///
   /// Returns a stream that yields either:
@@ -72,7 +72,7 @@ class CreateTemplateEssentialsEndpoint extends Endpoint {
   /// Builds the sophisticated prompt for analyzing the JSON payload
   String _buildAnalysisPrompt(String prettyJson) {
     return '''
-You are an expert PDF template architect and JSON schema analyst. Your task is to analyze a user-provided JSON payload and generate comprehensive template essentials for a PDF generation system.
+You are an expert PDF template architect and JSON schema analyst. Your task is to analyze a user-provided JSON payload and generate comprehensive template essentials for a Jinja2-based HTML/CSS PDF generation system.
 
 ## INPUT JSON PAYLOAD
 ```json
@@ -101,105 +101,124 @@ Analyze the above JSON payload exhaustively and generate:
    - The character sets and linguistic patterns used
    - Return the appropriate language code from the supported list
 
-4. **Suggested PDF Generation Prompt** (suggestedPrompt):
-   This is CRITICAL. Generate an extremely detailed, comprehensive prompt that will be used by another AI to create a Python script for PDF generation. This prompt must be OUTSTANDING.
+4. **Suggested Template Generation Prompt** (suggestedPrompt):
+   This is CRITICAL. Generate an extremely detailed, comprehensive prompt that will be used by another AI to create an HTML template with embedded CSS and Jinja2 variables for PDF generation. The template will use the Jinja2 template engine for dynamic content rendering. This prompt must be OUTSTANDING.
 
 ## SUGGESTED PROMPT REQUIREMENTS
 
-The suggested prompt MUST include detailed instructions for:
+The suggested prompt MUST include detailed instructions for creating an HTML/CSS template with Jinja2 syntax for variables:
 
 ### Document Structure Analysis
 - Identify if there are arrays that should generate SEPARATE PAGES for each item
 - Determine the logical page structure (cover page, content pages, summary page, etc.)
-- Define page numbering strategy
+- Define page numbering strategy using CSS @page rules and Jinja2 logic
 
 ### Header/Footer Configuration
 - Should there be headers? On which pages?
 - Should there be footers? On which pages?
 - What content belongs in headers/footers (page numbers, dates, titles, logos)?
 - Define which pages should have NO header/footer (like cover pages)
+- Use CSS @page margin boxes or fixed-position elements for headers/footers
 
 ### Content Layout Instructions
-- How to visually separate sections (lines, spacing, boxes, colors)
+- How to visually separate sections (CSS borders, spacing, boxes, colors)
 - Text alignment for different content types (titles centered, body left-aligned, etc.)
-- Font size hierarchy (headings vs body vs captions)
-- Margin specifications
-- Column layouts if applicable
+- Font size hierarchy (headings vs body vs captions) using CSS
+- Margin and padding specifications
+- CSS Grid or Flexbox layouts if applicable
+- Use "Noto Sans CJK" as the default font family for multi-language support
 
-### Dynamic Content Handling
-- For EACH array in the JSON: Should each item become a new page? A new section? A table row?
-- How to handle variable-length content (text wrapping, pagination)
-- How to handle missing/null optional fields
+### Dynamic Content Handling with Jinja2
+- For EACH array in the JSON: Use Jinja2 `{% for item in items %}` loops
+- Should each item become a new page (with CSS `page-break-before`)? A new section? A table row?
+- How to handle variable-length content (text wrapping, pagination via CSS)
+- How to handle missing/null optional fields using Jinja2 `{% if field %}` conditionals
+
+### Multi-Language Support
+- ALL hardcoded strings in the template MUST support multiple languages
+- Use Jinja2 conditionals for language switching: `{% if language == 'english' %}Text{% elif language == 'spanish' %}Texto{% endif %}`
+- Every user-facing label, heading, and static text must have translations for all supported languages
+- The `language` variable will always be passed to the template for language selection
 
 ### Image and Media Handling
 - If any field contains URLs that COULD be images (check for .png, .jpg, .jpeg, .gif, .webp, .svg extensions or image hosting domains)
-- Specify exact instructions: "If [field_path] contains an image URL, download and embed the image at [position] with [dimensions]"
-- Define image sizing, aspect ratio handling, and fallback behavior
+- Specify exact instructions: "If [field_path] contains an image URL, embed with `<img src="{{ field_path }}" />` at [position] with [dimensions]"
+- Define image sizing via CSS, aspect ratio handling, and fallback behavior
 
 ### Data Presentation
-- How to format dates, numbers, currencies
-- Table layouts for list data
-- Bullet points vs numbered lists
-- Emphasis for important information (bold, color, size)
+- How to format dates, numbers, currencies using Jinja2 filters
+- Table layouts for list data using HTML `<table>` with CSS styling
+- Bullet points vs numbered lists using `<ul>`/`<ol>`
+- Emphasis for important information (CSS font-weight, color, font-size)
 
 ### Styling Guidelines
-- Color scheme suggestions based on content type
+- Color scheme suggestions based on content type defined in CSS
 - Professional vs casual tone in layout
 - Branding placeholder areas
+- All styling MUST be in embedded CSS (`<style>` block), not inline styles
 
 ### Error Handling
-- What to display when required data is missing
-- Fallback values for optional fields
-- Graceful degradation for failed image downloads
+- Use Jinja2 `{% if field %}` to check for missing data
+- Fallback values using Jinja2 `{{ field | default('N/A') }}` filter
+- Graceful degradation for missing images with CSS fallbacks
 
 ### Technical Requirements
-- Page size (A4, Letter, etc.)
-- Orientation (portrait/landscape)
-- PDF metadata (title, author, subject)
+- Page size (A4, Letter, etc.) defined via CSS `@page { size: A4; }`
+- Orientation (portrait/landscape) via CSS `@page { size: A4 landscape; }`
+- CSS print media rules for proper PDF rendering
 
 ## EXAMPLE OF A GREAT SUGGESTED PROMPT
 
 For a JSON like `{"invoice": {"number": "INV-001", "items": [...], "customer": {...}}}`:
 
-"Create a professional PDF invoice generator with the following specifications:
+"Create an HTML template with embedded CSS and Jinja2 variables for a professional PDF invoice with the following specifications:
 
 **Document Structure:**
 - Page 1: Invoice header with company branding area (top 20%), invoice details, and customer information
 - Subsequent pages: Continuation of line items table with simplified header
 - All pages: Footer with page X of Y, invoice number, and generation date
+- Use CSS `@page` rules for page sizing and margins
 
 **Header Configuration:**
-- First page: Full company header with logo placeholder (150x50px, top-left), company name (24pt bold), and tagline
+- First page: Full company header with logo placeholder (`<img>` tag, 150x50px, top-left), company name (24pt bold), and tagline
 - Other pages: Minimal header with company name (12pt) and 'Invoice Continuation' label
+- Use Jinja2 conditionals to vary header content per page
+
+**Multi-Language Support:**
+- All labels (e.g., 'Invoice', 'Date', 'Total', 'Quantity') must use Jinja2 conditionals for language switching
+- Example: `{% if language == 'english' %}Invoice{% elif language == 'spanish' %}Factura{% elif language == 'french' %}Facture{% endif %}`
+- Support all available languages in the system
 
 **Line Items Table (from 'items' array):**
-- Each item is a table row, NOT a separate page
+- Use `{% for item in invoice.items %}` to iterate
+- Each item is a `<tr>` table row, NOT a separate page
 - Columns: Item #, Description (40% width), Quantity (right-aligned), Unit Price (currency format), Total
-- Zebra striping for rows (alternating #FFFFFF and #F5F5F5)
-- Table header repeated on each page if items overflow
+- Zebra striping using CSS `:nth-child(even)` selector
+- Use CSS `page-break-inside: avoid` on table rows
 
 **Customer Section:**
-- Display customer name in bold, address in regular weight
-- Right-align customer block on first page
+- Display `{{ invoice.customer.name }}` in bold, address in regular weight
+- Right-align customer block on first page using CSS
 
 **Totals Section:**
 - Right-aligned block after items table
-- Show subtotal, tax (if present), and grand total
+- Show subtotal, tax (if present with `{% if invoice.tax %}`), and grand total
 - Grand total in larger font (14pt bold)
 
-**Styling:**
+**Styling (in `<style>` block):**
 - Primary color: #2C3E50 for headers and accents
-- Body text: #333333, 10pt
-- Use horizontal rules (1px #CCCCCC) to separate sections
+- Body text: #333333, 10pt, font-family: 'Noto Sans CJK', sans-serif
+- Use CSS border-bottom (1px solid #CCCCCC) to separate sections
+- `@page { size: A4; margin: 2cm; }`
 
 **Image Handling:**
-- If 'items[].image_url' exists, display 40x40px thumbnail in the first column
-- Fallback: Show item number in a colored circle"
+- If `items[].image_url` exists: `<img src="{{ item.image_url }}" style="width:40px;height:40px;object-fit:cover;" />`
+- Fallback: Show item number in a colored circle using CSS border-radius"
 
 ## SUPPORTED LANGUAGES FOR referenceLanguage
 
 Use EXACTLY one of these values:
-english, mandarinChinese, hindi, spanish, french, modernStandardArabic, bengali, brazilianPortuguese, russian, urdu, indonesian, german, dutch, japanese, swahili, marathi, telugu, turkish, tamil, vietnamese, korean, italian, thai, filipino
+english, simplifiedMandarinChinese, traditionalChinese, spanish, french, brazilianPortuguese, portugalPortuguese, russian, ukrainian, polish, indonesian, malay, german, dutch, japanese, swahili, turkish, vietnamese, korean, italian, filipino, romanian, swedish, czech
 
 ## SCHEMA TYPE DEFINITIONS
 
@@ -217,10 +236,10 @@ For schemaDefinition.properties, each property must have:
 Respond with a JSON object containing exactly these fields:
 - pdfContent: { name: string, description: string }
 - schemaDefinition: { properties: { [key]: SchemaProperty } }
-- suggestedPrompt: string (the detailed PDF generation prompt)
+- suggestedPrompt: string (the detailed HTML/CSS template generation prompt with Jinja2 syntax instructions)
 - referenceLanguage: string (one of the supported language values)
 
-Be thorough, precise, and creative in your analysis. The quality of the suggested prompt directly impacts how well the PDF templates will be generated.''';
+Be thorough, precise, and creative in your analysis. The quality of the suggested prompt directly impacts how well the Jinja2 HTML/CSS templates will be generated for PDF rendering.''';
   }
 
   /// Builds the schema properties for the expected AI response
@@ -257,36 +276,36 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
         nullable: false,
         shouldBeTranslated: false,
         description:
-            'Detailed prompt for PDF generation with all layout and styling instructions',
+            'Detailed prompt for Jinja2 HTML/CSS template generation with all layout, styling, and multi-language support instructions',
       ),
       'referenceLanguage': SchemaPropertyEnum(
         nullable: false,
         description: 'The detected language of the content',
         enumValues: [
           'english',
-          'mandarinChinese',
-          'hindi',
+          'simplifiedMandarinChinese',
+          'traditionalChinese',
           'spanish',
           'french',
-          'modernStandardArabic',
-          'bengali',
           'brazilianPortuguese',
+          'portugalPortuguese',
           'russian',
-          'urdu',
+          'ukrainian',
+          'polish',
           'indonesian',
+          'malay',
           'german',
           'dutch',
           'japanese',
           'swahili',
-          'marathi',
-          'telugu',
           'turkish',
-          'tamil',
           'vietnamese',
           'korean',
           'italian',
-          'thai',
           'filipino',
+          'romanian',
+          'swedish',
+          'czech',
         ],
       ),
     };
