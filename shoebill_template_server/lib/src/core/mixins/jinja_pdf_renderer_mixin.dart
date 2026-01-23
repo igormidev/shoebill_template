@@ -6,7 +6,7 @@ import 'package:shoebill_template_server/src/generated/protocol.dart';
 
 /// A mixin that provides Jinja2 template rendering and PDF generation capabilities.
 ///
-/// This mixin combines the `jinja` package (a Dart port of Python's Jinja2 template engine)
+/// This mixin combines the `jinja` package (a Dart port of the Jinja2 template engine)
 /// with the `puppeteer` package (headless Chrome automation) to render HTML/CSS templates
 /// into high-quality PDF documents.
 ///

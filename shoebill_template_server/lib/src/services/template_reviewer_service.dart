@@ -448,7 +448,7 @@ CRITICAL REVIEW CRITERIA (apply to ALL scenarios):
    - All Jinja2 control blocks {% if/for/block %} must have matching {% endif/endfor/endblock %}
    - Variables referenced must exist in the provided schema
    - Filters used must be valid Jinja2 filters
-   - No Python-specific syntax that is not valid Jinja2
+   - No invalid syntax that is not valid Jinja2
    - Nested loops and conditions must be properly indented and closed
    - Check for proper use of {% set %}, {% macro %}, {% include %} if present
 
@@ -522,7 +522,7 @@ IMPORTANT REVIEW GUIDELINES:
 - Be PRACTICAL. Minor formatting preferences are not issues. Focus on correctness and functionality.
 - DO NOT flag issues about things that are intentionally handled externally (like payload translation).
 - If the template uses {{ variable }} and that variable exists in the schema with the correct type, it is CORRECT.
-- Consider that the template will be rendered with Jinja2 in Python, so ensure compatibility.
+- Consider that the template will be rendered with Jinja2 in Dart, so ensure compatibility.
 ''';
 
   // --------------------------------------------------------------------------
