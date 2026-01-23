@@ -7,8 +7,6 @@ import 'package:serverpod_auth_idp_server/providers/email.dart';
 import 'package:shoebill_template_server/src/services/get_locale_of_ip_service.dart';
 import 'package:shoebill_template_server/src/services/pdf_controller.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
-import 'package:shoebill_template_server/src/services/pdf_generator_service.dart';
-
 import 'src/generated/endpoints.dart';
 import 'src/generated/protocol.dart';
 import 'src/web/routes/app_config_route.dart';
@@ -92,7 +90,6 @@ void run(List<String> args) async {
     () => () => OpenAiService(openRouterApiKey),
   );
 
-  getIt.registerSingleton<IPdfGeneratorService>(DaytonaPdfGeneratorService());
   getIt.registerSingleton<PdfController>(PdfController());
   getIt.registerSingleton<IGetLocaleOfIpService>(GetLocaleOfIpService());
 
