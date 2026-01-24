@@ -41,3 +41,5 @@ sealed class SchemaProperty implements _i2.SerializableModel {
     String? description,
   });
 }
+
+class _Undefined {}

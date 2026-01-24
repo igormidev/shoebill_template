@@ -12,17 +12,103 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'dart:async' as _i2;
-import 'package:shoebill_template_client/src/protocol/entities/others/ai_thinking_chunk.dart'
+import 'package:shoebill_template_client/src/protocol/api/chat_session_related/entities/template_current_state/template_current_state.dart'
     as _i3;
-import 'package:shoebill_template_client/src/protocol/api/chat_session_related/entities/template_essential.dart'
+import 'package:shoebill_template_client/src/protocol/api/chat_session_related/entities/send_message_stream_response_item.dart'
     as _i4;
-import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
+import 'package:shoebill_template_client/src/protocol/api/chat_session_related/entities/new_schema_change_payload.dart'
     as _i5;
-import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
+import 'package:shoebill_template_client/src/protocol/api/chat_session_related/entities/create_template_essentials_result.dart'
     as _i6;
-import 'package:shoebill_template_client/src/protocol/greetings/greeting.dart'
+import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _i7;
-import 'protocol.dart' as _i8;
+import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
+    as _i8;
+import 'package:shoebill_template_client/src/protocol/greetings/greeting.dart'
+    as _i9;
+import 'protocol.dart' as _i10;
+
+/// {@category Endpoint}
+class EndpointChatSession extends _i1.EndpointRef {
+  EndpointChatSession(_i1.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'chatSession';
+
+  /// Starts a new chat session for creating a brand new template.
+  ///
+  /// The [newTemplateState] provides the initial schema, payload example,
+  /// reference language, and PDF content metadata (name/description).
+  /// No HTML/CSS exists yet - the AI will generate it during the chat.
+  _i2.Future<String> startChatFromNewTemplate({
+    required _i3.NewTemplateState newTemplateState,
+  }) => caller.callServerEndpoint<String>(
+    'chatSession',
+    'startChatFromNewTemplate',
+    {'newTemplateState': newTemplateState},
+  );
+
+  /// Starts a new chat session for editing an existing template version.
+  ///
+  /// Loads the full entity hierarchy (version -> scaffold, schema, input HTML/CSS)
+  /// and the baseline implementation for the reference language.
+  /// Creates a [DeployReadyTemplateState] with the current HTML/CSS content.
+  ///
+  /// [templateVersionId] is the integer ID of the [ShoebillTemplateVersion] to edit.
+  _i2.Future<String> startChatFromExistingTemplate({
+    required int templateVersionId,
+  }) => caller.callServerEndpoint<String>(
+    'chatSession',
+    'startChatFromExistingTemplate',
+    {'templateVersionId': templateVersionId},
+  );
+
+  /// Sends a message in the chat session, optionally applying a schema change.
+  ///
+  /// Returns a stream of [SendMessageStreamResponseItem] which can be either:
+  /// - [ChatMessageResponse]: wraps a [ChatMessage] (thinking, text, errors, etc.)
+  /// - [TemplateStateResponse]: provides the updated [TemplateCurrentState] after processing
+  ///
+  /// If [schemaChange] is provided:
+  /// - Validates the new example payload against the new schema
+  /// - Marks the session as having a schema change (affects deploy behavior)
+  /// - Updates the session template info with new schema and payload
+  _i2.Future<_i2.Stream<_i4.SendMessageStreamResponseItem>> sendMessage({
+    required String sessionUUID,
+    required String message,
+    _i5.NewSchemaChangePayload? schemaChange,
+  }) =>
+      caller.callServerEndpoint<_i2.Stream<_i4.SendMessageStreamResponseItem>>(
+        'chatSession',
+        'sendMessage',
+        {
+          'sessionUUID': sessionUUID,
+          'message': message,
+          'schemaChange': schemaChange,
+        },
+      );
+
+  /// Deploys the session, persisting the template to the database.
+  ///
+  /// The behavior depends on whether this is a new template or existing one,
+  /// and whether the schema was changed during the session:
+  ///
+  /// - **New template**: Creates a new [ShoebillTemplateScaffold] with a first version.
+  /// - **Existing template, no schema change**: Updates the HTML/CSS in place
+  ///   on the current [ShoebillTemplateVersion]. Old baselines continue to work.
+  /// - **Existing template, schema changed**: Creates a new [ShoebillTemplateVersion]
+  ///   under the same scaffold. The old version remains intact for backward compatibility.
+  ///
+  /// Returns the UUID of the scaffold (for new templates) or the scaffold UUID
+  /// (for existing templates). The caller can use this to navigate back to the
+  /// template dashboard.
+  _i2.Future<_i1.UuidValue> deploySession({required String sessionUUID}) =>
+      caller.callServerEndpoint<_i1.UuidValue>(
+        'chatSession',
+        'deploySession',
+        {'sessionUUID': sessionUUID},
+      );
+}
 
 /// {@category Endpoint}
 class EndpointCreateTemplateEssentials extends _i1.EndpointRef {
@@ -39,23 +125,14 @@ class EndpointCreateTemplateEssentials extends _i1.EndpointRef {
   /// - The detected reference language
   ///
   /// Returns a stream that yields either:
-  /// - `AiThinkingChunk` during AI reasoning
-  /// - `TemplateEssential` when the final result is ready
-  _i2.Stream<
-    ({_i3.AiThinkingChunk? aiThinkingChunk, _i4.TemplateEssential? template})
-  >
-  call({required String stringifiedPayload}) =>
+  /// - [TemplateEssentialThinkingResult] during AI reasoning
+  /// - [TemplateEssentialFinalResult] when the final result is ready
+  _i2.Stream<_i6.CreateTemplateEssentialsResult> call({
+    required String stringifiedPayload,
+  }) =>
       caller.callStreamingServerEndpoint<
-        _i2.Stream<
-          ({
-            _i3.AiThinkingChunk? aiThinkingChunk,
-            _i4.TemplateEssential? template,
-          })
-        >,
-        ({
-          _i3.AiThinkingChunk? aiThinkingChunk,
-          _i4.TemplateEssential? template,
-        })
+        _i2.Stream<_i6.CreateTemplateEssentialsResult>,
+        _i6.CreateTemplateEssentialsResult
       >(
         'createTemplateEssentials',
         'call',
@@ -68,7 +145,7 @@ class EndpointCreateTemplateEssentials extends _i1.EndpointRef {
 /// are made available on the server and enable the corresponding sign-in widget
 /// on the client.
 /// {@category Endpoint}
-class EndpointEmailIdp extends _i5.EndpointEmailIdpBase {
+class EndpointEmailIdp extends _i7.EndpointEmailIdpBase {
   EndpointEmailIdp(_i1.EndpointCaller caller) : super(caller);
 
   @override
@@ -84,10 +161,10 @@ class EndpointEmailIdp extends _i5.EndpointEmailIdpBase {
   ///
   /// Throws an [AuthUserBlockedException] if the auth user is blocked.
   @override
-  _i2.Future<_i6.AuthSuccess> login({
+  _i2.Future<_i8.AuthSuccess> login({
     required String email,
     required String password,
-  }) => caller.callServerEndpoint<_i6.AuthSuccess>(
+  }) => caller.callServerEndpoint<_i8.AuthSuccess>(
     'emailIdp',
     'login',
     {
@@ -152,10 +229,10 @@ class EndpointEmailIdp extends _i5.EndpointEmailIdpBase {
   ///
   /// Returns a session for the newly created user.
   @override
-  _i2.Future<_i6.AuthSuccess> finishRegistration({
+  _i2.Future<_i8.AuthSuccess> finishRegistration({
     required String registrationToken,
     required String password,
-  }) => caller.callServerEndpoint<_i6.AuthSuccess>(
+  }) => caller.callServerEndpoint<_i8.AuthSuccess>(
     'emailIdp',
     'finishRegistration',
     {
@@ -243,7 +320,7 @@ class EndpointEmailIdp extends _i5.EndpointEmailIdpBase {
 /// By extending [RefreshJwtTokensEndpoint], the JWT token refresh endpoint
 /// is made available on the server and enables automatic token refresh on the client.
 /// {@category Endpoint}
-class EndpointJwtRefresh extends _i6.EndpointRefreshJwtTokens {
+class EndpointJwtRefresh extends _i8.EndpointRefreshJwtTokens {
   EndpointJwtRefresh(_i1.EndpointCaller caller) : super(caller);
 
   @override
@@ -268,9 +345,9 @@ class EndpointJwtRefresh extends _i6.EndpointRefreshJwtTokens {
   /// This endpoint is unauthenticated, meaning the client won't include any
   /// authentication information with the call.
   @override
-  _i2.Future<_i6.AuthSuccess> refreshAccessToken({
+  _i2.Future<_i8.AuthSuccess> refreshAccessToken({
     required String refreshToken,
-  }) => caller.callServerEndpoint<_i6.AuthSuccess>(
+  }) => caller.callServerEndpoint<_i8.AuthSuccess>(
     'jwtRefresh',
     'refreshAccessToken',
     {'refreshToken': refreshToken},
@@ -288,8 +365,8 @@ class EndpointGreeting extends _i1.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i2.Future<_i7.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i7.Greeting>(
+  _i2.Future<_i9.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i9.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -298,13 +375,13 @@ class EndpointGreeting extends _i1.EndpointRef {
 
 class Modules {
   Modules(Client client) {
-    serverpod_auth_idp = _i5.Caller(client);
-    serverpod_auth_core = _i6.Caller(client);
+    serverpod_auth_idp = _i7.Caller(client);
+    serverpod_auth_core = _i8.Caller(client);
   }
 
-  late final _i5.Caller serverpod_auth_idp;
+  late final _i7.Caller serverpod_auth_idp;
 
-  late final _i6.Caller serverpod_auth_core;
+  late final _i8.Caller serverpod_auth_core;
 }
 
 class Client extends _i1.ServerpodClientShared {
@@ -327,7 +404,7 @@ class Client extends _i1.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i8.Protocol(),
+         _i10.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -336,12 +413,15 @@ class Client extends _i1.ServerpodClientShared {
          disconnectStreamsOnLostInternetConnection:
              disconnectStreamsOnLostInternetConnection,
        ) {
+    chatSession = EndpointChatSession(this);
     createTemplateEssentials = EndpointCreateTemplateEssentials(this);
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
+
+  late final EndpointChatSession chatSession;
 
   late final EndpointCreateTemplateEssentials createTemplateEssentials;
 
@@ -355,6 +435,7 @@ class Client extends _i1.ServerpodClientShared {
 
   @override
   Map<String, _i1.EndpointRef> get endpointRefLookup => {
+    'chatSession': chatSession,
     'createTemplateEssentials': createTemplateEssentials,
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,

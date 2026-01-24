@@ -18,36 +18,35 @@ import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _i4;
 import 'api/chat_session_related/entities/send_message_stream_response_item.dart'
     as _i5;
-import 'api/chat_session_related/entities/messages/chat_actor.dart' as _i6;
-import 'api/chat_session_related/entities/messages/chat_message.dart' as _i7;
-import 'api/chat_session_related/entities/messages/chat_ui_style.dart' as _i8;
+import 'api/chat_session_related/entities/create_template_essentials_result.dart'
+    as _i6;
+import 'api/chat_session_related/entities/messages/chat_actor.dart' as _i7;
+import 'api/chat_session_related/entities/messages/chat_message.dart' as _i8;
+import 'api/chat_session_related/entities/messages/chat_ui_style.dart' as _i9;
 import 'api/chat_session_related/entities/new_schema_change_payload.dart'
-    as _i9;
-import 'api/chat_session_related/entities/template_current_state/template_current_state.dart'
     as _i10;
-import 'api/chat_session_related/entities/template_essential.dart' as _i11;
-import 'api/pdf_related/entities/pdf_content.dart' as _i12;
-import 'api/pdf_related/entities/schema_definition.dart' as _i13;
+import 'api/chat_session_related/entities/template_current_state/template_current_state.dart'
+    as _i11;
+import 'api/chat_session_related/entities/template_essential.dart' as _i12;
+import 'api/pdf_related/entities/pdf_content.dart' as _i13;
+import 'api/pdf_related/entities/schema_definition.dart' as _i14;
 import 'api/pdf_related/entities/schemas_implementations/schema_property.dart'
-    as _i14;
-import 'api/pdf_related/entities/template_entities/shoebill_template_baseline.dart'
     as _i15;
-import 'api/pdf_related/entities/template_entities/shoebill_template_baseline_implementation.dart'
+import 'api/pdf_related/entities/template_entities/shoebill_template_baseline.dart'
     as _i16;
-import 'api/pdf_related/entities/template_entities/shoebill_template_scaffold.dart'
+import 'api/pdf_related/entities/template_entities/shoebill_template_baseline_implementation.dart'
     as _i17;
-import 'api/pdf_related/entities/template_entities/shoebill_template_version.dart'
+import 'api/pdf_related/entities/template_entities/shoebill_template_scaffold.dart'
     as _i18;
-import 'api/pdf_related/entities/template_entities/shoebill_template_version_input.dart'
+import 'api/pdf_related/entities/template_entities/shoebill_template_version.dart'
     as _i19;
-import 'entities/others/ai_thinking_chunk.dart' as _i20;
-import 'entities/others/shoebill_exception.dart' as _i21;
-import 'entities/others/supported_languages.dart' as _i22;
-import 'greetings/greeting.dart' as _i23;
-import 'package:shoebill_template_server/src/generated/entities/others/ai_thinking_chunk.dart'
-    as _i24;
-import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/template_essential.dart'
-    as _i25;
+import 'api/pdf_related/entities/template_entities/shoebill_template_version_input.dart'
+    as _i20;
+import 'entities/others/ai_thinking_chunk.dart' as _i21;
+import 'entities/others/shoebill_exception.dart' as _i22;
+import 'entities/others/supported_languages.dart' as _i23;
+import 'greetings/greeting.dart' as _i24;
+export 'api/chat_session_related/entities/create_template_essentials_result.dart';
 export 'api/chat_session_related/entities/messages/chat_actor.dart';
 export 'api/chat_session_related/entities/messages/chat_message.dart';
 export 'api/chat_session_related/entities/messages/chat_ui_style.dart';
@@ -528,218 +527,236 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i5.ChatMessageResponse) {
       return _i5.ChatMessageResponse.fromJson(data) as T;
     }
-    if (t == _i6.ChatActor) {
-      return _i6.ChatActor.fromJson(data) as T;
+    if (t == _i6.TemplateEssentialFinalResult) {
+      return _i6.TemplateEssentialFinalResult.fromJson(data) as T;
     }
-    if (t == _i7.ChatMessage) {
-      return _i7.ChatMessage.fromJson(data) as T;
+    if (t == _i6.TemplateEssentialThinkingResult) {
+      return _i6.TemplateEssentialThinkingResult.fromJson(data) as T;
     }
-    if (t == _i8.ChatUIStyle) {
-      return _i8.ChatUIStyle.fromJson(data) as T;
+    if (t == _i7.ChatActor) {
+      return _i7.ChatActor.fromJson(data) as T;
     }
-    if (t == _i9.NewSchemaChangePayload) {
-      return _i9.NewSchemaChangePayload.fromJson(data) as T;
+    if (t == _i8.ChatMessage) {
+      return _i8.ChatMessage.fromJson(data) as T;
+    }
+    if (t == _i9.ChatUIStyle) {
+      return _i9.ChatUIStyle.fromJson(data) as T;
+    }
+    if (t == _i10.NewSchemaChangePayload) {
+      return _i10.NewSchemaChangePayload.fromJson(data) as T;
     }
     if (t == _i5.TemplateStateResponse) {
       return _i5.TemplateStateResponse.fromJson(data) as T;
     }
-    if (t == _i10.DeployReadyTemplateState) {
-      return _i10.DeployReadyTemplateState.fromJson(data) as T;
+    if (t == _i11.DeployReadyTemplateState) {
+      return _i11.DeployReadyTemplateState.fromJson(data) as T;
     }
-    if (t == _i10.NewTemplateState) {
-      return _i10.NewTemplateState.fromJson(data) as T;
+    if (t == _i11.NewTemplateState) {
+      return _i11.NewTemplateState.fromJson(data) as T;
     }
-    if (t == _i11.TemplateEssential) {
-      return _i11.TemplateEssential.fromJson(data) as T;
+    if (t == _i12.TemplateEssential) {
+      return _i12.TemplateEssential.fromJson(data) as T;
     }
-    if (t == _i12.PdfContent) {
-      return _i12.PdfContent.fromJson(data) as T;
+    if (t == _i13.PdfContent) {
+      return _i13.PdfContent.fromJson(data) as T;
     }
-    if (t == _i13.SchemaDefinition) {
-      return _i13.SchemaDefinition.fromJson(data) as T;
+    if (t == _i14.SchemaDefinition) {
+      return _i14.SchemaDefinition.fromJson(data) as T;
     }
-    if (t == _i14.SchemaPropertyArray) {
-      return _i14.SchemaPropertyArray.fromJson(data) as T;
+    if (t == _i15.SchemaPropertyArray) {
+      return _i15.SchemaPropertyArray.fromJson(data) as T;
     }
-    if (t == _i14.SchemaPropertyBoolean) {
-      return _i14.SchemaPropertyBoolean.fromJson(data) as T;
+    if (t == _i15.SchemaPropertyBoolean) {
+      return _i15.SchemaPropertyBoolean.fromJson(data) as T;
     }
-    if (t == _i14.SchemaPropertyDouble) {
-      return _i14.SchemaPropertyDouble.fromJson(data) as T;
+    if (t == _i15.SchemaPropertyDouble) {
+      return _i15.SchemaPropertyDouble.fromJson(data) as T;
     }
-    if (t == _i14.SchemaPropertyEnum) {
-      return _i14.SchemaPropertyEnum.fromJson(data) as T;
+    if (t == _i15.SchemaPropertyEnum) {
+      return _i15.SchemaPropertyEnum.fromJson(data) as T;
     }
-    if (t == _i14.SchemaPropertyInteger) {
-      return _i14.SchemaPropertyInteger.fromJson(data) as T;
+    if (t == _i15.SchemaPropertyInteger) {
+      return _i15.SchemaPropertyInteger.fromJson(data) as T;
     }
-    if (t == _i14.SchemaPropertyObjectWithUndefinedProperties) {
-      return _i14.SchemaPropertyObjectWithUndefinedProperties.fromJson(data)
+    if (t == _i15.SchemaPropertyObjectWithUndefinedProperties) {
+      return _i15.SchemaPropertyObjectWithUndefinedProperties.fromJson(data)
           as T;
     }
-    if (t == _i14.SchemaPropertyString) {
-      return _i14.SchemaPropertyString.fromJson(data) as T;
+    if (t == _i15.SchemaPropertyString) {
+      return _i15.SchemaPropertyString.fromJson(data) as T;
     }
-    if (t == _i14.SchemaPropertyStructuredObjectWithDefinedProperties) {
-      return _i14.SchemaPropertyStructuredObjectWithDefinedProperties.fromJson(
+    if (t == _i15.SchemaPropertyStructuredObjectWithDefinedProperties) {
+      return _i15.SchemaPropertyStructuredObjectWithDefinedProperties.fromJson(
             data,
           )
           as T;
     }
-    if (t == _i15.ShoebillTemplateBaseline) {
-      return _i15.ShoebillTemplateBaseline.fromJson(data) as T;
+    if (t == _i16.ShoebillTemplateBaseline) {
+      return _i16.ShoebillTemplateBaseline.fromJson(data) as T;
     }
-    if (t == _i16.ShoebillTemplateBaselineImplementation) {
-      return _i16.ShoebillTemplateBaselineImplementation.fromJson(data) as T;
+    if (t == _i17.ShoebillTemplateBaselineImplementation) {
+      return _i17.ShoebillTemplateBaselineImplementation.fromJson(data) as T;
     }
-    if (t == _i17.ShoebillTemplateScaffold) {
-      return _i17.ShoebillTemplateScaffold.fromJson(data) as T;
+    if (t == _i18.ShoebillTemplateScaffold) {
+      return _i18.ShoebillTemplateScaffold.fromJson(data) as T;
     }
-    if (t == _i18.ShoebillTemplateVersion) {
-      return _i18.ShoebillTemplateVersion.fromJson(data) as T;
+    if (t == _i19.ShoebillTemplateVersion) {
+      return _i19.ShoebillTemplateVersion.fromJson(data) as T;
     }
-    if (t == _i19.ShoebillTemplateVersionInput) {
-      return _i19.ShoebillTemplateVersionInput.fromJson(data) as T;
+    if (t == _i20.ShoebillTemplateVersionInput) {
+      return _i20.ShoebillTemplateVersionInput.fromJson(data) as T;
     }
-    if (t == _i20.AiThinkingChunk) {
-      return _i20.AiThinkingChunk.fromJson(data) as T;
+    if (t == _i21.AiThinkingChunk) {
+      return _i21.AiThinkingChunk.fromJson(data) as T;
     }
-    if (t == _i21.ShoebillException) {
-      return _i21.ShoebillException.fromJson(data) as T;
+    if (t == _i22.ShoebillException) {
+      return _i22.ShoebillException.fromJson(data) as T;
     }
-    if (t == _i22.SupportedLanguages) {
-      return _i22.SupportedLanguages.fromJson(data) as T;
+    if (t == _i23.SupportedLanguages) {
+      return _i23.SupportedLanguages.fromJson(data) as T;
     }
-    if (t == _i23.Greeting) {
-      return _i23.Greeting.fromJson(data) as T;
+    if (t == _i24.Greeting) {
+      return _i24.Greeting.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.ChatMessageResponse?>()) {
       return (data != null ? _i5.ChatMessageResponse.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i6.ChatActor?>()) {
-      return (data != null ? _i6.ChatActor.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i6.TemplateEssentialFinalResult?>()) {
+      return (data != null
+              ? _i6.TemplateEssentialFinalResult.fromJson(data)
+              : null)
+          as T;
     }
-    if (t == _i1.getType<_i7.ChatMessage?>()) {
-      return (data != null ? _i7.ChatMessage.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i6.TemplateEssentialThinkingResult?>()) {
+      return (data != null
+              ? _i6.TemplateEssentialThinkingResult.fromJson(data)
+              : null)
+          as T;
     }
-    if (t == _i1.getType<_i8.ChatUIStyle?>()) {
-      return (data != null ? _i8.ChatUIStyle.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i7.ChatActor?>()) {
+      return (data != null ? _i7.ChatActor.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i9.NewSchemaChangePayload?>()) {
-      return (data != null ? _i9.NewSchemaChangePayload.fromJson(data) : null)
+    if (t == _i1.getType<_i8.ChatMessage?>()) {
+      return (data != null ? _i8.ChatMessage.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i9.ChatUIStyle?>()) {
+      return (data != null ? _i9.ChatUIStyle.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i10.NewSchemaChangePayload?>()) {
+      return (data != null ? _i10.NewSchemaChangePayload.fromJson(data) : null)
           as T;
     }
     if (t == _i1.getType<_i5.TemplateStateResponse?>()) {
       return (data != null ? _i5.TemplateStateResponse.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i10.DeployReadyTemplateState?>()) {
+    if (t == _i1.getType<_i11.DeployReadyTemplateState?>()) {
       return (data != null
-              ? _i10.DeployReadyTemplateState.fromJson(data)
+              ? _i11.DeployReadyTemplateState.fromJson(data)
               : null)
           as T;
     }
-    if (t == _i1.getType<_i10.NewTemplateState?>()) {
-      return (data != null ? _i10.NewTemplateState.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i11.NewTemplateState?>()) {
+      return (data != null ? _i11.NewTemplateState.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i11.TemplateEssential?>()) {
-      return (data != null ? _i11.TemplateEssential.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i12.TemplateEssential?>()) {
+      return (data != null ? _i12.TemplateEssential.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i12.PdfContent?>()) {
-      return (data != null ? _i12.PdfContent.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i13.PdfContent?>()) {
+      return (data != null ? _i13.PdfContent.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i13.SchemaDefinition?>()) {
-      return (data != null ? _i13.SchemaDefinition.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i14.SchemaDefinition?>()) {
+      return (data != null ? _i14.SchemaDefinition.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i14.SchemaPropertyArray?>()) {
-      return (data != null ? _i14.SchemaPropertyArray.fromJson(data) : null)
+    if (t == _i1.getType<_i15.SchemaPropertyArray?>()) {
+      return (data != null ? _i15.SchemaPropertyArray.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i14.SchemaPropertyBoolean?>()) {
-      return (data != null ? _i14.SchemaPropertyBoolean.fromJson(data) : null)
+    if (t == _i1.getType<_i15.SchemaPropertyBoolean?>()) {
+      return (data != null ? _i15.SchemaPropertyBoolean.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i14.SchemaPropertyDouble?>()) {
-      return (data != null ? _i14.SchemaPropertyDouble.fromJson(data) : null)
+    if (t == _i1.getType<_i15.SchemaPropertyDouble?>()) {
+      return (data != null ? _i15.SchemaPropertyDouble.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i14.SchemaPropertyEnum?>()) {
-      return (data != null ? _i14.SchemaPropertyEnum.fromJson(data) : null)
+    if (t == _i1.getType<_i15.SchemaPropertyEnum?>()) {
+      return (data != null ? _i15.SchemaPropertyEnum.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i14.SchemaPropertyInteger?>()) {
-      return (data != null ? _i14.SchemaPropertyInteger.fromJson(data) : null)
+    if (t == _i1.getType<_i15.SchemaPropertyInteger?>()) {
+      return (data != null ? _i15.SchemaPropertyInteger.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i14.SchemaPropertyObjectWithUndefinedProperties?>()) {
+    if (t == _i1.getType<_i15.SchemaPropertyObjectWithUndefinedProperties?>()) {
       return (data != null
-              ? _i14.SchemaPropertyObjectWithUndefinedProperties.fromJson(data)
+              ? _i15.SchemaPropertyObjectWithUndefinedProperties.fromJson(data)
               : null)
           as T;
     }
-    if (t == _i1.getType<_i14.SchemaPropertyString?>()) {
-      return (data != null ? _i14.SchemaPropertyString.fromJson(data) : null)
+    if (t == _i1.getType<_i15.SchemaPropertyString?>()) {
+      return (data != null ? _i15.SchemaPropertyString.fromJson(data) : null)
           as T;
     }
     if (t ==
         _i1
             .getType<
-              _i14.SchemaPropertyStructuredObjectWithDefinedProperties?
+              _i15.SchemaPropertyStructuredObjectWithDefinedProperties?
             >()) {
       return (data != null
-              ? _i14.SchemaPropertyStructuredObjectWithDefinedProperties.fromJson(
+              ? _i15.SchemaPropertyStructuredObjectWithDefinedProperties.fromJson(
                   data,
                 )
               : null)
           as T;
     }
-    if (t == _i1.getType<_i15.ShoebillTemplateBaseline?>()) {
+    if (t == _i1.getType<_i16.ShoebillTemplateBaseline?>()) {
       return (data != null
-              ? _i15.ShoebillTemplateBaseline.fromJson(data)
+              ? _i16.ShoebillTemplateBaseline.fromJson(data)
               : null)
           as T;
     }
-    if (t == _i1.getType<_i16.ShoebillTemplateBaselineImplementation?>()) {
+    if (t == _i1.getType<_i17.ShoebillTemplateBaselineImplementation?>()) {
       return (data != null
-              ? _i16.ShoebillTemplateBaselineImplementation.fromJson(data)
+              ? _i17.ShoebillTemplateBaselineImplementation.fromJson(data)
               : null)
           as T;
     }
-    if (t == _i1.getType<_i17.ShoebillTemplateScaffold?>()) {
+    if (t == _i1.getType<_i18.ShoebillTemplateScaffold?>()) {
       return (data != null
-              ? _i17.ShoebillTemplateScaffold.fromJson(data)
+              ? _i18.ShoebillTemplateScaffold.fromJson(data)
               : null)
           as T;
     }
-    if (t == _i1.getType<_i18.ShoebillTemplateVersion?>()) {
-      return (data != null ? _i18.ShoebillTemplateVersion.fromJson(data) : null)
+    if (t == _i1.getType<_i19.ShoebillTemplateVersion?>()) {
+      return (data != null ? _i19.ShoebillTemplateVersion.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i19.ShoebillTemplateVersionInput?>()) {
+    if (t == _i1.getType<_i20.ShoebillTemplateVersionInput?>()) {
       return (data != null
-              ? _i19.ShoebillTemplateVersionInput.fromJson(data)
+              ? _i20.ShoebillTemplateVersionInput.fromJson(data)
               : null)
           as T;
     }
-    if (t == _i1.getType<_i20.AiThinkingChunk?>()) {
-      return (data != null ? _i20.AiThinkingChunk.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i21.AiThinkingChunk?>()) {
+      return (data != null ? _i21.AiThinkingChunk.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i21.ShoebillException?>()) {
-      return (data != null ? _i21.ShoebillException.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i22.ShoebillException?>()) {
+      return (data != null ? _i22.ShoebillException.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i22.SupportedLanguages?>()) {
-      return (data != null ? _i22.SupportedLanguages.fromJson(data) : null)
+    if (t == _i1.getType<_i23.SupportedLanguages?>()) {
+      return (data != null ? _i23.SupportedLanguages.fromJson(data) : null)
           as T;
     }
-    if (t == _i1.getType<_i23.Greeting?>()) {
-      return (data != null ? _i23.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i24.Greeting?>()) {
+      return (data != null ? _i24.Greeting.fromJson(data) : null) as T;
     }
-    if (t == Map<String, _i14.SchemaProperty>) {
+    if (t == Map<String, _i15.SchemaProperty>) {
       return (data as Map).map(
             (k, v) => MapEntry(
               deserialize<String>(k),
-              deserialize<_i14.SchemaProperty>(v),
+              deserialize<_i15.SchemaProperty>(v),
             ),
           )
           as T;
@@ -747,97 +764,55 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
-    if (t == List<_i16.ShoebillTemplateBaselineImplementation>) {
+    if (t == List<_i17.ShoebillTemplateBaselineImplementation>) {
       return (data as List)
               .map(
                 (e) =>
-                    deserialize<_i16.ShoebillTemplateBaselineImplementation>(e),
+                    deserialize<_i17.ShoebillTemplateBaselineImplementation>(e),
               )
               .toList()
           as T;
     }
     if (t ==
-        _i1.getType<List<_i16.ShoebillTemplateBaselineImplementation>?>()) {
+        _i1.getType<List<_i17.ShoebillTemplateBaselineImplementation>?>()) {
       return (data != null
               ? (data as List)
                     .map(
                       (e) =>
                           deserialize<
-                            _i16.ShoebillTemplateBaselineImplementation
+                            _i17.ShoebillTemplateBaselineImplementation
                           >(e),
                     )
                     .toList()
               : null)
           as T;
     }
-    if (t == List<_i18.ShoebillTemplateVersion>) {
+    if (t == List<_i19.ShoebillTemplateVersion>) {
       return (data as List)
-              .map((e) => deserialize<_i18.ShoebillTemplateVersion>(e))
+              .map((e) => deserialize<_i19.ShoebillTemplateVersion>(e))
               .toList()
           as T;
     }
-    if (t == _i1.getType<List<_i18.ShoebillTemplateVersion>?>()) {
+    if (t == _i1.getType<List<_i19.ShoebillTemplateVersion>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i18.ShoebillTemplateVersion>(e))
+                    .map((e) => deserialize<_i19.ShoebillTemplateVersion>(e))
                     .toList()
               : null)
           as T;
     }
-    if (t == List<_i15.ShoebillTemplateBaseline>) {
+    if (t == List<_i16.ShoebillTemplateBaseline>) {
       return (data as List)
-              .map((e) => deserialize<_i15.ShoebillTemplateBaseline>(e))
+              .map((e) => deserialize<_i16.ShoebillTemplateBaseline>(e))
               .toList()
           as T;
     }
-    if (t == _i1.getType<List<_i15.ShoebillTemplateBaseline>?>()) {
+    if (t == _i1.getType<List<_i16.ShoebillTemplateBaseline>?>()) {
       return (data != null
               ? (data as List)
-                    .map((e) => deserialize<_i15.ShoebillTemplateBaseline>(e))
+                    .map((e) => deserialize<_i16.ShoebillTemplateBaseline>(e))
                     .toList()
               : null)
-          as T;
-    }
-    if (t ==
-        _i1
-            .getType<
-              ({
-                _i24.AiThinkingChunk? aiThinkingChunk,
-                _i25.TemplateEssential? template,
-              })
-            >()) {
-      return (
-            aiThinkingChunk:
-                ((data as Map)['n'] as Map)['aiThinkingChunk'] == null
-                ? null
-                : deserialize<_i24.AiThinkingChunk>(
-                    data['n']['aiThinkingChunk'],
-                  ),
-            template: ((data)['n'] as Map)['template'] == null
-                ? null
-                : deserialize<_i25.TemplateEssential>(data['n']['template']),
-          )
-          as T;
-    }
-    if (t ==
-        _i1
-            .getType<
-              ({
-                _i24.AiThinkingChunk? aiThinkingChunk,
-                _i25.TemplateEssential? template,
-              })
-            >()) {
-      return (
-            aiThinkingChunk:
-                ((data as Map)['n'] as Map)['aiThinkingChunk'] == null
-                ? null
-                : deserialize<_i24.AiThinkingChunk>(
-                    data['n']['aiThinkingChunk'],
-                  ),
-            template: ((data)['n'] as Map)['template'] == null
-                ? null
-                : deserialize<_i25.TemplateEssential>(data['n']['template']),
-          )
           as T;
     }
     try {
@@ -855,36 +830,38 @@ class Protocol extends _i1.SerializationManagerServer {
   static String? getClassNameForType(Type type) {
     return switch (type) {
       _i5.ChatMessageResponse => 'ChatMessageResponse',
-      _i6.ChatActor => 'ChatActor',
-      _i7.ChatMessage => 'ChatMessage',
-      _i8.ChatUIStyle => 'ChatUIStyle',
-      _i9.NewSchemaChangePayload => 'NewSchemaChangePayload',
+      _i6.TemplateEssentialFinalResult => 'TemplateEssentialFinalResult',
+      _i6.TemplateEssentialThinkingResult => 'TemplateEssentialThinkingResult',
+      _i7.ChatActor => 'ChatActor',
+      _i8.ChatMessage => 'ChatMessage',
+      _i9.ChatUIStyle => 'ChatUIStyle',
+      _i10.NewSchemaChangePayload => 'NewSchemaChangePayload',
       _i5.TemplateStateResponse => 'TemplateStateResponse',
-      _i10.DeployReadyTemplateState => 'DeployReadyTemplateState',
-      _i10.NewTemplateState => 'NewTemplateState',
-      _i11.TemplateEssential => 'TemplateEssential',
-      _i12.PdfContent => 'PdfContent',
-      _i13.SchemaDefinition => 'SchemaDefinition',
-      _i14.SchemaPropertyArray => 'SchemaPropertyArray',
-      _i14.SchemaPropertyBoolean => 'SchemaPropertyBoolean',
-      _i14.SchemaPropertyDouble => 'SchemaPropertyDouble',
-      _i14.SchemaPropertyEnum => 'SchemaPropertyEnum',
-      _i14.SchemaPropertyInteger => 'SchemaPropertyInteger',
-      _i14.SchemaPropertyObjectWithUndefinedProperties =>
+      _i11.DeployReadyTemplateState => 'DeployReadyTemplateState',
+      _i11.NewTemplateState => 'NewTemplateState',
+      _i12.TemplateEssential => 'TemplateEssential',
+      _i13.PdfContent => 'PdfContent',
+      _i14.SchemaDefinition => 'SchemaDefinition',
+      _i15.SchemaPropertyArray => 'SchemaPropertyArray',
+      _i15.SchemaPropertyBoolean => 'SchemaPropertyBoolean',
+      _i15.SchemaPropertyDouble => 'SchemaPropertyDouble',
+      _i15.SchemaPropertyEnum => 'SchemaPropertyEnum',
+      _i15.SchemaPropertyInteger => 'SchemaPropertyInteger',
+      _i15.SchemaPropertyObjectWithUndefinedProperties =>
         'SchemaPropertyObjectWithUndefinedProperties',
-      _i14.SchemaPropertyString => 'SchemaPropertyString',
-      _i14.SchemaPropertyStructuredObjectWithDefinedProperties =>
+      _i15.SchemaPropertyString => 'SchemaPropertyString',
+      _i15.SchemaPropertyStructuredObjectWithDefinedProperties =>
         'SchemaPropertyStructuredObjectWithDefinedProperties',
-      _i15.ShoebillTemplateBaseline => 'ShoebillTemplateBaseline',
-      _i16.ShoebillTemplateBaselineImplementation =>
+      _i16.ShoebillTemplateBaseline => 'ShoebillTemplateBaseline',
+      _i17.ShoebillTemplateBaselineImplementation =>
         'ShoebillTemplateBaselineImplementation',
-      _i17.ShoebillTemplateScaffold => 'ShoebillTemplateScaffold',
-      _i18.ShoebillTemplateVersion => 'ShoebillTemplateVersion',
-      _i19.ShoebillTemplateVersionInput => 'ShoebillTemplateVersionInput',
-      _i20.AiThinkingChunk => 'AiThinkingChunk',
-      _i21.ShoebillException => 'ShoebillException',
-      _i22.SupportedLanguages => 'SupportedLanguages',
-      _i23.Greeting => 'Greeting',
+      _i18.ShoebillTemplateScaffold => 'ShoebillTemplateScaffold',
+      _i19.ShoebillTemplateVersion => 'ShoebillTemplateVersion',
+      _i20.ShoebillTemplateVersionInput => 'ShoebillTemplateVersionInput',
+      _i21.AiThinkingChunk => 'AiThinkingChunk',
+      _i22.ShoebillException => 'ShoebillException',
+      _i23.SupportedLanguages => 'SupportedLanguages',
+      _i24.Greeting => 'Greeting',
       _ => null,
     };
   }
@@ -904,59 +881,63 @@ class Protocol extends _i1.SerializationManagerServer {
     switch (data) {
       case _i5.ChatMessageResponse():
         return 'ChatMessageResponse';
-      case _i6.ChatActor():
+      case _i6.TemplateEssentialFinalResult():
+        return 'TemplateEssentialFinalResult';
+      case _i6.TemplateEssentialThinkingResult():
+        return 'TemplateEssentialThinkingResult';
+      case _i7.ChatActor():
         return 'ChatActor';
-      case _i7.ChatMessage():
+      case _i8.ChatMessage():
         return 'ChatMessage';
-      case _i8.ChatUIStyle():
+      case _i9.ChatUIStyle():
         return 'ChatUIStyle';
-      case _i9.NewSchemaChangePayload():
+      case _i10.NewSchemaChangePayload():
         return 'NewSchemaChangePayload';
       case _i5.TemplateStateResponse():
         return 'TemplateStateResponse';
-      case _i10.DeployReadyTemplateState():
+      case _i11.DeployReadyTemplateState():
         return 'DeployReadyTemplateState';
-      case _i10.NewTemplateState():
+      case _i11.NewTemplateState():
         return 'NewTemplateState';
-      case _i11.TemplateEssential():
+      case _i12.TemplateEssential():
         return 'TemplateEssential';
-      case _i12.PdfContent():
+      case _i13.PdfContent():
         return 'PdfContent';
-      case _i13.SchemaDefinition():
+      case _i14.SchemaDefinition():
         return 'SchemaDefinition';
-      case _i14.SchemaPropertyArray():
+      case _i15.SchemaPropertyArray():
         return 'SchemaPropertyArray';
-      case _i14.SchemaPropertyBoolean():
+      case _i15.SchemaPropertyBoolean():
         return 'SchemaPropertyBoolean';
-      case _i14.SchemaPropertyDouble():
+      case _i15.SchemaPropertyDouble():
         return 'SchemaPropertyDouble';
-      case _i14.SchemaPropertyEnum():
+      case _i15.SchemaPropertyEnum():
         return 'SchemaPropertyEnum';
-      case _i14.SchemaPropertyInteger():
+      case _i15.SchemaPropertyInteger():
         return 'SchemaPropertyInteger';
-      case _i14.SchemaPropertyObjectWithUndefinedProperties():
+      case _i15.SchemaPropertyObjectWithUndefinedProperties():
         return 'SchemaPropertyObjectWithUndefinedProperties';
-      case _i14.SchemaPropertyString():
+      case _i15.SchemaPropertyString():
         return 'SchemaPropertyString';
-      case _i14.SchemaPropertyStructuredObjectWithDefinedProperties():
+      case _i15.SchemaPropertyStructuredObjectWithDefinedProperties():
         return 'SchemaPropertyStructuredObjectWithDefinedProperties';
-      case _i15.ShoebillTemplateBaseline():
+      case _i16.ShoebillTemplateBaseline():
         return 'ShoebillTemplateBaseline';
-      case _i16.ShoebillTemplateBaselineImplementation():
+      case _i17.ShoebillTemplateBaselineImplementation():
         return 'ShoebillTemplateBaselineImplementation';
-      case _i17.ShoebillTemplateScaffold():
+      case _i18.ShoebillTemplateScaffold():
         return 'ShoebillTemplateScaffold';
-      case _i18.ShoebillTemplateVersion():
+      case _i19.ShoebillTemplateVersion():
         return 'ShoebillTemplateVersion';
-      case _i19.ShoebillTemplateVersionInput():
+      case _i20.ShoebillTemplateVersionInput():
         return 'ShoebillTemplateVersionInput';
-      case _i20.AiThinkingChunk():
+      case _i21.AiThinkingChunk():
         return 'AiThinkingChunk';
-      case _i21.ShoebillException():
+      case _i22.ShoebillException():
         return 'ShoebillException';
-      case _i22.SupportedLanguages():
+      case _i23.SupportedLanguages():
         return 'SupportedLanguages';
-      case _i23.Greeting():
+      case _i24.Greeting():
         return 'Greeting';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -971,13 +952,6 @@ class Protocol extends _i1.SerializationManagerServer {
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
-    if (data
-        is ({
-          _i24.AiThinkingChunk? aiThinkingChunk,
-          _i25.TemplateEssential? template,
-        })) {
-      return '(,{AiThinkingChunk? aiThinkingChunk,TemplateEssential? template})';
-    }
     return null;
   }
 
@@ -990,93 +964,99 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'ChatMessageResponse') {
       return deserialize<_i5.ChatMessageResponse>(data['data']);
     }
+    if (dataClassName == 'TemplateEssentialFinalResult') {
+      return deserialize<_i6.TemplateEssentialFinalResult>(data['data']);
+    }
+    if (dataClassName == 'TemplateEssentialThinkingResult') {
+      return deserialize<_i6.TemplateEssentialThinkingResult>(data['data']);
+    }
     if (dataClassName == 'ChatActor') {
-      return deserialize<_i6.ChatActor>(data['data']);
+      return deserialize<_i7.ChatActor>(data['data']);
     }
     if (dataClassName == 'ChatMessage') {
-      return deserialize<_i7.ChatMessage>(data['data']);
+      return deserialize<_i8.ChatMessage>(data['data']);
     }
     if (dataClassName == 'ChatUIStyle') {
-      return deserialize<_i8.ChatUIStyle>(data['data']);
+      return deserialize<_i9.ChatUIStyle>(data['data']);
     }
     if (dataClassName == 'NewSchemaChangePayload') {
-      return deserialize<_i9.NewSchemaChangePayload>(data['data']);
+      return deserialize<_i10.NewSchemaChangePayload>(data['data']);
     }
     if (dataClassName == 'TemplateStateResponse') {
       return deserialize<_i5.TemplateStateResponse>(data['data']);
     }
     if (dataClassName == 'DeployReadyTemplateState') {
-      return deserialize<_i10.DeployReadyTemplateState>(data['data']);
+      return deserialize<_i11.DeployReadyTemplateState>(data['data']);
     }
     if (dataClassName == 'NewTemplateState') {
-      return deserialize<_i10.NewTemplateState>(data['data']);
+      return deserialize<_i11.NewTemplateState>(data['data']);
     }
     if (dataClassName == 'TemplateEssential') {
-      return deserialize<_i11.TemplateEssential>(data['data']);
+      return deserialize<_i12.TemplateEssential>(data['data']);
     }
     if (dataClassName == 'PdfContent') {
-      return deserialize<_i12.PdfContent>(data['data']);
+      return deserialize<_i13.PdfContent>(data['data']);
     }
     if (dataClassName == 'SchemaDefinition') {
-      return deserialize<_i13.SchemaDefinition>(data['data']);
+      return deserialize<_i14.SchemaDefinition>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyArray') {
-      return deserialize<_i14.SchemaPropertyArray>(data['data']);
+      return deserialize<_i15.SchemaPropertyArray>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyBoolean') {
-      return deserialize<_i14.SchemaPropertyBoolean>(data['data']);
+      return deserialize<_i15.SchemaPropertyBoolean>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyDouble') {
-      return deserialize<_i14.SchemaPropertyDouble>(data['data']);
+      return deserialize<_i15.SchemaPropertyDouble>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyEnum') {
-      return deserialize<_i14.SchemaPropertyEnum>(data['data']);
+      return deserialize<_i15.SchemaPropertyEnum>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyInteger') {
-      return deserialize<_i14.SchemaPropertyInteger>(data['data']);
+      return deserialize<_i15.SchemaPropertyInteger>(data['data']);
     }
     if (dataClassName == 'SchemaPropertyObjectWithUndefinedProperties') {
-      return deserialize<_i14.SchemaPropertyObjectWithUndefinedProperties>(
+      return deserialize<_i15.SchemaPropertyObjectWithUndefinedProperties>(
         data['data'],
       );
     }
     if (dataClassName == 'SchemaPropertyString') {
-      return deserialize<_i14.SchemaPropertyString>(data['data']);
+      return deserialize<_i15.SchemaPropertyString>(data['data']);
     }
     if (dataClassName ==
         'SchemaPropertyStructuredObjectWithDefinedProperties') {
       return deserialize<
-        _i14.SchemaPropertyStructuredObjectWithDefinedProperties
+        _i15.SchemaPropertyStructuredObjectWithDefinedProperties
       >(data['data']);
     }
     if (dataClassName == 'ShoebillTemplateBaseline') {
-      return deserialize<_i15.ShoebillTemplateBaseline>(data['data']);
+      return deserialize<_i16.ShoebillTemplateBaseline>(data['data']);
     }
     if (dataClassName == 'ShoebillTemplateBaselineImplementation') {
-      return deserialize<_i16.ShoebillTemplateBaselineImplementation>(
+      return deserialize<_i17.ShoebillTemplateBaselineImplementation>(
         data['data'],
       );
     }
     if (dataClassName == 'ShoebillTemplateScaffold') {
-      return deserialize<_i17.ShoebillTemplateScaffold>(data['data']);
+      return deserialize<_i18.ShoebillTemplateScaffold>(data['data']);
     }
     if (dataClassName == 'ShoebillTemplateVersion') {
-      return deserialize<_i18.ShoebillTemplateVersion>(data['data']);
+      return deserialize<_i19.ShoebillTemplateVersion>(data['data']);
     }
     if (dataClassName == 'ShoebillTemplateVersionInput') {
-      return deserialize<_i19.ShoebillTemplateVersionInput>(data['data']);
+      return deserialize<_i20.ShoebillTemplateVersionInput>(data['data']);
     }
     if (dataClassName == 'AiThinkingChunk') {
-      return deserialize<_i20.AiThinkingChunk>(data['data']);
+      return deserialize<_i21.AiThinkingChunk>(data['data']);
     }
     if (dataClassName == 'ShoebillException') {
-      return deserialize<_i21.ShoebillException>(data['data']);
+      return deserialize<_i22.ShoebillException>(data['data']);
     }
     if (dataClassName == 'SupportedLanguages') {
-      return deserialize<_i22.SupportedLanguages>(data['data']);
+      return deserialize<_i23.SupportedLanguages>(data['data']);
     }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i23.Greeting>(data['data']);
+      return deserialize<_i24.Greeting>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -1089,15 +1069,6 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
       return _i4.Protocol().deserializeByClassName(data);
-    }
-    if (dataClassName ==
-        '(,{AiThinkingChunk? aiThinkingChunk,TemplateEssential? template})') {
-      return deserialize<
-        ({
-          _i24.AiThinkingChunk? aiThinkingChunk,
-          _i25.TemplateEssential? template,
-        })
-      >(data['data']);
     }
     return super.deserializeByClassName(data);
   }
@@ -1123,20 +1094,20 @@ class Protocol extends _i1.SerializationManagerServer {
       }
     }
     switch (t) {
-      case _i12.PdfContent:
-        return _i12.PdfContent.t;
-      case _i13.SchemaDefinition:
-        return _i13.SchemaDefinition.t;
-      case _i15.ShoebillTemplateBaseline:
-        return _i15.ShoebillTemplateBaseline.t;
-      case _i16.ShoebillTemplateBaselineImplementation:
-        return _i16.ShoebillTemplateBaselineImplementation.t;
-      case _i17.ShoebillTemplateScaffold:
-        return _i17.ShoebillTemplateScaffold.t;
-      case _i18.ShoebillTemplateVersion:
-        return _i18.ShoebillTemplateVersion.t;
-      case _i19.ShoebillTemplateVersionInput:
-        return _i19.ShoebillTemplateVersionInput.t;
+      case _i13.PdfContent:
+        return _i13.PdfContent.t;
+      case _i14.SchemaDefinition:
+        return _i14.SchemaDefinition.t;
+      case _i16.ShoebillTemplateBaseline:
+        return _i16.ShoebillTemplateBaseline.t;
+      case _i17.ShoebillTemplateBaselineImplementation:
+        return _i17.ShoebillTemplateBaselineImplementation.t;
+      case _i18.ShoebillTemplateScaffold:
+        return _i18.ShoebillTemplateScaffold.t;
+      case _i19.ShoebillTemplateVersion:
+        return _i19.ShoebillTemplateVersion.t;
+      case _i20.ShoebillTemplateVersionInput:
+        return _i20.ShoebillTemplateVersionInput.t;
     }
     return null;
   }
@@ -1148,28 +1119,6 @@ class Protocol extends _i1.SerializationManagerServer {
   @override
   String getModuleName() => 'shoebill_template';
 
-  /// Wraps serialized data with its class name so that it can be deserialized
-  /// with [deserializeByClassName].
-  ///
-  /// Records and containers containing records will be return in their JSON representation in the returned map.
-  @override
-  Map<String, dynamic> wrapWithClassName(Object? data) {
-    /// In case the value (to be streamed) contains a record or potentially empty non-String-keyed Map, we need to map it before it reaches the underlying JSON encode
-    if (data != null && (data is Iterable || data is Map)) {
-      return {
-        'className': getClassNameForObject(data)!,
-        'data': mapContainerToJson(data),
-      };
-    } else if (data is Record) {
-      return {
-        'className': getClassNameForObject(data)!,
-        'data': mapRecordToJson(data),
-      };
-    }
-
-    return super.wrapWithClassName(data);
-  }
-
   /// Maps any `Record`s known to this [Protocol] to their JSON representation
   ///
   /// Throws in case the record type is not known.
@@ -1179,18 +1128,6 @@ class Protocol extends _i1.SerializationManagerServer {
     if (record == null) {
       return null;
     }
-    if (record
-        is ({
-          _i24.AiThinkingChunk? aiThinkingChunk,
-          _i25.TemplateEssential? template,
-        })) {
-      return {
-        "n": {
-          "aiThinkingChunk": record.aiThinkingChunk,
-          "template": record.template,
-        },
-      };
-    }
     try {
       return _i3.Protocol().mapRecordToJson(record);
     } catch (_) {}
@@ -1198,57 +1135,5 @@ class Protocol extends _i1.SerializationManagerServer {
       return _i4.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
-  }
-
-  /// Maps container types (like [List], [Map], [Set]) containing
-  /// [Record]s or non-String-keyed [Map]s to their JSON representation.
-  ///
-  /// It should not be called for [SerializableModel] types. These
-  /// handle the "[Record] in container" mapping internally already.
-  ///
-  /// It is only supposed to be called from generated protocol code.
-  ///
-  /// Returns either a `List<dynamic>` (for List, Sets, and Maps with
-  /// non-String keys) or a `Map<String, dynamic>` in case the input was
-  /// a `Map<String, …>`.
-  Object? mapContainerToJson(Object obj) {
-    if (obj is! Iterable && obj is! Map) {
-      throw ArgumentError.value(
-        obj,
-        'obj',
-        'The object to serialize should be of type List, Map, or Set',
-      );
-    }
-
-    dynamic mapIfNeeded(Object? obj) {
-      return switch (obj) {
-        Record record => mapRecordToJson(record),
-        Iterable iterable => mapContainerToJson(iterable),
-        Map map => mapContainerToJson(map),
-        Object? value => value,
-      };
-    }
-
-    switch (obj) {
-      case Map<String, dynamic>():
-        return {
-          for (var entry in obj.entries) entry.key: mapIfNeeded(entry.value),
-        };
-      case Map():
-        return [
-          for (var entry in obj.entries)
-            {
-              'k': mapIfNeeded(entry.key),
-              'v': mapIfNeeded(entry.value),
-            },
-        ];
-
-      case Iterable():
-        return [
-          for (var e in obj) mapIfNeeded(e),
-        ];
-    }
-
-    return obj;
   }
 }

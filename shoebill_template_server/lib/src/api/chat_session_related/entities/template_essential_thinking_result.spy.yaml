@@ -1,0 +1,4 @@
+class: TemplateEssentialThinkingResult
+extends: CreateTemplateEssentialsResult
+fields:
+    thinkingChunk: AiThinkingChunk

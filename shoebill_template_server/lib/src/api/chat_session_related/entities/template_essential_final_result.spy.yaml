@@ -1,0 +1,4 @@
+class: TemplateEssentialFinalResult
+extends: CreateTemplateEssentialsResult
+fields:
+    template: TemplateEssential

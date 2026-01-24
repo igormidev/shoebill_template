@@ -7,18 +7,6 @@ import 'package:shoebill_template_server/src/core/mixins/route_mixin.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
 
-sealed class CreateTemplateEssentialsResult {}
-
-class TemplateEssentialThinkingResult extends CreateTemplateEssentialsResult {
-  final AiThinkingChunk thinkingChunk;
-  TemplateEssentialThinkingResult({required this.thinkingChunk});
-}
-
-class TemplateEssentialFinalResult extends CreateTemplateEssentialsResult {
-  final TemplateEssential template;
-  TemplateEssentialFinalResult({required this.template});
-}
-
 class CreateTemplateEssentialsEndpoint extends Endpoint {
   /// Creates template essentials from a JSON payload.
   /// The AI will analyze the payload and generate:
