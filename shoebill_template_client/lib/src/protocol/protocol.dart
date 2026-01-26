@@ -190,8 +190,8 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i19.ShoebillException) {
       return _i19.ShoebillException.fromJson(data) as T;
     }
-    if (t == _i20.SupportedLanguages) {
-      return _i20.SupportedLanguages.fromJson(data) as T;
+    if (t == _i20.SupportedLanguage) {
+      return _i20.SupportedLanguage.fromJson(data) as T;
     }
     if (t == _i21.Greeting) {
       return _i21.Greeting.fromJson(data) as T;
@@ -321,9 +321,8 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i1.getType<_i19.ShoebillException?>()) {
       return (data != null ? _i19.ShoebillException.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i20.SupportedLanguages?>()) {
-      return (data != null ? _i20.SupportedLanguages.fromJson(data) : null)
-          as T;
+    if (t == _i1.getType<_i20.SupportedLanguage?>()) {
+      return (data != null ? _i20.SupportedLanguage.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i21.Greeting?>()) {
       return (data != null ? _i21.Greeting.fromJson(data) : null) as T;
@@ -433,7 +432,7 @@ class Protocol extends _i1.SerializationManager {
       _i17.ShoebillTemplateVersionInput => 'ShoebillTemplateVersionInput',
       _i18.AiThinkingChunk => 'AiThinkingChunk',
       _i19.ShoebillException => 'ShoebillException',
-      _i20.SupportedLanguages => 'SupportedLanguages',
+      _i20.SupportedLanguage => 'SupportedLanguage',
       _i21.Greeting => 'Greeting',
       _ => null,
     };
@@ -508,8 +507,8 @@ class Protocol extends _i1.SerializationManager {
         return 'AiThinkingChunk';
       case _i19.ShoebillException():
         return 'ShoebillException';
-      case _i20.SupportedLanguages():
-        return 'SupportedLanguages';
+      case _i20.SupportedLanguage():
+        return 'SupportedLanguage';
       case _i21.Greeting():
         return 'Greeting';
     }
@@ -621,8 +620,8 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'ShoebillException') {
       return deserialize<_i19.ShoebillException>(data['data']);
     }
-    if (dataClassName == 'SupportedLanguages') {
-      return deserialize<_i20.SupportedLanguages>(data['data']);
+    if (dataClassName == 'SupportedLanguage') {
+      return deserialize<_i20.SupportedLanguage>(data['data']);
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_i21.Greeting>(data['data']);

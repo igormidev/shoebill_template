@@ -3,5 +3,5 @@ extends: TemplateCurrentState
 fields:
     pdfContent: PdfContent
     schemaDefinition: SchemaDefinition
-    referenceLanguage: SupportedLanguages
+    referenceLanguage: SupportedLanguage
     referenceStringifiedPayloadJson: String

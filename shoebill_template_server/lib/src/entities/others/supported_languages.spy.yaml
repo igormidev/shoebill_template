@@ -1,4 +1,4 @@
-enum: SupportedLanguages
+enum: SupportedLanguage
 values:
   - english
   - simplifiedMandarinChinese          # Simplified (Mainland China)

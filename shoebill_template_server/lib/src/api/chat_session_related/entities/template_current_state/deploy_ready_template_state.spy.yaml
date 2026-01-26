@@ -3,7 +3,7 @@ extends: TemplateCurrentState
 fields:
     pdfContent: PdfContent
     schemaDefinition: SchemaDefinition
-    referenceLanguage: SupportedLanguages
+    referenceLanguage: SupportedLanguage
     htmlContent: String
     cssContent: String
     referenceStringifiedPayloadJson: String

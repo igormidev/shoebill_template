@@ -16,7 +16,7 @@ abstract interface class IPdfController {
   Future<ShoebillTemplateBaselineImplementation> addNewLanguageToBaseline({
     required Session session,
     required UuidValue baselineId,
-    required SupportedLanguages targetLanguage,
+    required SupportedLanguage targetLanguage,
   });
 
   /// Adds multiple language implementations to an existing baseline in parallel.
@@ -28,10 +28,10 @@ abstract interface class IPdfController {
   /// Returns a list of newly created implementations (excludes already-existing
   /// ones). Throws [ShoebillException] if any translation fails.
   Future<List<ShoebillTemplateBaselineImplementation>>
-      addMultipleLanguagesToBaseline({
+  addMultipleLanguagesToBaseline({
     required Session session,
     required UuidValue baselineId,
-    required List<SupportedLanguages> targetLanguages,
+    required List<SupportedLanguage> targetLanguages,
   });
 
   /// Creates a new template scaffold with the complete entity hierarchy:
@@ -40,7 +40,7 @@ abstract interface class IPdfController {
     required Session session,
     required PdfContent pdfContent,
     required SchemaDefinition schemaDefinition,
-    required SupportedLanguages language,
+    required SupportedLanguage language,
     required String stringifiedPayload,
     required String htmlContent,
     required String cssContent,
@@ -100,7 +100,7 @@ class PdfController implements IPdfController {
   Future<ShoebillTemplateBaselineImplementation> addNewLanguageToBaseline({
     required Session session,
     required UuidValue baselineId,
-    required SupportedLanguages targetLanguage,
+    required SupportedLanguage targetLanguage,
   }) async {
     // Perform all reads and the insert within a transaction to prevent
     // race conditions where concurrent requests could both pass the
@@ -230,28 +230,29 @@ class PdfController implements IPdfController {
   /// already-exists cases, which are silently skipped).
   @override
   Future<List<ShoebillTemplateBaselineImplementation>>
-      addMultipleLanguagesToBaseline({
+  addMultipleLanguagesToBaseline({
     required Session session,
     required UuidValue baselineId,
-    required List<SupportedLanguages> targetLanguages,
+    required List<SupportedLanguage> targetLanguages,
   }) async {
     final futures = targetLanguages.map(
-      (language) => addNewLanguageToBaseline(
-        session: session,
-        baselineId: baselineId,
-        targetLanguage: language,
-      ).then<ShoebillTemplateBaselineImplementation?>(
-        (impl) => impl,
-        onError: (Object e) {
-          // Skip "already exists" errors - another concurrent request may
-          // have created the implementation between our check and insert.
-          if (e is ShoebillException &&
-              e.title == _kImplementationAlreadyExistsTitle) {
-            return null;
-          }
-          throw e;
-        },
-      ),
+      (language) =>
+          addNewLanguageToBaseline(
+            session: session,
+            baselineId: baselineId,
+            targetLanguage: language,
+          ).then<ShoebillTemplateBaselineImplementation?>(
+            (impl) => impl,
+            onError: (Object e) {
+              // Skip "already exists" errors - another concurrent request may
+              // have created the implementation between our check and insert.
+              if (e is ShoebillException &&
+                  e.title == _kImplementationAlreadyExistsTitle) {
+                return null;
+              }
+              throw e;
+            },
+          ),
     );
 
     final results = await Future.wait(futures);
@@ -281,7 +282,7 @@ class PdfController implements IPdfController {
     required Session session,
     required PdfContent pdfContent,
     required SchemaDefinition schemaDefinition,
-    required SupportedLanguages language,
+    required SupportedLanguage language,
     required String stringifiedPayload,
     required String htmlContent,
     required String cssContent,

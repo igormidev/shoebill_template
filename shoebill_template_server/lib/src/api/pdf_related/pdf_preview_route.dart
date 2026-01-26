@@ -17,7 +17,7 @@ import 'package:shoebill_template_server/src/generated/protocol.dart';
 ///   - `htmlContent` (string, required): The Jinja2 HTML template content
 ///   - `cssContent` (string, required): The CSS stylesheet content
 ///   - `payloadJson` (string, required): Stringified JSON payload for template variables
-///   - `language` (string, required): A valid [SupportedLanguages] enum name
+///   - `language` (string, required): A valid [SupportedLanguage] enum name
 ///
 /// **Responses:**
 ///   - 200: PDF bytes with `application/pdf` content type and inline disposition
@@ -82,8 +82,8 @@ class PdfPreviewRoute extends Route with RouteMixin, JinjaPdfRendererMixin {
     final languageError = _validateRequiredStringField(
       requestData,
       _kFieldLanguage,
-      'A valid SupportedLanguages enum name '
-          '(e.g., "english", "spanish", "japanese")',
+      'A valid SupportedLanguage enum name '
+      '(e.g., "english", "spanish", "japanese")',
     );
     if (languageError != null) return languageError;
 
@@ -115,16 +115,17 @@ class PdfPreviewRoute extends Route with RouteMixin, JinjaPdfRendererMixin {
     if (payloadError != null) return payloadError;
 
     // ─── 5. Validate Language ───────────────────────────────────────────
-    final SupportedLanguages? supportedLanguage = SupportedLanguages.values
+    final SupportedLanguage? supportedLanguage = SupportedLanguage.values
         .firstWhereOrNull((lang) => lang.name == language);
 
     if (supportedLanguage == null) {
-      final validValues =
-          SupportedLanguages.values.map((e) => e.name).join(', ');
+      final validValues = SupportedLanguage.values
+          .map((e) => e.name)
+          .join(', ');
       return createErrorResponse(
         400,
         'Invalid $_kFieldLanguage',
-        'The language "$language" is not a valid SupportedLanguages value. '
+        'The language "$language" is not a valid SupportedLanguage value. '
             'Valid values are: $validValues.',
       );
     }

@@ -182,7 +182,7 @@ class Protocol extends _i1.SerializationManagerServer {
           name: 'language',
           columnType: _i2.ColumnType.text,
           isNullable: false,
-          dartType: 'protocol:SupportedLanguages',
+          dartType: 'protocol:SupportedLanguage',
         ),
         _i2.ColumnDefinition(
           name: 'createdAt',
@@ -244,7 +244,7 @@ class Protocol extends _i1.SerializationManagerServer {
           name: 'referenceLanguage',
           columnType: _i2.ColumnType.text,
           isNullable: false,
-          dartType: 'protocol:SupportedLanguages',
+          dartType: 'protocol:SupportedLanguage',
         ),
         _i2.ColumnDefinition(
           name: 'createdAt',
@@ -612,8 +612,8 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i22.ShoebillException) {
       return _i22.ShoebillException.fromJson(data) as T;
     }
-    if (t == _i23.SupportedLanguages) {
-      return _i23.SupportedLanguages.fromJson(data) as T;
+    if (t == _i23.SupportedLanguage) {
+      return _i23.SupportedLanguage.fromJson(data) as T;
     }
     if (t == _i24.Greeting) {
       return _i24.Greeting.fromJson(data) as T;
@@ -745,9 +745,8 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i1.getType<_i22.ShoebillException?>()) {
       return (data != null ? _i22.ShoebillException.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i23.SupportedLanguages?>()) {
-      return (data != null ? _i23.SupportedLanguages.fromJson(data) : null)
-          as T;
+    if (t == _i1.getType<_i23.SupportedLanguage?>()) {
+      return (data != null ? _i23.SupportedLanguage.fromJson(data) : null) as T;
     }
     if (t == _i1.getType<_i24.Greeting?>()) {
       return (data != null ? _i24.Greeting.fromJson(data) : null) as T;
@@ -860,7 +859,7 @@ class Protocol extends _i1.SerializationManagerServer {
       _i20.ShoebillTemplateVersionInput => 'ShoebillTemplateVersionInput',
       _i21.AiThinkingChunk => 'AiThinkingChunk',
       _i22.ShoebillException => 'ShoebillException',
-      _i23.SupportedLanguages => 'SupportedLanguages',
+      _i23.SupportedLanguage => 'SupportedLanguage',
       _i24.Greeting => 'Greeting',
       _ => null,
     };
@@ -935,8 +934,8 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'AiThinkingChunk';
       case _i22.ShoebillException():
         return 'ShoebillException';
-      case _i23.SupportedLanguages():
-        return 'SupportedLanguages';
+      case _i23.SupportedLanguage():
+        return 'SupportedLanguage';
       case _i24.Greeting():
         return 'Greeting';
     }
@@ -1052,8 +1051,8 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'ShoebillException') {
       return deserialize<_i22.ShoebillException>(data['data']);
     }
-    if (dataClassName == 'SupportedLanguages') {
-      return deserialize<_i23.SupportedLanguages>(data['data']);
+    if (dataClassName == 'SupportedLanguage') {
+      return deserialize<_i23.SupportedLanguage>(data['data']);
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_i24.Greeting>(data['data']);

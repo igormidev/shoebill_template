@@ -6,7 +6,7 @@ import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/generated/protocol.dart';
 
 /// Default language returned when geolocation fails or the country is unknown.
-const SupportedLanguages _kDefaultLanguage = SupportedLanguages.english;
+const SupportedLanguage _kDefaultLanguage = SupportedLanguage.english;
 
 /// Timeout for HTTP requests to the IP geolocation API.
 const Duration _kGeolocationRequestTimeout = Duration(seconds: 5);
@@ -15,12 +15,12 @@ const Duration _kGeolocationRequestTimeout = Duration(seconds: 5);
 const String _kGeolocationApiFields = 'status,message,countryCode,regionName';
 
 abstract class IGetLocaleOfIpService {
-  Future<SupportedLanguages> detectLanguageForCurrentUser(String ip);
+  Future<SupportedLanguage> detectLanguageForCurrentUser(String ip);
 }
 
 class GetLocaleOfIpService implements IGetLocaleOfIpService {
   GetLocaleOfIpService({http.Client? httpClient})
-      : _httpClient = httpClient ?? http.Client();
+    : _httpClient = httpClient ?? http.Client();
 
   final http.Client _httpClient;
 
@@ -32,7 +32,7 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
   /// Returns [_kDefaultLanguage] if the geolocation request fails for any
   /// reason (network error, timeout, invalid response, etc.).
   @override
-  Future<SupportedLanguages> detectLanguageForCurrentUser(String ip) async {
+  Future<SupportedLanguage> detectLanguageForCurrentUser(String ip) async {
     final uri = Uri.parse(
       '$kIpGeolocationApiBaseUrl$ip'
       '?fields=$_kGeolocationApiFields',
@@ -40,7 +40,9 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
 
     final http.Response response;
     try {
-      response = await _httpClient.get(uri).timeout(_kGeolocationRequestTimeout);
+      response = await _httpClient
+          .get(uri)
+          .timeout(_kGeolocationRequestTimeout);
     } on Exception catch (e) {
       developer.log(
         'IP geolocation request failed for IP "$ip": $e',
@@ -89,14 +91,14 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
     );
   }
 
-  /// Heuristic mapping from country / region to your SupportedLanguages enum.
+  /// Heuristic mapping from country / region to your SupportedLanguage enum.
   ///
   /// Values must match your supported_languages.spy.yaml:
   ///   english, simplifiedMandarinChinese, traditionalChinese, spanish, french,
   ///   brazilianPortuguese, portugalPortuguese, russian, ukrainian, polish,
   ///   indonesian, malay, german, dutch, japanese, swahili, turkish, vietnamese,
   ///   korean, italian, filipino, romanian, swedish, czech
-  SupportedLanguages _mapCountryToSupportedLanguage({
+  SupportedLanguage _mapCountryToSupportedLanguage({
     required String? countryCode,
     required String? regionName,
   }) {
@@ -139,58 +141,58 @@ class GetLocaleOfIpService implements IGetLocaleOfIpService {
     const englishCountries = {'US', 'GB', 'IE', 'CA', 'AU', 'NZ', 'ZA'};
 
     // ----- Single-country mappings -----
-    if (code == 'ID') return SupportedLanguages.indonesian; // Indonesia
-    if (code == 'MY') return SupportedLanguages.malay; // Malaysia
-    if (code == 'VN') return SupportedLanguages.vietnamese; // Vietnam
-    if (code == 'KR') return SupportedLanguages.korean; // South Korea
-    if (code == 'JP') return SupportedLanguages.japanese; // Japan
-    if (code == 'IT') return SupportedLanguages.italian; // Italy
-    if (code == 'TR') return SupportedLanguages.turkish; // Turkey
-    if (code == 'PH') return SupportedLanguages.filipino; // Philippines
-    if (code == 'UA') return SupportedLanguages.ukrainian; // Ukraine
-    if (code == 'PL') return SupportedLanguages.polish; // Poland
-    if (code == 'RO') return SupportedLanguages.romanian; // Romania
-    if (code == 'SE') return SupportedLanguages.swedish; // Sweden
-    if (code == 'CZ') return SupportedLanguages.czech; // Czech Republic
-    if (code == 'NL') return SupportedLanguages.dutch; // Netherlands
-    if (code == 'BR') return SupportedLanguages.brazilianPortuguese; // Brazil
-    if (code == 'PT') return SupportedLanguages.portugalPortuguese; // Portugal
+    if (code == 'ID') return SupportedLanguage.indonesian; // Indonesia
+    if (code == 'MY') return SupportedLanguage.malay; // Malaysia
+    if (code == 'VN') return SupportedLanguage.vietnamese; // Vietnam
+    if (code == 'KR') return SupportedLanguage.korean; // South Korea
+    if (code == 'JP') return SupportedLanguage.japanese; // Japan
+    if (code == 'IT') return SupportedLanguage.italian; // Italy
+    if (code == 'TR') return SupportedLanguage.turkish; // Turkey
+    if (code == 'PH') return SupportedLanguage.filipino; // Philippines
+    if (code == 'UA') return SupportedLanguage.ukrainian; // Ukraine
+    if (code == 'PL') return SupportedLanguage.polish; // Poland
+    if (code == 'RO') return SupportedLanguage.romanian; // Romania
+    if (code == 'SE') return SupportedLanguage.swedish; // Sweden
+    if (code == 'CZ') return SupportedLanguage.czech; // Czech Republic
+    if (code == 'NL') return SupportedLanguage.dutch; // Netherlands
+    if (code == 'BR') return SupportedLanguage.brazilianPortuguese; // Brazil
+    if (code == 'PT') return SupportedLanguage.portugalPortuguese; // Portugal
 
     // Simplified Mandarin Chinese (mainland China, Singapore).
     if (code == 'CN' || code == 'SG') {
-      return SupportedLanguages.simplifiedMandarinChinese;
+      return SupportedLanguage.simplifiedMandarinChinese;
     }
 
     // Traditional Chinese (Taiwan, Hong Kong).
     if (code == 'TW' || code == 'HK') {
-      return SupportedLanguages.traditionalChinese;
+      return SupportedLanguage.traditionalChinese;
     }
 
     if (spanishCountries.contains(code)) {
-      return SupportedLanguages.spanish;
+      return SupportedLanguage.spanish;
     }
 
     if (frenchCountries.contains(code)) {
-      return SupportedLanguages.french;
+      return SupportedLanguage.french;
     }
 
     if (russianCountries.contains(code)) {
-      return SupportedLanguages.russian;
+      return SupportedLanguage.russian;
     }
 
     if (germanCountries.contains(code)) {
-      return SupportedLanguages.german;
+      return SupportedLanguage.german;
     }
 
     // German-speaking part of Switzerland defaults to German.
-    if (code == 'CH') return SupportedLanguages.german;
+    if (code == 'CH') return SupportedLanguage.german;
 
     if (swahiliCountries.contains(code)) {
-      return SupportedLanguages.swahili;
+      return SupportedLanguage.swahili;
     }
 
     if (englishCountries.contains(code)) {
-      return SupportedLanguages.english;
+      return SupportedLanguage.english;
     }
 
     // Final fallback

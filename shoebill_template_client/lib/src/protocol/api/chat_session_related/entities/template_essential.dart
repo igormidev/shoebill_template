@@ -28,7 +28,7 @@ abstract class TemplateEssential implements _i1.SerializableModel {
     required _i2.PdfContent pdfContent,
     required _i3.SchemaDefinition schemaDefinition,
     required String suggestedPrompt,
-    required _i4.SupportedLanguages referenceLanguage,
+    required _i4.SupportedLanguage referenceLanguage,
   }) = _TemplateEssentialImpl;
 
   factory TemplateEssential.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -40,7 +40,7 @@ abstract class TemplateEssential implements _i1.SerializableModel {
         jsonSerialization['schemaDefinition'],
       ),
       suggestedPrompt: jsonSerialization['suggestedPrompt'] as String,
-      referenceLanguage: _i4.SupportedLanguages.fromJson(
+      referenceLanguage: _i4.SupportedLanguage.fromJson(
         (jsonSerialization['referenceLanguage'] as String),
       ),
     );
@@ -52,7 +52,7 @@ abstract class TemplateEssential implements _i1.SerializableModel {
 
   String suggestedPrompt;
 
-  _i4.SupportedLanguages referenceLanguage;
+  _i4.SupportedLanguage referenceLanguage;
 
   /// Returns a shallow copy of this [TemplateEssential]
   /// with some or all fields replaced by the given arguments.
@@ -61,7 +61,7 @@ abstract class TemplateEssential implements _i1.SerializableModel {
     _i2.PdfContent? pdfContent,
     _i3.SchemaDefinition? schemaDefinition,
     String? suggestedPrompt,
-    _i4.SupportedLanguages? referenceLanguage,
+    _i4.SupportedLanguage? referenceLanguage,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -85,7 +85,7 @@ class _TemplateEssentialImpl extends TemplateEssential {
     required _i2.PdfContent pdfContent,
     required _i3.SchemaDefinition schemaDefinition,
     required String suggestedPrompt,
-    required _i4.SupportedLanguages referenceLanguage,
+    required _i4.SupportedLanguage referenceLanguage,
   }) : super._(
          pdfContent: pdfContent,
          schemaDefinition: schemaDefinition,
@@ -101,7 +101,7 @@ class _TemplateEssentialImpl extends TemplateEssential {
     _i2.PdfContent? pdfContent,
     _i3.SchemaDefinition? schemaDefinition,
     String? suggestedPrompt,
-    _i4.SupportedLanguages? referenceLanguage,
+    _i4.SupportedLanguage? referenceLanguage,
   }) {
     return TemplateEssential(
       pdfContent: pdfContent ?? this.pdfContent.copyWith(),

@@ -2,6 +2,6 @@ class: ShoebillTemplateBaselineImplementation
 table: shoebill_template_baseline_implementations
 fields:
     stringifiedPayload: String
-    language: SupportedLanguages
+    language: SupportedLanguage
     createdAt: DateTime, default=now
     baseline: ShoebillTemplateBaseline?, relation(name=baseline_implementation_relation)

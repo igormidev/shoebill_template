@@ -315,11 +315,11 @@ class TemplateReviewerService {
     try {
       await for (final streamItem
           in _openAiService.streamPromptGenerationWithSchemaResponse(
-        prompt: prompt,
-        properties: reviewSchema,
-        model: kReviewerModel,
-        maxRetries: kAiServiceDefaultRetryCount,
-      )) {
+            prompt: prompt,
+            properties: reviewSchema,
+            model: kReviewerModel,
+            maxRetries: kAiServiceDefaultRetryCount,
+          )) {
         switch (streamItem) {
           case AiThinkItem(:final thinkingChunk):
             yield ReviewThinkingEvent(thinkingChunk);
@@ -335,8 +335,7 @@ class TemplateReviewerService {
     } catch (e) {
       yield ReviewCompleteEvent(
         ReviewError(
-          errorMessage:
-              'AI review failed: $e',
+          errorMessage: 'AI review failed: $e',
           attemptsMade: 1,
         ),
       );
@@ -373,12 +372,14 @@ class TemplateReviewerService {
 
     // Check for unclosed critical tags
     for (final tag in _criticalTags) {
-      final openCount = RegExp('<$tag[\\s>]', caseSensitive: false)
-          .allMatches(html)
-          .length;
-      final closeCount = RegExp('</$tag>', caseSensitive: false)
-          .allMatches(html)
-          .length;
+      final openCount = RegExp(
+        '<$tag[\\s>]',
+        caseSensitive: false,
+      ).allMatches(html).length;
+      final closeCount = RegExp(
+        '</$tag>',
+        caseSensitive: false,
+      ).allMatches(html).length;
       // Self-closing tags and Jinja blocks can cause mismatches,
       // so only flag severe discrepancies
       if (openCount > 0 && closeCount == 0 && tag != 'html' && tag != 'head') {
@@ -389,12 +390,12 @@ class TemplateReviewerService {
     }
 
     // Check for broken Jinja2 syntax (unclosed blocks)
-    final jinja2OpenBlocks = RegExp(r'\{%\s*(?:if|for|block|macro)\b')
-        .allMatches(html)
-        .length;
-    final jinja2EndBlocks = RegExp(r'\{%\s*end(?:if|for|block|macro)\b')
-        .allMatches(html)
-        .length;
+    final jinja2OpenBlocks = RegExp(
+      r'\{%\s*(?:if|for|block|macro)\b',
+    ).allMatches(html).length;
+    final jinja2EndBlocks = RegExp(
+      r'\{%\s*end(?:if|for|block|macro)\b',
+    ).allMatches(html).length;
     if (jinja2OpenBlocks > jinja2EndBlocks) {
       errors.add(
         'Jinja2 template has ${jinja2OpenBlocks - jinja2EndBlocks} unclosed '
@@ -493,7 +494,7 @@ class TemplateReviewerService {
       // Add the language variable which is always available in the context
       final context = <String, dynamic>{
         ...samplePayload,
-        'language': SupportedLanguages.english.name,
+        'language': SupportedLanguage.english.name,
       };
 
       template.render(context);
@@ -627,7 +628,7 @@ CRITICAL REVIEW CRITERIA (apply to ALL scenarios):
 3. MULTI-LANGUAGE SUPPORT:
    - ALL hardcoded strings (labels, headers, footers, static text) MUST have language conditionals
    - Language conditionals should use the pattern: {% if language == "en" %}English{% elif language == "ja" %}Japanese{% elif ... %}...{% endif %}
-   - The template must support ALL languages from the SupportedLanguages enum:
+   - The template must support ALL languages from the SupportedLanguage enum:
      english, simplifiedMandarinChinese, traditionalChinese, spanish, french,
      brazilianPortuguese, portugalPortuguese, russian, ukrainian, polish,
      indonesian, malay, german, dutch, japanese, swahili, turkish, vietnamese,

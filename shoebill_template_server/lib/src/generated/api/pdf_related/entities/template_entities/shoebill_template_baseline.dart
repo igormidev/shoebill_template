@@ -33,7 +33,7 @@ abstract class ShoebillTemplateBaseline
 
   factory ShoebillTemplateBaseline({
     _i1.UuidValue? id,
-    required _i2.SupportedLanguages referenceLanguage,
+    required _i2.SupportedLanguage referenceLanguage,
     DateTime? createdAt,
     required int versionId,
     _i3.ShoebillTemplateVersion? version,
@@ -47,7 +47,7 @@ abstract class ShoebillTemplateBaseline
       id: jsonSerialization['id'] == null
           ? null
           : _i1.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
-      referenceLanguage: _i2.SupportedLanguages.fromJson(
+      referenceLanguage: _i2.SupportedLanguage.fromJson(
         (jsonSerialization['referenceLanguage'] as String),
       ),
       createdAt: jsonSerialization['createdAt'] == null
@@ -75,7 +75,7 @@ abstract class ShoebillTemplateBaseline
   @override
   _i1.UuidValue id;
 
-  _i2.SupportedLanguages referenceLanguage;
+  _i2.SupportedLanguage referenceLanguage;
 
   DateTime createdAt;
 
@@ -93,7 +93,7 @@ abstract class ShoebillTemplateBaseline
   @_i1.useResult
   ShoebillTemplateBaseline copyWith({
     _i1.UuidValue? id,
-    _i2.SupportedLanguages? referenceLanguage,
+    _i2.SupportedLanguage? referenceLanguage,
     DateTime? createdAt,
     int? versionId,
     _i3.ShoebillTemplateVersion? version,
@@ -172,7 +172,7 @@ class _Undefined {}
 class _ShoebillTemplateBaselineImpl extends ShoebillTemplateBaseline {
   _ShoebillTemplateBaselineImpl({
     _i1.UuidValue? id,
-    required _i2.SupportedLanguages referenceLanguage,
+    required _i2.SupportedLanguage referenceLanguage,
     DateTime? createdAt,
     required int versionId,
     _i3.ShoebillTemplateVersion? version,
@@ -192,7 +192,7 @@ class _ShoebillTemplateBaselineImpl extends ShoebillTemplateBaseline {
   @override
   ShoebillTemplateBaseline copyWith({
     _i1.UuidValue? id,
-    _i2.SupportedLanguages? referenceLanguage,
+    _i2.SupportedLanguage? referenceLanguage,
     DateTime? createdAt,
     int? versionId,
     Object? version = _Undefined,
@@ -218,8 +218,8 @@ class ShoebillTemplateBaselineUpdateTable
     extends _i1.UpdateTable<ShoebillTemplateBaselineTable> {
   ShoebillTemplateBaselineUpdateTable(super.table);
 
-  _i1.ColumnValue<_i2.SupportedLanguages, _i2.SupportedLanguages>
-  referenceLanguage(_i2.SupportedLanguages value) => _i1.ColumnValue(
+  _i1.ColumnValue<_i2.SupportedLanguage, _i2.SupportedLanguage>
+  referenceLanguage(_i2.SupportedLanguage value) => _i1.ColumnValue(
     table.referenceLanguage,
     value,
   );
@@ -258,7 +258,7 @@ class ShoebillTemplateBaselineTable extends _i1.Table<_i1.UuidValue> {
 
   late final ShoebillTemplateBaselineUpdateTable updateTable;
 
-  late final _i1.ColumnEnum<_i2.SupportedLanguages> referenceLanguage;
+  late final _i1.ColumnEnum<_i2.SupportedLanguage> referenceLanguage;
 
   late final _i1.ColumnDateTime createdAt;
 

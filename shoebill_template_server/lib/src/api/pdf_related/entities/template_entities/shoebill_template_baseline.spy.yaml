@@ -4,7 +4,7 @@ fields:
     id: UuidValue, defaultModel=random_v7
 
     # The language the pdf was originally created in.
-    referenceLanguage: SupportedLanguages
+    referenceLanguage: SupportedLanguage
 
     createdAt: DateTime, default=now
 

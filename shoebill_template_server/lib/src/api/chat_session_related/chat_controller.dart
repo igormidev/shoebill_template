@@ -29,7 +29,7 @@ extension TemplateCurrentStateCommonFields on TemplateCurrentState {
     DeployReadyTemplateState(:final schemaDefinition) => schemaDefinition,
   };
 
-  SupportedLanguages get referenceLanguage => switch (this) {
+  SupportedLanguage get referenceLanguage => switch (this) {
     NewTemplateState(:final referenceLanguage) => referenceLanguage,
     DeployReadyTemplateState(:final referenceLanguage) => referenceLanguage,
   };
@@ -96,8 +96,8 @@ class ChatControllerImpl implements IChatController {
   ChatControllerImpl({
     required DaytonaClaudeCodeService daytonaService,
     required TemplateReviewerService reviewerService,
-  })  : _daytonaService = daytonaService,
-        _reviewerService = reviewerService;
+  }) : _daytonaService = daytonaService,
+       _reviewerService = reviewerService;
 
   final DaytonaClaudeCodeService _daytonaService;
   final TemplateReviewerService _reviewerService;
@@ -107,10 +107,9 @@ class ChatControllerImpl implements IChatController {
     ChatActor role,
     ChatUIStyle style,
     String content,
-  ) =>
-      ChatMessageResponse(
-        message: ChatMessage(role: role, style: style, content: content),
-      );
+  ) => ChatMessageResponse(
+    message: ChatMessage(role: role, style: style, content: content),
+  );
 
   @override
   bool isAlreadyProcessingMessage = false;
@@ -219,53 +218,54 @@ class ChatControllerImpl implements IChatController {
       unawaited(
         _daytonaService
             .generateTemplate(
-          scenario: currentScenario,
-          previousSessionId: claudeSessionId,
-          onThinking: (thinking) {
-            if (isLocal) print('Thinking: $thinking');
-            if (!daytonaStreamController.isClosed) {
-              daytonaStreamController.add(
-                _chatMsg(ChatActor.ai, ChatUIStyle.thinkingChunk, thinking),
-              );
-            }
-          },
-          onToolUse: (toolName, input) {
-            if (isLocal) {
-              print('Using tool: $toolName');
-              if (toolName == 'Write') {
-                print('   Writing to: ${input['file_path']}');
-              }
-            }
-            if (!daytonaStreamController.isClosed) {
-              daytonaStreamController.add(
-                _chatMsg(
-                  ChatActor.ai,
-                  ChatUIStyle.thinkingChunk,
-                  'Using tool: $toolName',
-                ),
-              );
-            }
-          },
-          onText: (text) {
-            if (isLocal) print('Text: $text');
-            if (!daytonaStreamController.isClosed) {
-              daytonaStreamController.add(
-                _chatMsg(ChatActor.ai, ChatUIStyle.normal, text),
-              );
-            }
-          },
-        )
+              scenario: currentScenario,
+              previousSessionId: claudeSessionId,
+              onThinking: (thinking) {
+                if (isLocal) print('Thinking: $thinking');
+                if (!daytonaStreamController.isClosed) {
+                  daytonaStreamController.add(
+                    _chatMsg(ChatActor.ai, ChatUIStyle.thinkingChunk, thinking),
+                  );
+                }
+              },
+              onToolUse: (toolName, input) {
+                if (isLocal) {
+                  print('Using tool: $toolName');
+                  if (toolName == 'Write') {
+                    print('   Writing to: ${input['file_path']}');
+                  }
+                }
+                if (!daytonaStreamController.isClosed) {
+                  daytonaStreamController.add(
+                    _chatMsg(
+                      ChatActor.ai,
+                      ChatUIStyle.thinkingChunk,
+                      'Using tool: $toolName',
+                    ),
+                  );
+                }
+              },
+              onText: (text) {
+                if (isLocal) print('Text: $text');
+                if (!daytonaStreamController.isClosed) {
+                  daytonaStreamController.add(
+                    _chatMsg(ChatActor.ai, ChatUIStyle.normal, text),
+                  );
+                }
+              },
+            )
             .then((result) {
-          daytonaResultCompleter.complete(result);
-          if (!daytonaStreamController.isClosed) {
-            daytonaStreamController.close();
-          }
-        }).catchError((Object error) {
-          daytonaResultCompleter.completeError(error);
-          if (!daytonaStreamController.isClosed) {
-            daytonaStreamController.close();
-          }
-        }),
+              daytonaResultCompleter.complete(result);
+              if (!daytonaStreamController.isClosed) {
+                daytonaStreamController.close();
+              }
+            })
+            .catchError((Object error) {
+              daytonaResultCompleter.completeError(error);
+              if (!daytonaStreamController.isClosed) {
+                daytonaStreamController.close();
+              }
+            }),
       );
 
       // Yield all streaming events from Daytona (thinking, tool use, text)
@@ -444,8 +444,7 @@ class ChatControllerImpl implements IChatController {
             '${stderr != null ? '\nDetails: $stderr' : ''}',
       DaytonaFileNotFoundError(:final message) =>
         'Generated files not found: $message',
-      DaytonaTimeoutError(:final phase) =>
-        'Operation timed out during: $phase',
+      DaytonaTimeoutError(:final phase) => 'Operation timed out during: $phase',
       DaytonaNetworkError(:final message) => 'Network error: $message',
       DaytonaFileUploadError(:final message, :final fileName) =>
         'Failed to upload file "$fileName": $message',
@@ -559,7 +558,8 @@ class ChatControllerImpl implements IChatController {
     required String currentHtml,
     required String currentCss,
   }) {
-    final retryPrompt = '''
+    final retryPrompt =
+        '''
 The previous attempt had issues that need to be fixed. Here is the reviewer's feedback:
 
 $feedbackForClaude
@@ -611,11 +611,12 @@ Do NOT start from scratch - modify the existing files to address the specific is
     // Both NewTemplateState and DeployReadyTemplateState share the same fields
     // needed to construct a DeployReadyTemplateState, so we extract them
     // uniformly regardless of the concrete type.
-    final effectiveSchema = schemaChangePayload?.newSchemaDefinition ??
+    final effectiveSchema =
+        schemaChangePayload?.newSchemaDefinition ??
         templateState.schemaDefinition;
     final effectivePayload =
         schemaChangePayload?.newExamplePayloadStringified ??
-            templateState.referenceStringifiedPayloadJson;
+        templateState.referenceStringifiedPayloadJson;
 
     final deployState = DeployReadyTemplateState(
       pdfContent: templateState.pdfContent,

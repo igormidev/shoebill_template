@@ -25,7 +25,7 @@ abstract class DeployReadyTemplateState extends _i1.TemplateCurrentState
   factory DeployReadyTemplateState({
     required _i3.PdfContent pdfContent,
     required _i4.SchemaDefinition schemaDefinition,
-    required _i5.SupportedLanguages referenceLanguage,
+    required _i5.SupportedLanguage referenceLanguage,
     required String htmlContent,
     required String cssContent,
     required String referenceStringifiedPayloadJson,
@@ -41,7 +41,7 @@ abstract class DeployReadyTemplateState extends _i1.TemplateCurrentState
       schemaDefinition: _i6.Protocol().deserialize<_i4.SchemaDefinition>(
         jsonSerialization['schemaDefinition'],
       ),
-      referenceLanguage: _i5.SupportedLanguages.fromJson(
+      referenceLanguage: _i5.SupportedLanguage.fromJson(
         (jsonSerialization['referenceLanguage'] as String),
       ),
       htmlContent: jsonSerialization['htmlContent'] as String,
@@ -55,7 +55,7 @@ abstract class DeployReadyTemplateState extends _i1.TemplateCurrentState
 
   _i4.SchemaDefinition schemaDefinition;
 
-  _i5.SupportedLanguages referenceLanguage;
+  _i5.SupportedLanguage referenceLanguage;
 
   String htmlContent;
 
@@ -70,7 +70,7 @@ abstract class DeployReadyTemplateState extends _i1.TemplateCurrentState
   DeployReadyTemplateState copyWith({
     _i3.PdfContent? pdfContent,
     _i4.SchemaDefinition? schemaDefinition,
-    _i5.SupportedLanguages? referenceLanguage,
+    _i5.SupportedLanguage? referenceLanguage,
     String? htmlContent,
     String? cssContent,
     String? referenceStringifiedPayloadJson,
@@ -98,7 +98,7 @@ class _DeployReadyTemplateStateImpl extends DeployReadyTemplateState {
   _DeployReadyTemplateStateImpl({
     required _i3.PdfContent pdfContent,
     required _i4.SchemaDefinition schemaDefinition,
-    required _i5.SupportedLanguages referenceLanguage,
+    required _i5.SupportedLanguage referenceLanguage,
     required String htmlContent,
     required String cssContent,
     required String referenceStringifiedPayloadJson,
@@ -118,7 +118,7 @@ class _DeployReadyTemplateStateImpl extends DeployReadyTemplateState {
   DeployReadyTemplateState copyWith({
     _i3.PdfContent? pdfContent,
     _i4.SchemaDefinition? schemaDefinition,
-    _i5.SupportedLanguages? referenceLanguage,
+    _i5.SupportedLanguage? referenceLanguage,
     String? htmlContent,
     String? cssContent,
     String? referenceStringifiedPayloadJson,

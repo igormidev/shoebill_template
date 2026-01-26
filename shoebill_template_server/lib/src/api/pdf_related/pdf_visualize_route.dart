@@ -31,8 +31,10 @@ class PdfVisualizeRoute extends Route with RouteMixin, JinjaPdfRendererMixin {
     if (uuidError != null) return uuidError;
 
     // ─── 2. Load and validate the baseline with its relations ────────────
-    final (baselineData, baselineError) =
-        await _loadValidatedBaseline(session, uuid!);
+    final (baselineData, baselineError) = await _loadValidatedBaseline(
+      session,
+      uuid!,
+    );
     if (baselineError != null) return baselineError;
     final (baseline, _, versionInput) = baselineData!;
 
@@ -73,14 +75,16 @@ class PdfVisualizeRoute extends Route with RouteMixin, JinjaPdfRendererMixin {
   /// - A valid triple of (baseline, version, versionInput) and null error, or
   /// - Null data and an error [Response]
   Future<
+    (
       (
-        (
-          ShoebillTemplateBaseline,
-          ShoebillTemplateVersion,
-          ShoebillTemplateVersionInput,
-        )?,
-        Response?,
-      )> _loadValidatedBaseline(Session session, String uuid) async {
+        ShoebillTemplateBaseline,
+        ShoebillTemplateVersion,
+        ShoebillTemplateVersionInput,
+      )?,
+      Response?,
+    )
+  >
+  _loadValidatedBaseline(Session session, String uuid) async {
     final baseline = await ShoebillTemplateBaseline.db.findById(
       session,
       UuidValue.fromString(uuid),
@@ -154,18 +158,18 @@ class PdfVisualizeRoute extends Route with RouteMixin, JinjaPdfRendererMixin {
   /// - The implementation and null error, or
   /// - Null and an error [Response]
   Future<(ShoebillTemplateBaselineImplementation?, Response?)>
-      _findOrCreateImplementation({
+  _findOrCreateImplementation({
     required Session session,
     required ShoebillTemplateBaseline baseline,
-    required SupportedLanguages selectedLanguage,
+    required SupportedLanguage selectedLanguage,
   }) async {
-    final existing =
-        await ShoebillTemplateBaselineImplementation.db.findFirstRow(
-      session,
-      where: (t) =>
-          t.baselineId.equals(baseline.id) &
-          t.language.equals(selectedLanguage),
-    );
+    final existing = await ShoebillTemplateBaselineImplementation.db
+        .findFirstRow(
+          session,
+          where: (t) =>
+              t.baselineId.equals(baseline.id) &
+              t.language.equals(selectedLanguage),
+        );
 
     if (existing != null) {
       return (existing, null);
@@ -192,7 +196,7 @@ class PdfVisualizeRoute extends Route with RouteMixin, JinjaPdfRendererMixin {
     required String htmlTemplate,
     required String cssContent,
     required Map<String, dynamic> payload,
-    required SupportedLanguages language,
+    required SupportedLanguage language,
   }) async {
     try {
       final pdfBytes = await renderPdfFromJinja(
@@ -221,7 +225,7 @@ class PdfVisualizeRoute extends Route with RouteMixin, JinjaPdfRendererMixin {
   /// - If the session ID does not match (e.g., the link was shared from another
   ///   user with a different IP), fall back to IP-based detection.
   /// - If no session ID is provided, use IP-based detection directly.
-  Future<SupportedLanguages> _detectLanguage(Request request) async {
+  Future<SupportedLanguage> _detectLanguage(Request request) async {
     final userIp = request.remoteInfo;
     final sessionId = request.queryParameters.raw['sI'];
 
@@ -231,8 +235,9 @@ class PdfVisualizeRoute extends Route with RouteMixin, JinjaPdfRendererMixin {
 
     // Try to match session ID against known language+IP hashes.
     // The hash uses SHA-256 (via hashString) to prevent session ID forgery.
-    final sessionLanguage = SupportedLanguages.values
-        .firstWhereOrNull((t) => hashString(t.name + userIp) == sessionId);
+    final sessionLanguage = SupportedLanguage.values.firstWhereOrNull(
+      (t) => hashString(t.name + userIp) == sessionId,
+    );
 
     if (sessionLanguage != null) {
       return sessionLanguage;

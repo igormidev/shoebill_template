@@ -63,8 +63,7 @@ class CreateTemplateEssentialsEndpoint extends Endpoint {
 
   /// Builds the sophisticated prompt for analyzing the JSON payload
   String _buildAnalysisPrompt(String prettyJson) {
-    final languageNames =
-        SupportedLanguages.values.map((e) => e.name).toList();
+    final languageNames = SupportedLanguage.values.map((e) => e.name).toList();
     return '''
 You are an expert PDF template architect and JSON schema analyst. Your task is to analyze a user-provided JSON payload and generate comprehensive template essentials for a Jinja2-based HTML/CSS PDF generation system.
 
@@ -238,8 +237,7 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
 
   /// Builds the schema properties for the expected AI response
   Map<String, SchemaProperty> _buildResponseSchemaProperties() {
-    final languageNames =
-        SupportedLanguages.values.map((e) => e.name).toList();
+    final languageNames = SupportedLanguage.values.map((e) => e.name).toList();
     return {
       'pdfContent': SchemaPropertyStructuredObjectWithDefinedProperties(
         nullable: false,
@@ -307,7 +305,7 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
 
       // Parse referenceLanguage
       final languageStr = aiResponse['referenceLanguage'] as String;
-      final referenceLanguage = SupportedLanguages.fromJson(languageStr);
+      final referenceLanguage = SupportedLanguage.fromJson(languageStr);
 
       return TemplateEssential(
         pdfContent: pdfContent,
@@ -318,8 +316,7 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
     } catch (e) {
       throw ShoebillException(
         title: 'AI Response Parsing Error',
-        description:
-            'Failed to parse template essentials from AI response: $e',
+        description: 'Failed to parse template essentials from AI response: $e',
       );
     }
   }
@@ -396,8 +393,7 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
           );
 
         case 'structured_object_with_defined_properties':
-          final nestedProperties =
-              json['properties'] as Map<String, dynamic>;
+          final nestedProperties = json['properties'] as Map<String, dynamic>;
           return SchemaPropertyStructuredObjectWithDefinedProperties(
             nullable: nullable,
             description: description,
@@ -414,8 +410,7 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
     } catch (e) {
       throw ShoebillException(
         title: 'AI Response Parsing Error',
-        description:
-            'Failed to parse schema property from AI response: $e',
+        description: 'Failed to parse schema property from AI response: $e',
       );
     }
   }

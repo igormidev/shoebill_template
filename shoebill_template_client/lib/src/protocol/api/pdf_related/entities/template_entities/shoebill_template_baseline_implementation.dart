@@ -30,7 +30,7 @@ abstract class ShoebillTemplateBaselineImplementation
   factory ShoebillTemplateBaselineImplementation({
     int? id,
     required String stringifiedPayload,
-    required _i2.SupportedLanguages language,
+    required _i2.SupportedLanguage language,
     DateTime? createdAt,
     required _i1.UuidValue baselineId,
     _i3.ShoebillTemplateBaseline? baseline,
@@ -42,7 +42,7 @@ abstract class ShoebillTemplateBaselineImplementation
     return ShoebillTemplateBaselineImplementation(
       id: jsonSerialization['id'] as int?,
       stringifiedPayload: jsonSerialization['stringifiedPayload'] as String,
-      language: _i2.SupportedLanguages.fromJson(
+      language: _i2.SupportedLanguage.fromJson(
         (jsonSerialization['language'] as String),
       ),
       createdAt: jsonSerialization['createdAt'] == null
@@ -66,7 +66,7 @@ abstract class ShoebillTemplateBaselineImplementation
 
   String stringifiedPayload;
 
-  _i2.SupportedLanguages language;
+  _i2.SupportedLanguage language;
 
   DateTime createdAt;
 
@@ -80,7 +80,7 @@ abstract class ShoebillTemplateBaselineImplementation
   ShoebillTemplateBaselineImplementation copyWith({
     int? id,
     String? stringifiedPayload,
-    _i2.SupportedLanguages? language,
+    _i2.SupportedLanguage? language,
     DateTime? createdAt,
     _i1.UuidValue? baselineId,
     _i3.ShoebillTemplateBaseline? baseline,
@@ -111,7 +111,7 @@ class _ShoebillTemplateBaselineImplementationImpl
   _ShoebillTemplateBaselineImplementationImpl({
     int? id,
     required String stringifiedPayload,
-    required _i2.SupportedLanguages language,
+    required _i2.SupportedLanguage language,
     DateTime? createdAt,
     required _i1.UuidValue baselineId,
     _i3.ShoebillTemplateBaseline? baseline,
@@ -131,7 +131,7 @@ class _ShoebillTemplateBaselineImplementationImpl
   ShoebillTemplateBaselineImplementation copyWith({
     Object? id = _Undefined,
     String? stringifiedPayload,
-    _i2.SupportedLanguages? language,
+    _i2.SupportedLanguage? language,
     DateTime? createdAt,
     _i1.UuidValue? baselineId,
     Object? baseline = _Undefined,

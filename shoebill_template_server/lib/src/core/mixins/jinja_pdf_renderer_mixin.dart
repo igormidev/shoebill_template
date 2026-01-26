@@ -59,7 +59,7 @@ import 'package:shoebill_template_server/src/generated/protocol.dart';
 ///       htmlTemplate: htmlTemplate,
 ///       cssContent: cssContent,
 ///       payload: invoiceData,
-///       language: SupportedLanguages.english,
+///       language: SupportedLanguage.english,
 ///     );
 ///   }
 /// }
@@ -111,7 +111,7 @@ mixin JinjaPdfRendererMixin {
   ///
   /// "Noto Sans CJK SC" provides comprehensive Unicode support including
   /// Latin, Cyrillic, CJK (Chinese, Japanese, Korean), and many other scripts.
-  /// This ensures proper rendering for all [SupportedLanguages].
+  /// This ensures proper rendering for all [SupportedLanguage].
   static const String _kDefaultFontFamily = 'Noto Sans CJK SC';
 
   /// The Google Fonts CDN URL for loading Noto Sans SC (Simplified Chinese variant
@@ -156,12 +156,16 @@ mixin JinjaPdfRendererMixin {
   ///
   /// Matches `</style` (case-insensitive) which is the minimum needed to close
   /// a style element, regardless of trailing characters (`>`, whitespace, attributes).
-  static final RegExp _kStyleBreakoutPattern =
-      RegExp(r'<\s*/\s*style', caseSensitive: false);
+  static final RegExp _kStyleBreakoutPattern = RegExp(
+    r'<\s*/\s*style',
+    caseSensitive: false,
+  );
 
   /// Pattern that detects `<script` tags injected through CSS content.
-  static final RegExp _kScriptTagPattern =
-      RegExp(r'<\s*script', caseSensitive: false);
+  static final RegExp _kScriptTagPattern = RegExp(
+    r'<\s*script',
+    caseSensitive: false,
+  );
 
   // ─── Browser Singleton ──────────────────────────────────────────────────
 
@@ -233,7 +237,7 @@ mixin JinjaPdfRendererMixin {
     required String htmlTemplate,
     required String cssContent,
     required Map<String, dynamic> payload,
-    required SupportedLanguages language,
+    required SupportedLanguage language,
   }) async {
     // ─── 1. Input Validation ───────────────────────────────────────────
     _validateInputs(htmlTemplate: htmlTemplate, cssContent: cssContent);
@@ -318,14 +322,14 @@ mixin JinjaPdfRendererMixin {
   ///
   /// The template context includes:
   /// - All entries from [payload] as top-level variables
-  /// - `language`: The [SupportedLanguages] enum name (e.g., "english", "japanese")
+  /// - `language`: The [SupportedLanguage] enum name (e.g., "english", "japanese")
   ///
   /// Throws [ShoebillException] if the template has syntax errors or if
   /// referenced variables are missing from the context.
   String _renderJinjaTemplate({
     required String htmlTemplate,
     required Map<String, dynamic> payload,
-    required SupportedLanguages language,
+    required SupportedLanguage language,
   }) {
     try {
       final environment = Environment(

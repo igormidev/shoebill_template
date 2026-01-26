@@ -31,7 +31,7 @@ abstract class ShoebillTemplateBaseline implements _i1.SerializableModel {
 
   factory ShoebillTemplateBaseline({
     _i1.UuidValue? id,
-    required _i2.SupportedLanguages referenceLanguage,
+    required _i2.SupportedLanguage referenceLanguage,
     DateTime? createdAt,
     required int versionId,
     _i3.ShoebillTemplateVersion? version,
@@ -45,7 +45,7 @@ abstract class ShoebillTemplateBaseline implements _i1.SerializableModel {
       id: jsonSerialization['id'] == null
           ? null
           : _i1.UuidValueJsonExtension.fromJson(jsonSerialization['id']),
-      referenceLanguage: _i2.SupportedLanguages.fromJson(
+      referenceLanguage: _i2.SupportedLanguage.fromJson(
         (jsonSerialization['referenceLanguage'] as String),
       ),
       createdAt: jsonSerialization['createdAt'] == null
@@ -69,7 +69,7 @@ abstract class ShoebillTemplateBaseline implements _i1.SerializableModel {
   /// The id of the object.
   _i1.UuidValue id;
 
-  _i2.SupportedLanguages referenceLanguage;
+  _i2.SupportedLanguage referenceLanguage;
 
   DateTime createdAt;
 
@@ -84,7 +84,7 @@ abstract class ShoebillTemplateBaseline implements _i1.SerializableModel {
   @_i1.useResult
   ShoebillTemplateBaseline copyWith({
     _i1.UuidValue? id,
-    _i2.SupportedLanguages? referenceLanguage,
+    _i2.SupportedLanguage? referenceLanguage,
     DateTime? createdAt,
     int? versionId,
     _i3.ShoebillTemplateVersion? version,
@@ -117,7 +117,7 @@ class _Undefined {}
 class _ShoebillTemplateBaselineImpl extends ShoebillTemplateBaseline {
   _ShoebillTemplateBaselineImpl({
     _i1.UuidValue? id,
-    required _i2.SupportedLanguages referenceLanguage,
+    required _i2.SupportedLanguage referenceLanguage,
     DateTime? createdAt,
     required int versionId,
     _i3.ShoebillTemplateVersion? version,
@@ -137,7 +137,7 @@ class _ShoebillTemplateBaselineImpl extends ShoebillTemplateBaseline {
   @override
   ShoebillTemplateBaseline copyWith({
     _i1.UuidValue? id,
-    _i2.SupportedLanguages? referenceLanguage,
+    _i2.SupportedLanguage? referenceLanguage,
     DateTime? createdAt,
     int? versionId,
     Object? version = _Undefined,

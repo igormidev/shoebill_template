@@ -66,8 +66,7 @@ extension SchemaPropertyExtension on SchemaProperty {
   }
 
   /// Returns a formatted JSON string representation
-  String toSchemaString() =>
-      _kPrettyJsonEncoder.convert(toSchemaJson());
+  String toSchemaString() => _kPrettyJsonEncoder.convert(toSchemaJson());
 }
 
 /// Static methods for SchemaProperty that can't be in extension
@@ -129,8 +128,7 @@ class SchemaPropertyParser {
                   'for enum type, but got: $rawEnumValues',
             );
           }
-          final enumValues =
-              rawEnumValues.map((e) => e as String).toList();
+          final enumValues = rawEnumValues.map((e) => e as String).toList();
           return SchemaPropertyEnum(
             enumValues: enumValues,
             nullable: nullable,
@@ -199,8 +197,8 @@ extension SchemaDefinitionExt on SchemaDefinition {
   /// Throws [ShoebillException] if the JSON is invalid or translation fails.
   Future<String> translateBasedOnSchema({
     required String stringifiedJson,
-    required SupportedLanguages sourceLanguage,
-    required SupportedLanguages targetLanguage,
+    required SupportedLanguage sourceLanguage,
+    required SupportedLanguage targetLanguage,
   }) async {
     final sourceJson = tryDecode(stringifiedJson);
     if (sourceJson == null) {
@@ -443,34 +441,34 @@ Object? _applyTranslations({
   }
 }
 
-/// Converts SupportedLanguages enum to human-readable language name for AI prompt.
-String _languageToDisplayName(SupportedLanguages language) {
+/// Converts SupportedLanguage enum to human-readable language name for AI prompt.
+String _languageToDisplayName(SupportedLanguage language) {
   return switch (language) {
-    SupportedLanguages.english => 'English',
-    SupportedLanguages.simplifiedMandarinChinese =>
+    SupportedLanguage.english => 'English',
+    SupportedLanguage.simplifiedMandarinChinese =>
       'Simplified Mandarin Chinese',
-    SupportedLanguages.traditionalChinese => 'Traditional Chinese',
-    SupportedLanguages.spanish => 'Spanish',
-    SupportedLanguages.french => 'French',
-    SupportedLanguages.brazilianPortuguese => 'Brazilian Portuguese',
-    SupportedLanguages.portugalPortuguese => 'Portugal Portuguese',
-    SupportedLanguages.russian => 'Russian',
-    SupportedLanguages.ukrainian => 'Ukrainian',
-    SupportedLanguages.polish => 'Polish',
-    SupportedLanguages.indonesian => 'Indonesian',
-    SupportedLanguages.malay => 'Malay',
-    SupportedLanguages.german => 'German',
-    SupportedLanguages.dutch => 'Dutch',
-    SupportedLanguages.japanese => 'Japanese',
-    SupportedLanguages.swahili => 'Swahili',
-    SupportedLanguages.turkish => 'Turkish',
-    SupportedLanguages.vietnamese => 'Vietnamese',
-    SupportedLanguages.korean => 'Korean',
-    SupportedLanguages.italian => 'Italian',
-    SupportedLanguages.filipino => 'Filipino',
-    SupportedLanguages.romanian => 'Romanian',
-    SupportedLanguages.swedish => 'Swedish',
-    SupportedLanguages.czech => 'Czech',
+    SupportedLanguage.traditionalChinese => 'Traditional Chinese',
+    SupportedLanguage.spanish => 'Spanish',
+    SupportedLanguage.french => 'French',
+    SupportedLanguage.brazilianPortuguese => 'Brazilian Portuguese',
+    SupportedLanguage.portugalPortuguese => 'Portugal Portuguese',
+    SupportedLanguage.russian => 'Russian',
+    SupportedLanguage.ukrainian => 'Ukrainian',
+    SupportedLanguage.polish => 'Polish',
+    SupportedLanguage.indonesian => 'Indonesian',
+    SupportedLanguage.malay => 'Malay',
+    SupportedLanguage.german => 'German',
+    SupportedLanguage.dutch => 'Dutch',
+    SupportedLanguage.japanese => 'Japanese',
+    SupportedLanguage.swahili => 'Swahili',
+    SupportedLanguage.turkish => 'Turkish',
+    SupportedLanguage.vietnamese => 'Vietnamese',
+    SupportedLanguage.korean => 'Korean',
+    SupportedLanguage.italian => 'Italian',
+    SupportedLanguage.filipino => 'Filipino',
+    SupportedLanguage.romanian => 'Romanian',
+    SupportedLanguage.swedish => 'Swedish',
+    SupportedLanguage.czech => 'Czech',
   };
 }
 
@@ -583,8 +581,7 @@ extension SchemaDefinitionExtension on SchemaDefinition {
       properties.map((key, value) => MapEntry(key, value.toSchemaJson()));
 
   /// Returns a formatted JSON string representation
-  String toSchemaString() =>
-      _kPrettyJsonEncoder.convert(toSchemaJson());
+  String toSchemaString() => _kPrettyJsonEncoder.convert(toSchemaJson());
 
   /// Converts to a SchemaPropertyStructuredObjectWithDefinedProperties
   SchemaPropertyStructuredObjectWithDefinedProperties toSchemaProperty() =>

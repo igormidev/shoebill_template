@@ -94,8 +94,8 @@ void main() {
 
       final result = await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.spanish,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.spanish,
       );
 
       final resultMap = jsonDecode(result) as Map<String, dynamic>;
@@ -138,8 +138,8 @@ void main() {
 
       final result = await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.french,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.french,
       );
 
       final resultMap = jsonDecode(result) as Map<String, dynamic>;
@@ -170,8 +170,8 @@ void main() {
 
       final result = await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.german,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.german,
       );
 
       final resultMap = jsonDecode(result) as Map<String, dynamic>;
@@ -211,8 +211,8 @@ void main() {
 
       final result = await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.japanese,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.japanese,
       );
 
       final resultMap = jsonDecode(result) as Map<String, dynamic>;
@@ -253,8 +253,8 @@ void main() {
 
         await schema.translateBasedOnSchema(
           stringifiedJson: inputJson,
-          sourceLanguage: SupportedLanguages.english,
-          targetLanguage: SupportedLanguages.spanish,
+          sourceLanguage: SupportedLanguage.english,
+          targetLanguage: SupportedLanguage.spanish,
         );
 
         // Verify only the translatable string was sent for translation
@@ -307,8 +307,8 @@ void main() {
 
       final result = await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.italian,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.italian,
       );
 
       final resultMap = jsonDecode(result) as Map<String, dynamic>;
@@ -343,8 +343,8 @@ void main() {
 
       final result = await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.spanish,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.spanish,
       );
 
       // Should return original JSON unchanged
@@ -375,8 +375,8 @@ void main() {
 
       await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.spanish,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.spanish,
       );
 
       // Only non-empty translatable string should be sent
@@ -412,8 +412,8 @@ void main() {
 
       final result = await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.spanish,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.spanish,
       );
 
       final resultMap = jsonDecode(result) as Map<String, dynamic>;
@@ -441,8 +441,8 @@ void main() {
 
       final result = await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.spanish,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.spanish,
       );
 
       final resultMap = jsonDecode(result) as Map<String, dynamic>;
@@ -462,8 +462,8 @@ void main() {
       expect(
         () => schema.translateBasedOnSchema(
           stringifiedJson: 'not valid json',
-          sourceLanguage: SupportedLanguages.english,
-          targetLanguage: SupportedLanguages.spanish,
+          sourceLanguage: SupportedLanguage.english,
+          targetLanguage: SupportedLanguage.spanish,
         ),
         throwsA(isA<ShoebillException>()),
       );
@@ -487,8 +487,8 @@ void main() {
 
       final result = await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.spanish,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.spanish,
       );
 
       final resultMap = jsonDecode(result) as Map<String, dynamic>;
@@ -549,8 +549,8 @@ void main() {
 
       final result = await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.korean,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.korean,
       );
 
       final resultMap = jsonDecode(result) as Map<String, dynamic>;
@@ -606,8 +606,8 @@ void main() {
 
       await schema.translateBasedOnSchema(
         stringifiedJson: inputJson,
-        sourceLanguage: SupportedLanguages.english,
-        targetLanguage: SupportedLanguages.spanish,
+        sourceLanguage: SupportedLanguage.english,
+        targetLanguage: SupportedLanguage.spanish,
       );
 
       // Verify the correct path keys were generated

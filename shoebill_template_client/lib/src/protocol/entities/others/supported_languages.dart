@@ -12,7 +12,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 
-enum SupportedLanguages implements _i1.SerializableModel {
+enum SupportedLanguage implements _i1.SerializableModel {
   english,
   simplifiedMandarinChinese,
   traditionalChinese,
@@ -38,59 +38,59 @@ enum SupportedLanguages implements _i1.SerializableModel {
   swedish,
   czech;
 
-  static SupportedLanguages fromJson(String name) {
+  static SupportedLanguage fromJson(String name) {
     switch (name) {
       case 'english':
-        return SupportedLanguages.english;
+        return SupportedLanguage.english;
       case 'simplifiedMandarinChinese':
-        return SupportedLanguages.simplifiedMandarinChinese;
+        return SupportedLanguage.simplifiedMandarinChinese;
       case 'traditionalChinese':
-        return SupportedLanguages.traditionalChinese;
+        return SupportedLanguage.traditionalChinese;
       case 'spanish':
-        return SupportedLanguages.spanish;
+        return SupportedLanguage.spanish;
       case 'french':
-        return SupportedLanguages.french;
+        return SupportedLanguage.french;
       case 'brazilianPortuguese':
-        return SupportedLanguages.brazilianPortuguese;
+        return SupportedLanguage.brazilianPortuguese;
       case 'portugalPortuguese':
-        return SupportedLanguages.portugalPortuguese;
+        return SupportedLanguage.portugalPortuguese;
       case 'russian':
-        return SupportedLanguages.russian;
+        return SupportedLanguage.russian;
       case 'ukrainian':
-        return SupportedLanguages.ukrainian;
+        return SupportedLanguage.ukrainian;
       case 'polish':
-        return SupportedLanguages.polish;
+        return SupportedLanguage.polish;
       case 'indonesian':
-        return SupportedLanguages.indonesian;
+        return SupportedLanguage.indonesian;
       case 'malay':
-        return SupportedLanguages.malay;
+        return SupportedLanguage.malay;
       case 'german':
-        return SupportedLanguages.german;
+        return SupportedLanguage.german;
       case 'dutch':
-        return SupportedLanguages.dutch;
+        return SupportedLanguage.dutch;
       case 'japanese':
-        return SupportedLanguages.japanese;
+        return SupportedLanguage.japanese;
       case 'swahili':
-        return SupportedLanguages.swahili;
+        return SupportedLanguage.swahili;
       case 'turkish':
-        return SupportedLanguages.turkish;
+        return SupportedLanguage.turkish;
       case 'vietnamese':
-        return SupportedLanguages.vietnamese;
+        return SupportedLanguage.vietnamese;
       case 'korean':
-        return SupportedLanguages.korean;
+        return SupportedLanguage.korean;
       case 'italian':
-        return SupportedLanguages.italian;
+        return SupportedLanguage.italian;
       case 'filipino':
-        return SupportedLanguages.filipino;
+        return SupportedLanguage.filipino;
       case 'romanian':
-        return SupportedLanguages.romanian;
+        return SupportedLanguage.romanian;
       case 'swedish':
-        return SupportedLanguages.swedish;
+        return SupportedLanguage.swedish;
       case 'czech':
-        return SupportedLanguages.czech;
+        return SupportedLanguage.czech;
       default:
         throw ArgumentError(
-          'Value "$name" cannot be converted to "SupportedLanguages"',
+          'Value "$name" cannot be converted to "SupportedLanguage"',
         );
     }
   }

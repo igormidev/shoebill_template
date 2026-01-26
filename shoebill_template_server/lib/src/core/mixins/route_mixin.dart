@@ -8,10 +8,10 @@ mixin RouteMixin on Route {
   static const kLanguageParam = 'language';
   static const kUuidParam = 'uuid';
 
-  SupportedLanguages? getLanguageCode(Request request) {
+  SupportedLanguage? getLanguageCode(Request request) {
     final queryParameters = request.queryParameters.raw;
     final code = queryParameters[kLanguageParam];
-    return SupportedLanguages.values.firstWhereOrNull(
+    return SupportedLanguage.values.firstWhereOrNull(
       (lang) => lang.name == code,
     );
   }

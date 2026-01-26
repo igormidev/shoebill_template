@@ -14,7 +14,7 @@ import 'package:shoebill_template_server/src/generated/protocol.dart';
 ///   - `versionId` (required): The integer ID of the [ShoebillTemplateVersion]
 ///     this baseline is based on.
 ///   - `language` (required): The reference language for the baseline
-///     (must match a [SupportedLanguages] enum value name).
+///     (must match a [SupportedLanguage] enum value name).
 ///
 /// **Request body (JSON):**
 ///   The payload JSON object that conforms to the version's schema.
@@ -37,7 +37,7 @@ class PdfGenerateEndpoint extends Route with RouteMixin {
         400,
         'Missing or invalid language',
         'The "language" query parameter is required and must be a valid '
-            'SupportedLanguages enum value name '
+            'SupportedLanguage enum value name '
             '(e.g., "english", "spanish", "french").',
       );
     }
@@ -76,12 +76,12 @@ class PdfGenerateEndpoint extends Route with RouteMixin {
     // 4. Look up the ShoebillTemplateVersion and include its schema
     final ShoebillTemplateVersion? templateVersion =
         await ShoebillTemplateVersion.db.findById(
-      session,
-      versionId,
-      include: ShoebillTemplateVersion.include(
-        schema: SchemaDefinition.include(),
-      ),
-    );
+          session,
+          versionId,
+          include: ShoebillTemplateVersion.include(
+            schema: SchemaDefinition.include(),
+          ),
+        );
 
     if (templateVersion == null) {
       return createErrorResponse(
@@ -129,16 +129,16 @@ class PdfGenerateEndpoint extends Route with RouteMixin {
         );
 
         // Create the first ShoebillTemplateBaselineImplementation (baselineId links to baseline)
-        final implementation =
-            await ShoebillTemplateBaselineImplementation.db.insertRow(
-          session,
-          ShoebillTemplateBaselineImplementation(
-            stringifiedPayload: stringifiedPayload,
-            language: language,
-            baselineId: baseline.id,
-          ),
-          transaction: tx,
-        );
+        final implementation = await ShoebillTemplateBaselineImplementation.db
+            .insertRow(
+              session,
+              ShoebillTemplateBaselineImplementation(
+                stringifiedPayload: stringifiedPayload,
+                language: language,
+                baselineId: baseline.id,
+              ),
+              transaction: tx,
+            );
 
         return (baseline, implementation);
       });

@@ -42,5 +42,3 @@ sealed class SchemaProperty
     String? description,
   });
 }
-
-class _Undefined {}

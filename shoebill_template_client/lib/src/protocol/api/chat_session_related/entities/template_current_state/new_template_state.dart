@@ -23,7 +23,7 @@ abstract class NewTemplateState extends _i1.TemplateCurrentState
   factory NewTemplateState({
     required _i3.PdfContent pdfContent,
     required _i4.SchemaDefinition schemaDefinition,
-    required _i5.SupportedLanguages referenceLanguage,
+    required _i5.SupportedLanguage referenceLanguage,
     required String referenceStringifiedPayloadJson,
   }) = _NewTemplateStateImpl;
 
@@ -35,7 +35,7 @@ abstract class NewTemplateState extends _i1.TemplateCurrentState
       schemaDefinition: _i6.Protocol().deserialize<_i4.SchemaDefinition>(
         jsonSerialization['schemaDefinition'],
       ),
-      referenceLanguage: _i5.SupportedLanguages.fromJson(
+      referenceLanguage: _i5.SupportedLanguage.fromJson(
         (jsonSerialization['referenceLanguage'] as String),
       ),
       referenceStringifiedPayloadJson:
@@ -47,7 +47,7 @@ abstract class NewTemplateState extends _i1.TemplateCurrentState
 
   _i4.SchemaDefinition schemaDefinition;
 
-  _i5.SupportedLanguages referenceLanguage;
+  _i5.SupportedLanguage referenceLanguage;
 
   String referenceStringifiedPayloadJson;
 
@@ -58,7 +58,7 @@ abstract class NewTemplateState extends _i1.TemplateCurrentState
   NewTemplateState copyWith({
     _i3.PdfContent? pdfContent,
     _i4.SchemaDefinition? schemaDefinition,
-    _i5.SupportedLanguages? referenceLanguage,
+    _i5.SupportedLanguage? referenceLanguage,
     String? referenceStringifiedPayloadJson,
   });
   @override
@@ -82,7 +82,7 @@ class _NewTemplateStateImpl extends NewTemplateState {
   _NewTemplateStateImpl({
     required _i3.PdfContent pdfContent,
     required _i4.SchemaDefinition schemaDefinition,
-    required _i5.SupportedLanguages referenceLanguage,
+    required _i5.SupportedLanguage referenceLanguage,
     required String referenceStringifiedPayloadJson,
   }) : super._(
          pdfContent: pdfContent,
@@ -98,7 +98,7 @@ class _NewTemplateStateImpl extends NewTemplateState {
   NewTemplateState copyWith({
     _i3.PdfContent? pdfContent,
     _i4.SchemaDefinition? schemaDefinition,
-    _i5.SupportedLanguages? referenceLanguage,
+    _i5.SupportedLanguage? referenceLanguage,
     String? referenceStringifiedPayloadJson,
   }) {
     return NewTemplateState(
