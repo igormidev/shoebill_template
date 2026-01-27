@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shoebill_template_client/shoebill_template_client.dart';
-import 'package:zenscrap_flutter/l10n/app_localizations.dart';
 import 'package:shoebill_template_flutter/src/core/shared_providers/shared_preferences_provider.dart';
 
 const _languageKey = 'selected_language_code';
