@@ -15,5 +15,9 @@ emailIdp:
   - finishPasswordReset:
 jwtRefresh:
   - refreshAccessToken:
+account:
+  - getAccountInfo:
+  - attachScaffold:
+  - getMyScaffolds:
 greeting:
   - hello:

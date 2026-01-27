@@ -14,7 +14,8 @@ import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import '../../../../api/pdf_related/entities/pdf_content.dart' as _i2;
 import '../../../../api/pdf_related/entities/template_entities/shoebill_template_version.dart'
     as _i3;
-import 'package:shoebill_template_client/src/protocol/protocol.dart' as _i4;
+import '../../../../entities/account/account.dart' as _i4;
+import 'package:shoebill_template_client/src/protocol/protocol.dart' as _i5;
 
 abstract class ShoebillTemplateScaffold implements _i1.SerializableModel {
   ShoebillTemplateScaffold._({
@@ -23,6 +24,8 @@ abstract class ShoebillTemplateScaffold implements _i1.SerializableModel {
     required this.referencePdfContentId,
     this.referencePdfContent,
     this.versions,
+    this.accountId,
+    this.account,
   }) : id = id ?? _i1.Uuid().v7obj(),
        createdAt = createdAt ?? DateTime.now();
 
@@ -32,6 +35,8 @@ abstract class ShoebillTemplateScaffold implements _i1.SerializableModel {
     required int referencePdfContentId,
     _i2.PdfContent? referencePdfContent,
     List<_i3.ShoebillTemplateVersion>? versions,
+    int? accountId,
+    _i4.AccountInfo? account,
   }) = _ShoebillTemplateScaffoldImpl;
 
   factory ShoebillTemplateScaffold.fromJson(
@@ -47,13 +52,19 @@ abstract class ShoebillTemplateScaffold implements _i1.SerializableModel {
       referencePdfContentId: jsonSerialization['referencePdfContentId'] as int,
       referencePdfContent: jsonSerialization['referencePdfContent'] == null
           ? null
-          : _i4.Protocol().deserialize<_i2.PdfContent>(
+          : _i5.Protocol().deserialize<_i2.PdfContent>(
               jsonSerialization['referencePdfContent'],
             ),
       versions: jsonSerialization['versions'] == null
           ? null
-          : _i4.Protocol().deserialize<List<_i3.ShoebillTemplateVersion>>(
+          : _i5.Protocol().deserialize<List<_i3.ShoebillTemplateVersion>>(
               jsonSerialization['versions'],
+            ),
+      accountId: jsonSerialization['accountId'] as int?,
+      account: jsonSerialization['account'] == null
+          ? null
+          : _i5.Protocol().deserialize<_i4.AccountInfo>(
+              jsonSerialization['account'],
             ),
     );
   }
@@ -69,6 +80,10 @@ abstract class ShoebillTemplateScaffold implements _i1.SerializableModel {
 
   List<_i3.ShoebillTemplateVersion>? versions;
 
+  int? accountId;
+
+  _i4.AccountInfo? account;
+
   /// Returns a shallow copy of this [ShoebillTemplateScaffold]
   /// with some or all fields replaced by the given arguments.
   @_i1.useResult
@@ -78,6 +93,8 @@ abstract class ShoebillTemplateScaffold implements _i1.SerializableModel {
     int? referencePdfContentId,
     _i2.PdfContent? referencePdfContent,
     List<_i3.ShoebillTemplateVersion>? versions,
+    int? accountId,
+    _i4.AccountInfo? account,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -90,6 +107,8 @@ abstract class ShoebillTemplateScaffold implements _i1.SerializableModel {
         'referencePdfContent': referencePdfContent?.toJson(),
       if (versions != null)
         'versions': versions?.toJson(valueToJson: (v) => v.toJson()),
+      if (accountId != null) 'accountId': accountId,
+      if (account != null) 'account': account?.toJson(),
     };
   }
 
@@ -108,12 +127,16 @@ class _ShoebillTemplateScaffoldImpl extends ShoebillTemplateScaffold {
     required int referencePdfContentId,
     _i2.PdfContent? referencePdfContent,
     List<_i3.ShoebillTemplateVersion>? versions,
+    int? accountId,
+    _i4.AccountInfo? account,
   }) : super._(
          id: id,
          createdAt: createdAt,
          referencePdfContentId: referencePdfContentId,
          referencePdfContent: referencePdfContent,
          versions: versions,
+         accountId: accountId,
+         account: account,
        );
 
   /// Returns a shallow copy of this [ShoebillTemplateScaffold]
@@ -126,6 +149,8 @@ class _ShoebillTemplateScaffoldImpl extends ShoebillTemplateScaffold {
     int? referencePdfContentId,
     Object? referencePdfContent = _Undefined,
     Object? versions = _Undefined,
+    Object? accountId = _Undefined,
+    Object? account = _Undefined,
   }) {
     return ShoebillTemplateScaffold(
       id: id ?? this.id,
@@ -138,6 +163,8 @@ class _ShoebillTemplateScaffoldImpl extends ShoebillTemplateScaffold {
       versions: versions is List<_i3.ShoebillTemplateVersion>?
           ? versions
           : this.versions?.map((e0) => e0.copyWith()).toList(),
+      accountId: accountId is int? ? accountId : this.accountId,
+      account: account is _i4.AccountInfo? ? account : this.account?.copyWith(),
     );
   }
 }

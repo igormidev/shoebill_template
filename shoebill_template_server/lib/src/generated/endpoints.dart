@@ -16,15 +16,16 @@ import '../api/chat_session_related/create_template_essentials_endpoint.dart'
     as _i3;
 import '../auth/email_idp_endpoint.dart' as _i4;
 import '../auth/jwt_refresh_endpoint.dart' as _i5;
-import '../greetings/greeting_endpoint.dart' as _i6;
+import '../endpoints/account_endpoint.dart' as _i6;
+import '../greetings/greeting_endpoint.dart' as _i7;
 import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/template_current_state/template_current_state.dart'
-    as _i7;
-import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/new_schema_change_payload.dart'
     as _i8;
-import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
+import 'package:shoebill_template_server/src/generated/api/chat_session_related/entities/new_schema_change_payload.dart'
     as _i9;
-import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _i10;
+import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
+    as _i11;
 
 class Endpoints extends _i1.EndpointDispatch {
   @override
@@ -54,7 +55,13 @@ class Endpoints extends _i1.EndpointDispatch {
           'jwtRefresh',
           null,
         ),
-      'greeting': _i6.GreetingEndpoint()
+      'account': _i6.AccountEndpoint()
+        ..initialize(
+          server,
+          'account',
+          null,
+        ),
+      'greeting': _i7.GreetingEndpoint()
         ..initialize(
           server,
           'greeting',
@@ -70,7 +77,7 @@ class Endpoints extends _i1.EndpointDispatch {
           params: {
             'newTemplateState': _i1.ParameterDescription(
               name: 'newTemplateState',
-              type: _i1.getType<_i7.NewTemplateState>(),
+              type: _i1.getType<_i8.NewTemplateState>(),
               nullable: false,
             ),
           },
@@ -118,7 +125,7 @@ class Endpoints extends _i1.EndpointDispatch {
             ),
             'schemaChange': _i1.ParameterDescription(
               name: 'schemaChange',
-              type: _i1.getType<_i8.NewSchemaChangePayload?>(),
+              type: _i1.getType<_i9.NewSchemaChangePayload?>(),
               nullable: true,
             ),
           },
@@ -379,6 +386,60 @@ class Endpoints extends _i1.EndpointDispatch {
         ),
       },
     );
+    connectors['account'] = _i1.EndpointConnector(
+      name: 'account',
+      endpoint: endpoints['account']!,
+      methodConnectors: {
+        'getAccountInfo': _i1.MethodConnector(
+          name: 'getAccountInfo',
+          params: {
+            'initialScaffoldId': _i1.ParameterDescription(
+              name: 'initialScaffoldId',
+              type: _i1.getType<_i1.UuidValue?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['account'] as _i6.AccountEndpoint).getAccountInfo(
+                    session,
+                    initialScaffoldId: params['initialScaffoldId'],
+                  ),
+        ),
+        'attachScaffold': _i1.MethodConnector(
+          name: 'attachScaffold',
+          params: {
+            'scaffoldId': _i1.ParameterDescription(
+              name: 'scaffoldId',
+              type: _i1.getType<_i1.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['account'] as _i6.AccountEndpoint).attachScaffold(
+                    session,
+                    scaffoldId: params['scaffoldId'],
+                  ),
+        ),
+        'getMyScaffolds': _i1.MethodConnector(
+          name: 'getMyScaffolds',
+          params: {},
+          call:
+              (
+                _i1.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['account'] as _i6.AccountEndpoint)
+                  .getMyScaffolds(session),
+        ),
+      },
+    );
     connectors['greeting'] = _i1.EndpointConnector(
       name: 'greeting',
       endpoint: endpoints['greeting']!,
@@ -396,16 +457,16 @@ class Endpoints extends _i1.EndpointDispatch {
               (
                 _i1.Session session,
                 Map<String, dynamic> params,
-              ) async => (endpoints['greeting'] as _i6.GreetingEndpoint).hello(
+              ) async => (endpoints['greeting'] as _i7.GreetingEndpoint).hello(
                 session,
                 params['name'],
               ),
         ),
       },
     );
-    modules['serverpod_auth_idp'] = _i9.Endpoints()
+    modules['serverpod_auth_idp'] = _i10.Endpoints()
       ..initializeEndpoints(server);
-    modules['serverpod_auth_core'] = _i10.Endpoints()
+    modules['serverpod_auth_core'] = _i11.Endpoints()
       ..initializeEndpoints(server);
   }
 }

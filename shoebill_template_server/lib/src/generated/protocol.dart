@@ -42,10 +42,13 @@ import 'api/pdf_related/entities/template_entities/shoebill_template_version.dar
     as _i19;
 import 'api/pdf_related/entities/template_entities/shoebill_template_version_input.dart'
     as _i20;
-import 'entities/others/ai_thinking_chunk.dart' as _i21;
-import 'entities/others/shoebill_exception.dart' as _i22;
-import 'entities/others/supported_languages.dart' as _i23;
-import 'greetings/greeting.dart' as _i24;
+import 'entities/account/account.dart' as _i21;
+import 'entities/others/ai_thinking_chunk.dart' as _i22;
+import 'entities/others/shoebill_exception.dart' as _i23;
+import 'entities/others/supported_languages.dart' as _i24;
+import 'greetings/greeting.dart' as _i25;
+import 'package:shoebill_template_server/src/generated/api/pdf_related/entities/template_entities/shoebill_template_scaffold.dart'
+    as _i26;
 export 'api/chat_session_related/entities/create_template_essentials_result.dart';
 export 'api/chat_session_related/entities/messages/chat_actor.dart';
 export 'api/chat_session_related/entities/messages/chat_message.dart';
@@ -62,6 +65,7 @@ export 'api/pdf_related/entities/template_entities/shoebill_template_baseline_im
 export 'api/pdf_related/entities/template_entities/shoebill_template_scaffold.dart';
 export 'api/pdf_related/entities/template_entities/shoebill_template_version.dart';
 export 'api/pdf_related/entities/template_entities/shoebill_template_version_input.dart';
+export 'entities/account/account.dart';
 export 'entities/others/ai_thinking_chunk.dart';
 export 'entities/others/shoebill_exception.dart';
 export 'entities/others/supported_languages.dart';
@@ -76,6 +80,100 @@ class Protocol extends _i1.SerializationManagerServer {
   static final Protocol _instance = Protocol._();
 
   static final List<_i2.TableDefinition> targetTableDefinitions = [
+    _i2.TableDefinition(
+      name: 'account_info',
+      dartName: 'AccountInfo',
+      schema: 'public',
+      module: 'shoebill_template',
+      columns: [
+        _i2.ColumnDefinition(
+          name: 'id',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'nextval(\'account_info_id_seq\'::regclass)',
+        ),
+        _i2.ColumnDefinition(
+          name: 'authUserId',
+          columnType: _i2.ColumnType.uuid,
+          isNullable: false,
+          dartType: 'UuidValue',
+        ),
+        _i2.ColumnDefinition(
+          name: 'email',
+          columnType: _i2.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _i2.ColumnDefinition(
+          name: 'name',
+          columnType: _i2.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _i2.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _i2.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+          columnDefault: 'CURRENT_TIMESTAMP',
+        ),
+      ],
+      foreignKeys: [
+        _i2.ForeignKeyDefinition(
+          constraintName: 'account_info_fk_0',
+          columns: ['authUserId'],
+          referenceTable: 'serverpod_auth_core_user',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.cascade,
+          matchType: null,
+        ),
+      ],
+      indexes: [
+        _i2.IndexDefinition(
+          indexName: 'account_info_pkey',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'id',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: true,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'auth_user_id_unique_idx',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'authUserId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+        _i2.IndexDefinition(
+          indexName: 'email_unique_idx',
+          tableSpace: null,
+          elements: [
+            _i2.IndexElementDefinition(
+              type: _i2.IndexElementDefinitionType.column,
+              definition: 'email',
+            ),
+          ],
+          type: 'btree',
+          isUnique: true,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
     _i2.TableDefinition(
       name: 'pdf_content',
       dartName: 'PdfContent',
@@ -315,12 +413,28 @@ class Protocol extends _i1.SerializationManagerServer {
           isNullable: false,
           dartType: 'int',
         ),
+        _i2.ColumnDefinition(
+          name: 'accountId',
+          columnType: _i2.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
       ],
       foreignKeys: [
         _i2.ForeignKeyDefinition(
           constraintName: 'shoebill_template_scaffolds_fk_0',
           columns: ['referencePdfContentId'],
           referenceTable: 'pdf_content',
+          referenceTableSchema: 'public',
+          referenceColumns: ['id'],
+          onUpdate: _i2.ForeignKeyAction.noAction,
+          onDelete: _i2.ForeignKeyAction.noAction,
+          matchType: null,
+        ),
+        _i2.ForeignKeyDefinition(
+          constraintName: 'shoebill_template_scaffolds_fk_1',
+          columns: ['accountId'],
+          referenceTable: 'account_info',
           referenceTableSchema: 'public',
           referenceColumns: ['id'],
           onUpdate: _i2.ForeignKeyAction.noAction,
@@ -606,17 +720,20 @@ class Protocol extends _i1.SerializationManagerServer {
     if (t == _i20.ShoebillTemplateVersionInput) {
       return _i20.ShoebillTemplateVersionInput.fromJson(data) as T;
     }
-    if (t == _i21.AiThinkingChunk) {
-      return _i21.AiThinkingChunk.fromJson(data) as T;
+    if (t == _i21.AccountInfo) {
+      return _i21.AccountInfo.fromJson(data) as T;
     }
-    if (t == _i22.ShoebillException) {
-      return _i22.ShoebillException.fromJson(data) as T;
+    if (t == _i22.AiThinkingChunk) {
+      return _i22.AiThinkingChunk.fromJson(data) as T;
     }
-    if (t == _i23.SupportedLanguage) {
-      return _i23.SupportedLanguage.fromJson(data) as T;
+    if (t == _i23.ShoebillException) {
+      return _i23.ShoebillException.fromJson(data) as T;
     }
-    if (t == _i24.Greeting) {
-      return _i24.Greeting.fromJson(data) as T;
+    if (t == _i24.SupportedLanguage) {
+      return _i24.SupportedLanguage.fromJson(data) as T;
+    }
+    if (t == _i25.Greeting) {
+      return _i25.Greeting.fromJson(data) as T;
     }
     if (t == _i1.getType<_i5.ChatMessageResponse?>()) {
       return (data != null ? _i5.ChatMessageResponse.fromJson(data) : null)
@@ -739,17 +856,20 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
-    if (t == _i1.getType<_i21.AiThinkingChunk?>()) {
-      return (data != null ? _i21.AiThinkingChunk.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i21.AccountInfo?>()) {
+      return (data != null ? _i21.AccountInfo.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i22.ShoebillException?>()) {
-      return (data != null ? _i22.ShoebillException.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i22.AiThinkingChunk?>()) {
+      return (data != null ? _i22.AiThinkingChunk.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i23.SupportedLanguage?>()) {
-      return (data != null ? _i23.SupportedLanguage.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i23.ShoebillException?>()) {
+      return (data != null ? _i23.ShoebillException.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i24.Greeting?>()) {
-      return (data != null ? _i24.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i24.SupportedLanguage?>()) {
+      return (data != null ? _i24.SupportedLanguage.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i25.Greeting?>()) {
+      return (data != null ? _i25.Greeting.fromJson(data) : null) as T;
     }
     if (t == Map<String, _i15.SchemaProperty>) {
       return (data as Map).map(
@@ -814,6 +934,26 @@ class Protocol extends _i1.SerializationManagerServer {
               : null)
           as T;
     }
+    if (t == List<_i18.ShoebillTemplateScaffold>) {
+      return (data as List)
+              .map((e) => deserialize<_i18.ShoebillTemplateScaffold>(e))
+              .toList()
+          as T;
+    }
+    if (t == _i1.getType<List<_i18.ShoebillTemplateScaffold>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_i18.ShoebillTemplateScaffold>(e))
+                    .toList()
+              : null)
+          as T;
+    }
+    if (t == List<_i26.ShoebillTemplateScaffold>) {
+      return (data as List)
+              .map((e) => deserialize<_i26.ShoebillTemplateScaffold>(e))
+              .toList()
+          as T;
+    }
     try {
       return _i3.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
@@ -857,10 +997,11 @@ class Protocol extends _i1.SerializationManagerServer {
       _i18.ShoebillTemplateScaffold => 'ShoebillTemplateScaffold',
       _i19.ShoebillTemplateVersion => 'ShoebillTemplateVersion',
       _i20.ShoebillTemplateVersionInput => 'ShoebillTemplateVersionInput',
-      _i21.AiThinkingChunk => 'AiThinkingChunk',
-      _i22.ShoebillException => 'ShoebillException',
-      _i23.SupportedLanguage => 'SupportedLanguage',
-      _i24.Greeting => 'Greeting',
+      _i21.AccountInfo => 'AccountInfo',
+      _i22.AiThinkingChunk => 'AiThinkingChunk',
+      _i23.ShoebillException => 'ShoebillException',
+      _i24.SupportedLanguage => 'SupportedLanguage',
+      _i25.Greeting => 'Greeting',
       _ => null,
     };
   }
@@ -930,13 +1071,15 @@ class Protocol extends _i1.SerializationManagerServer {
         return 'ShoebillTemplateVersion';
       case _i20.ShoebillTemplateVersionInput():
         return 'ShoebillTemplateVersionInput';
-      case _i21.AiThinkingChunk():
+      case _i21.AccountInfo():
+        return 'AccountInfo';
+      case _i22.AiThinkingChunk():
         return 'AiThinkingChunk';
-      case _i22.ShoebillException():
+      case _i23.ShoebillException():
         return 'ShoebillException';
-      case _i23.SupportedLanguage():
+      case _i24.SupportedLanguage():
         return 'SupportedLanguage';
-      case _i24.Greeting():
+      case _i25.Greeting():
         return 'Greeting';
     }
     className = _i2.Protocol().getClassNameForObject(data);
@@ -1045,17 +1188,20 @@ class Protocol extends _i1.SerializationManagerServer {
     if (dataClassName == 'ShoebillTemplateVersionInput') {
       return deserialize<_i20.ShoebillTemplateVersionInput>(data['data']);
     }
+    if (dataClassName == 'AccountInfo') {
+      return deserialize<_i21.AccountInfo>(data['data']);
+    }
     if (dataClassName == 'AiThinkingChunk') {
-      return deserialize<_i21.AiThinkingChunk>(data['data']);
+      return deserialize<_i22.AiThinkingChunk>(data['data']);
     }
     if (dataClassName == 'ShoebillException') {
-      return deserialize<_i22.ShoebillException>(data['data']);
+      return deserialize<_i23.ShoebillException>(data['data']);
     }
     if (dataClassName == 'SupportedLanguage') {
-      return deserialize<_i23.SupportedLanguage>(data['data']);
+      return deserialize<_i24.SupportedLanguage>(data['data']);
     }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i24.Greeting>(data['data']);
+      return deserialize<_i25.Greeting>(data['data']);
     }
     if (dataClassName.startsWith('serverpod.')) {
       data['className'] = dataClassName.substring(10);
@@ -1107,6 +1253,8 @@ class Protocol extends _i1.SerializationManagerServer {
         return _i19.ShoebillTemplateVersion.t;
       case _i20.ShoebillTemplateVersionInput:
         return _i20.ShoebillTemplateVersionInput.t;
+      case _i21.AccountInfo:
+        return _i21.AccountInfo.t;
     }
     return null;
   }

@@ -1,0 +1,15 @@
+class: AccountInfo
+table: account_info
+fields:
+  authUser: module:auth_core:AuthUser?, relation(onDelete=Cascade)
+  email: String
+  name: String?
+  createdAt: DateTime, default=now
+  scaffolds: List<ShoebillTemplateScaffold>?, relation(name=account_scaffolds)
+indexes:
+  auth_user_id_unique_idx:
+    fields: authUserId
+    unique: true
+  email_unique_idx:
+    fields: email
+    unique: true

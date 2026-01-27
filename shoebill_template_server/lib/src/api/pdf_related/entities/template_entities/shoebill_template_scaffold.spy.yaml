@@ -5,3 +5,5 @@ fields:
     createdAt: DateTime, default=now
     referencePdfContent: PdfContent?, relation
     versions: List<ShoebillTemplateVersion>?, relation(name=scaffold_to_versions)
+    accountId: int?
+    account: AccountInfo?, relation(name=account_scaffolds, field=accountId)

@@ -15,7 +15,8 @@ import 'package:serverpod/serverpod.dart' as _i1;
 import '../../../../api/pdf_related/entities/pdf_content.dart' as _i2;
 import '../../../../api/pdf_related/entities/template_entities/shoebill_template_version.dart'
     as _i3;
-import 'package:shoebill_template_server/src/generated/protocol.dart' as _i4;
+import '../../../../entities/account/account.dart' as _i4;
+import 'package:shoebill_template_server/src/generated/protocol.dart' as _i5;
 
 abstract class ShoebillTemplateScaffold
     implements _i1.TableRow<_i1.UuidValue>, _i1.ProtocolSerialization {
@@ -25,6 +26,8 @@ abstract class ShoebillTemplateScaffold
     required this.referencePdfContentId,
     this.referencePdfContent,
     this.versions,
+    this.accountId,
+    this.account,
   }) : id = id ?? _i1.Uuid().v7obj(),
        createdAt = createdAt ?? DateTime.now();
 
@@ -34,6 +37,8 @@ abstract class ShoebillTemplateScaffold
     required int referencePdfContentId,
     _i2.PdfContent? referencePdfContent,
     List<_i3.ShoebillTemplateVersion>? versions,
+    int? accountId,
+    _i4.AccountInfo? account,
   }) = _ShoebillTemplateScaffoldImpl;
 
   factory ShoebillTemplateScaffold.fromJson(
@@ -49,13 +54,19 @@ abstract class ShoebillTemplateScaffold
       referencePdfContentId: jsonSerialization['referencePdfContentId'] as int,
       referencePdfContent: jsonSerialization['referencePdfContent'] == null
           ? null
-          : _i4.Protocol().deserialize<_i2.PdfContent>(
+          : _i5.Protocol().deserialize<_i2.PdfContent>(
               jsonSerialization['referencePdfContent'],
             ),
       versions: jsonSerialization['versions'] == null
           ? null
-          : _i4.Protocol().deserialize<List<_i3.ShoebillTemplateVersion>>(
+          : _i5.Protocol().deserialize<List<_i3.ShoebillTemplateVersion>>(
               jsonSerialization['versions'],
+            ),
+      accountId: jsonSerialization['accountId'] as int?,
+      account: jsonSerialization['account'] == null
+          ? null
+          : _i5.Protocol().deserialize<_i4.AccountInfo>(
+              jsonSerialization['account'],
             ),
     );
   }
@@ -75,6 +86,10 @@ abstract class ShoebillTemplateScaffold
 
   List<_i3.ShoebillTemplateVersion>? versions;
 
+  int? accountId;
+
+  _i4.AccountInfo? account;
+
   @override
   _i1.Table<_i1.UuidValue> get table => t;
 
@@ -87,6 +102,8 @@ abstract class ShoebillTemplateScaffold
     int? referencePdfContentId,
     _i2.PdfContent? referencePdfContent,
     List<_i3.ShoebillTemplateVersion>? versions,
+    int? accountId,
+    _i4.AccountInfo? account,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -99,6 +116,8 @@ abstract class ShoebillTemplateScaffold
         'referencePdfContent': referencePdfContent?.toJson(),
       if (versions != null)
         'versions': versions?.toJson(valueToJson: (v) => v.toJson()),
+      if (accountId != null) 'accountId': accountId,
+      if (account != null) 'account': account?.toJson(),
     };
   }
 
@@ -113,16 +132,20 @@ abstract class ShoebillTemplateScaffold
         'referencePdfContent': referencePdfContent?.toJsonForProtocol(),
       if (versions != null)
         'versions': versions?.toJson(valueToJson: (v) => v.toJsonForProtocol()),
+      if (accountId != null) 'accountId': accountId,
+      if (account != null) 'account': account?.toJsonForProtocol(),
     };
   }
 
   static ShoebillTemplateScaffoldInclude include({
     _i2.PdfContentInclude? referencePdfContent,
     _i3.ShoebillTemplateVersionIncludeList? versions,
+    _i4.AccountInfoInclude? account,
   }) {
     return ShoebillTemplateScaffoldInclude._(
       referencePdfContent: referencePdfContent,
       versions: versions,
+      account: account,
     );
   }
 
@@ -161,12 +184,16 @@ class _ShoebillTemplateScaffoldImpl extends ShoebillTemplateScaffold {
     required int referencePdfContentId,
     _i2.PdfContent? referencePdfContent,
     List<_i3.ShoebillTemplateVersion>? versions,
+    int? accountId,
+    _i4.AccountInfo? account,
   }) : super._(
          id: id,
          createdAt: createdAt,
          referencePdfContentId: referencePdfContentId,
          referencePdfContent: referencePdfContent,
          versions: versions,
+         accountId: accountId,
+         account: account,
        );
 
   /// Returns a shallow copy of this [ShoebillTemplateScaffold]
@@ -179,6 +206,8 @@ class _ShoebillTemplateScaffoldImpl extends ShoebillTemplateScaffold {
     int? referencePdfContentId,
     Object? referencePdfContent = _Undefined,
     Object? versions = _Undefined,
+    Object? accountId = _Undefined,
+    Object? account = _Undefined,
   }) {
     return ShoebillTemplateScaffold(
       id: id ?? this.id,
@@ -191,6 +220,8 @@ class _ShoebillTemplateScaffoldImpl extends ShoebillTemplateScaffold {
       versions: versions is List<_i3.ShoebillTemplateVersion>?
           ? versions
           : this.versions?.map((e0) => e0.copyWith()).toList(),
+      accountId: accountId is int? ? accountId : this.accountId,
+      account: account is _i4.AccountInfo? ? account : this.account?.copyWith(),
     );
   }
 }
@@ -209,6 +240,11 @@ class ShoebillTemplateScaffoldUpdateTable
     table.referencePdfContentId,
     value,
   );
+
+  _i1.ColumnValue<int, int> accountId(int? value) => _i1.ColumnValue(
+    table.accountId,
+    value,
+  );
 }
 
 class ShoebillTemplateScaffoldTable extends _i1.Table<_i1.UuidValue> {
@@ -224,6 +260,10 @@ class ShoebillTemplateScaffoldTable extends _i1.Table<_i1.UuidValue> {
       'referencePdfContentId',
       this,
     );
+    accountId = _i1.ColumnInt(
+      'accountId',
+      this,
+    );
   }
 
   late final ShoebillTemplateScaffoldUpdateTable updateTable;
@@ -237,6 +277,10 @@ class ShoebillTemplateScaffoldTable extends _i1.Table<_i1.UuidValue> {
   _i3.ShoebillTemplateVersionTable? ___versions;
 
   _i1.ManyRelation<_i3.ShoebillTemplateVersionTable>? _versions;
+
+  late final _i1.ColumnInt accountId;
+
+  _i4.AccountInfoTable? _account;
 
   _i2.PdfContentTable get referencePdfContent {
     if (_referencePdfContent != null) return _referencePdfContent!;
@@ -264,6 +308,19 @@ class ShoebillTemplateScaffoldTable extends _i1.Table<_i1.UuidValue> {
     return ___versions!;
   }
 
+  _i4.AccountInfoTable get account {
+    if (_account != null) return _account!;
+    _account = _i1.createRelationTable(
+      relationFieldName: 'account',
+      field: ShoebillTemplateScaffold.t.accountId,
+      foreignField: _i4.AccountInfo.t.id,
+      tableRelation: tableRelation,
+      createTable: (foreignTableRelation) =>
+          _i4.AccountInfoTable(tableRelation: foreignTableRelation),
+    );
+    return _account!;
+  }
+
   _i1.ManyRelation<_i3.ShoebillTemplateVersionTable> get versions {
     if (_versions != null) return _versions!;
     var relationTable = _i1.createRelationTable(
@@ -288,6 +345,7 @@ class ShoebillTemplateScaffoldTable extends _i1.Table<_i1.UuidValue> {
     id,
     createdAt,
     referencePdfContentId,
+    accountId,
   ];
 
   @override
@@ -298,6 +356,9 @@ class ShoebillTemplateScaffoldTable extends _i1.Table<_i1.UuidValue> {
     if (relationField == 'versions') {
       return __versions;
     }
+    if (relationField == 'account') {
+      return account;
+    }
     return null;
   }
 }
@@ -306,19 +367,24 @@ class ShoebillTemplateScaffoldInclude extends _i1.IncludeObject {
   ShoebillTemplateScaffoldInclude._({
     _i2.PdfContentInclude? referencePdfContent,
     _i3.ShoebillTemplateVersionIncludeList? versions,
+    _i4.AccountInfoInclude? account,
   }) {
     _referencePdfContent = referencePdfContent;
     _versions = versions;
+    _account = account;
   }
 
   _i2.PdfContentInclude? _referencePdfContent;
 
   _i3.ShoebillTemplateVersionIncludeList? _versions;
 
+  _i4.AccountInfoInclude? _account;
+
   @override
   Map<String, _i1.Include?> get includes => {
     'referencePdfContent': _referencePdfContent,
     'versions': _versions,
+    'account': _account,
   };
 
   @override
@@ -671,6 +737,31 @@ class ShoebillTemplateScaffoldAttachRowRepository {
     );
   }
 
+  /// Creates a relation between the given [ShoebillTemplateScaffold] and [AccountInfo]
+  /// by setting the [ShoebillTemplateScaffold]'s foreign key `accountId` to refer to the [AccountInfo].
+  Future<void> account(
+    _i1.Session session,
+    ShoebillTemplateScaffold shoebillTemplateScaffold,
+    _i4.AccountInfo account, {
+    _i1.Transaction? transaction,
+  }) async {
+    if (shoebillTemplateScaffold.id == null) {
+      throw ArgumentError.notNull('shoebillTemplateScaffold.id');
+    }
+    if (account.id == null) {
+      throw ArgumentError.notNull('account.id');
+    }
+
+    var $shoebillTemplateScaffold = shoebillTemplateScaffold.copyWith(
+      accountId: account.id,
+    );
+    await session.db.updateRow<ShoebillTemplateScaffold>(
+      $shoebillTemplateScaffold,
+      columns: [ShoebillTemplateScaffold.t.accountId],
+      transaction: transaction,
+    );
+  }
+
   /// Creates a relation between this [ShoebillTemplateScaffold] and the given [ShoebillTemplateVersion]
   /// by setting the [ShoebillTemplateVersion]'s foreign key `scaffoldId` to refer to this [ShoebillTemplateScaffold].
   Future<void> versions(
@@ -727,6 +818,30 @@ class ShoebillTemplateScaffoldDetachRepository {
 
 class ShoebillTemplateScaffoldDetachRowRepository {
   const ShoebillTemplateScaffoldDetachRowRepository._();
+
+  /// Detaches the relation between this [ShoebillTemplateScaffold] and the [AccountInfo] set in `account`
+  /// by setting the [ShoebillTemplateScaffold]'s foreign key `accountId` to `null`.
+  ///
+  /// This removes the association between the two models without deleting
+  /// the related record.
+  Future<void> account(
+    _i1.Session session,
+    ShoebillTemplateScaffold shoebillTemplateScaffold, {
+    _i1.Transaction? transaction,
+  }) async {
+    if (shoebillTemplateScaffold.id == null) {
+      throw ArgumentError.notNull('shoebillTemplateScaffold.id');
+    }
+
+    var $shoebillTemplateScaffold = shoebillTemplateScaffold.copyWith(
+      accountId: null,
+    );
+    await session.db.updateRow<ShoebillTemplateScaffold>(
+      $shoebillTemplateScaffold,
+      columns: [ShoebillTemplateScaffold.t.accountId],
+      transaction: transaction,
+    );
+  }
 
   /// Detaches the relation between this [ShoebillTemplateScaffold] and the given [ShoebillTemplateVersion]
   /// by setting the [ShoebillTemplateVersion]'s foreign key `scaffoldId` to `null`.

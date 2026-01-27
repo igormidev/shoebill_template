@@ -24,9 +24,13 @@ import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
     as _i7;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _i8;
-import 'package:shoebill_template_client/src/protocol/greetings/greeting.dart'
+import 'package:shoebill_template_client/src/protocol/entities/account/account.dart'
     as _i9;
-import 'protocol.dart' as _i10;
+import 'package:shoebill_template_client/src/protocol/api/pdf_related/entities/template_entities/shoebill_template_scaffold.dart'
+    as _i10;
+import 'package:shoebill_template_client/src/protocol/greetings/greeting.dart'
+    as _i11;
+import 'protocol.dart' as _i12;
 
 /// {@category Endpoint}
 class EndpointChatSession extends _i1.EndpointRef {
@@ -355,6 +359,47 @@ class EndpointJwtRefresh extends _i8.EndpointRefreshJwtTokens {
   );
 }
 
+/// Endpoint for managing user accounts.
+/// Requires authentication for all methods.
+/// {@category Endpoint}
+class EndpointAccount extends _i1.EndpointRef {
+  EndpointAccount(_i1.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'account';
+
+  /// Gets the account info for the currently authenticated user.
+  /// If no account exists, creates a new one.
+  ///
+  /// [initialScaffoldId] - Optional scaffold UUID to attach to the account
+  /// upon creation or login.
+  _i2.Future<_i9.AccountInfo> getAccountInfo({
+    _i1.UuidValue? initialScaffoldId,
+  }) => caller.callServerEndpoint<_i9.AccountInfo>(
+    'account',
+    'getAccountInfo',
+    {'initialScaffoldId': initialScaffoldId},
+  );
+
+  /// Attaches a scaffold to the user's account.
+  ///
+  /// [scaffoldId] - The UUID of the scaffold to attach.
+  _i2.Future<void> attachScaffold({required _i1.UuidValue scaffoldId}) =>
+      caller.callServerEndpoint<void>(
+        'account',
+        'attachScaffold',
+        {'scaffoldId': scaffoldId},
+      );
+
+  /// Gets all scaffolds owned by the current user's account.
+  _i2.Future<List<_i10.ShoebillTemplateScaffold>> getMyScaffolds() =>
+      caller.callServerEndpoint<List<_i10.ShoebillTemplateScaffold>>(
+        'account',
+        'getMyScaffolds',
+        {},
+      );
+}
+
 /// This is an example endpoint that returns a greeting message through
 /// its [hello] method.
 /// {@category Endpoint}
@@ -365,8 +410,8 @@ class EndpointGreeting extends _i1.EndpointRef {
   String get name => 'greeting';
 
   /// Returns a personalized greeting message: "Hello {name}".
-  _i2.Future<_i9.Greeting> hello(String name) =>
-      caller.callServerEndpoint<_i9.Greeting>(
+  _i2.Future<_i11.Greeting> hello(String name) =>
+      caller.callServerEndpoint<_i11.Greeting>(
         'greeting',
         'hello',
         {'name': name},
@@ -376,12 +421,12 @@ class EndpointGreeting extends _i1.EndpointRef {
 class Modules {
   Modules(Client client) {
     serverpod_auth_idp = _i7.Caller(client);
-    serverpod_auth_core = _i8.Caller(client);
+    auth_core = _i8.Caller(client);
   }
 
   late final _i7.Caller serverpod_auth_idp;
 
-  late final _i8.Caller serverpod_auth_core;
+  late final _i8.Caller auth_core;
 }
 
 class Client extends _i1.ServerpodClientShared {
@@ -404,7 +449,7 @@ class Client extends _i1.ServerpodClientShared {
     bool? disconnectStreamsOnLostInternetConnection,
   }) : super(
          host,
-         _i10.Protocol(),
+         _i12.Protocol(),
          securityContext: securityContext,
          streamingConnectionTimeout: streamingConnectionTimeout,
          connectionTimeout: connectionTimeout,
@@ -417,6 +462,7 @@ class Client extends _i1.ServerpodClientShared {
     createTemplateEssentials = EndpointCreateTemplateEssentials(this);
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    account = EndpointAccount(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
@@ -429,6 +475,8 @@ class Client extends _i1.ServerpodClientShared {
 
   late final EndpointJwtRefresh jwtRefresh;
 
+  late final EndpointAccount account;
+
   late final EndpointGreeting greeting;
 
   late final Modules modules;
@@ -439,12 +487,13 @@ class Client extends _i1.ServerpodClientShared {
     'createTemplateEssentials': createTemplateEssentials,
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'account': account,
     'greeting': greeting,
   };
 
   @override
   Map<String, _i1.ModuleEndpointCaller> get moduleLookup => {
     'serverpod_auth_idp': modules.serverpod_auth_idp,
-    'serverpod_auth_core': modules.serverpod_auth_core,
+    'auth_core': modules.auth_core,
   };
 }

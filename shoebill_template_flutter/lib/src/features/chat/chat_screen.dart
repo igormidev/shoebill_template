@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shoebill_template_client/shoebill_template_client.dart';
 import 'package:shoebill_template_flutter/gen_l10n/s.dart';
+import 'package:shoebill_template_flutter/src/features/auth/account_provider.dart';
+import 'package:shoebill_template_flutter/src/features/auth/auth_dialog.dart';
 import 'package:shoebill_template_flutter/src/features/chat/chat_providers.dart';
 import 'package:shoebill_template_flutter/src/features/chat/widgets/chat_input_field.dart';
 import 'package:shoebill_template_flutter/src/features/chat/widgets/chat_message_list.dart';
@@ -106,6 +108,21 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
     final templateName = templateState.pdfContent.name;
 
+    // Check if user is authenticated
+    final isAuthenticated = ref.read(isAuthenticatedProvider);
+
+    if (!isAuthenticated) {
+      // Show auth dialog before proceeding with deployment
+      final authSuccess = await AuthDialog.show(
+        context,
+        title: 'Sign in to Deploy',
+        message:
+            'Create an account or sign in to deploy your template and save it to your account.',
+      );
+
+      if (!authSuccess || !mounted) return;
+    }
+
     final confirmed = await DeployConfirmationDialog.show(
       context,
       templateName: templateName,
@@ -116,7 +133,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     final notifier = ref.read(chatProvider.notifier);
     final scaffoldId = await notifier.deployTemplate();
 
-    if (scaffoldId != null && mounted) {
+    if (scaffoldId != null) {
+      // Link the deployed scaffold to the user's account
+      final accountNotifier = ref.read(accountProvider.notifier);
+      await accountNotifier.attachScaffold(scaffoldId);
+
+      if (!mounted) return;
       await DeploySuccessDialog.show(
         context,
         onDismiss: () {

@@ -23,8 +23,6 @@ part 'schema_property_object_with_undefined_properties.dart';
 part 'schema_property_string.dart';
 part 'schema_property_structured_object.dart';
 
-class _Undefined {}
-
 sealed class SchemaProperty implements _i2.SerializableModel {
   SchemaProperty({
     required this.nullable,

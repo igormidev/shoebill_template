@@ -37,14 +37,17 @@ import 'api/pdf_related/entities/template_entities/shoebill_template_version.dar
     as _i16;
 import 'api/pdf_related/entities/template_entities/shoebill_template_version_input.dart'
     as _i17;
-import 'entities/others/ai_thinking_chunk.dart' as _i18;
-import 'entities/others/shoebill_exception.dart' as _i19;
-import 'entities/others/supported_languages.dart' as _i20;
-import 'greetings/greeting.dart' as _i21;
-import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
-    as _i22;
-import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
+import 'entities/account/account.dart' as _i18;
+import 'entities/others/ai_thinking_chunk.dart' as _i19;
+import 'entities/others/shoebill_exception.dart' as _i20;
+import 'entities/others/supported_languages.dart' as _i21;
+import 'greetings/greeting.dart' as _i22;
+import 'package:shoebill_template_client/src/protocol/api/pdf_related/entities/template_entities/shoebill_template_scaffold.dart'
     as _i23;
+import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
+    as _i24;
+import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
+    as _i25;
 export 'api/chat_session_related/entities/create_template_essentials_result.dart';
 export 'api/chat_session_related/entities/messages/chat_actor.dart';
 export 'api/chat_session_related/entities/messages/chat_message.dart';
@@ -61,6 +64,7 @@ export 'api/pdf_related/entities/template_entities/shoebill_template_baseline_im
 export 'api/pdf_related/entities/template_entities/shoebill_template_scaffold.dart';
 export 'api/pdf_related/entities/template_entities/shoebill_template_version.dart';
 export 'api/pdf_related/entities/template_entities/shoebill_template_version_input.dart';
+export 'entities/account/account.dart';
 export 'entities/others/ai_thinking_chunk.dart';
 export 'entities/others/shoebill_exception.dart';
 export 'entities/others/supported_languages.dart';
@@ -184,17 +188,20 @@ class Protocol extends _i1.SerializationManager {
     if (t == _i17.ShoebillTemplateVersionInput) {
       return _i17.ShoebillTemplateVersionInput.fromJson(data) as T;
     }
-    if (t == _i18.AiThinkingChunk) {
-      return _i18.AiThinkingChunk.fromJson(data) as T;
+    if (t == _i18.AccountInfo) {
+      return _i18.AccountInfo.fromJson(data) as T;
     }
-    if (t == _i19.ShoebillException) {
-      return _i19.ShoebillException.fromJson(data) as T;
+    if (t == _i19.AiThinkingChunk) {
+      return _i19.AiThinkingChunk.fromJson(data) as T;
     }
-    if (t == _i20.SupportedLanguage) {
-      return _i20.SupportedLanguage.fromJson(data) as T;
+    if (t == _i20.ShoebillException) {
+      return _i20.ShoebillException.fromJson(data) as T;
     }
-    if (t == _i21.Greeting) {
-      return _i21.Greeting.fromJson(data) as T;
+    if (t == _i21.SupportedLanguage) {
+      return _i21.SupportedLanguage.fromJson(data) as T;
+    }
+    if (t == _i22.Greeting) {
+      return _i22.Greeting.fromJson(data) as T;
     }
     if (t == _i1.getType<_i2.ChatMessageResponse?>()) {
       return (data != null ? _i2.ChatMessageResponse.fromJson(data) : null)
@@ -315,17 +322,20 @@ class Protocol extends _i1.SerializationManager {
               : null)
           as T;
     }
-    if (t == _i1.getType<_i18.AiThinkingChunk?>()) {
-      return (data != null ? _i18.AiThinkingChunk.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i18.AccountInfo?>()) {
+      return (data != null ? _i18.AccountInfo.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i19.ShoebillException?>()) {
-      return (data != null ? _i19.ShoebillException.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i19.AiThinkingChunk?>()) {
+      return (data != null ? _i19.AiThinkingChunk.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i20.SupportedLanguage?>()) {
-      return (data != null ? _i20.SupportedLanguage.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i20.ShoebillException?>()) {
+      return (data != null ? _i20.ShoebillException.fromJson(data) : null) as T;
     }
-    if (t == _i1.getType<_i21.Greeting?>()) {
-      return (data != null ? _i21.Greeting.fromJson(data) : null) as T;
+    if (t == _i1.getType<_i21.SupportedLanguage?>()) {
+      return (data != null ? _i21.SupportedLanguage.fromJson(data) : null) as T;
+    }
+    if (t == _i1.getType<_i22.Greeting?>()) {
+      return (data != null ? _i22.Greeting.fromJson(data) : null) as T;
     }
     if (t == Map<String, _i12.SchemaProperty>) {
       return (data as Map).map(
@@ -390,11 +400,31 @@ class Protocol extends _i1.SerializationManager {
               : null)
           as T;
     }
+    if (t == List<_i15.ShoebillTemplateScaffold>) {
+      return (data as List)
+              .map((e) => deserialize<_i15.ShoebillTemplateScaffold>(e))
+              .toList()
+          as T;
+    }
+    if (t == _i1.getType<List<_i15.ShoebillTemplateScaffold>?>()) {
+      return (data != null
+              ? (data as List)
+                    .map((e) => deserialize<_i15.ShoebillTemplateScaffold>(e))
+                    .toList()
+              : null)
+          as T;
+    }
+    if (t == List<_i23.ShoebillTemplateScaffold>) {
+      return (data as List)
+              .map((e) => deserialize<_i23.ShoebillTemplateScaffold>(e))
+              .toList()
+          as T;
+    }
     try {
-      return _i22.Protocol().deserialize<T>(data, t);
+      return _i24.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     try {
-      return _i23.Protocol().deserialize<T>(data, t);
+      return _i25.Protocol().deserialize<T>(data, t);
     } on _i1.DeserializationTypeNotFoundException catch (_) {}
     return super.deserialize<T>(data, t);
   }
@@ -430,10 +460,11 @@ class Protocol extends _i1.SerializationManager {
       _i15.ShoebillTemplateScaffold => 'ShoebillTemplateScaffold',
       _i16.ShoebillTemplateVersion => 'ShoebillTemplateVersion',
       _i17.ShoebillTemplateVersionInput => 'ShoebillTemplateVersionInput',
-      _i18.AiThinkingChunk => 'AiThinkingChunk',
-      _i19.ShoebillException => 'ShoebillException',
-      _i20.SupportedLanguage => 'SupportedLanguage',
-      _i21.Greeting => 'Greeting',
+      _i18.AccountInfo => 'AccountInfo',
+      _i19.AiThinkingChunk => 'AiThinkingChunk',
+      _i20.ShoebillException => 'ShoebillException',
+      _i21.SupportedLanguage => 'SupportedLanguage',
+      _i22.Greeting => 'Greeting',
       _ => null,
     };
   }
@@ -503,20 +534,22 @@ class Protocol extends _i1.SerializationManager {
         return 'ShoebillTemplateVersion';
       case _i17.ShoebillTemplateVersionInput():
         return 'ShoebillTemplateVersionInput';
-      case _i18.AiThinkingChunk():
+      case _i18.AccountInfo():
+        return 'AccountInfo';
+      case _i19.AiThinkingChunk():
         return 'AiThinkingChunk';
-      case _i19.ShoebillException():
+      case _i20.ShoebillException():
         return 'ShoebillException';
-      case _i20.SupportedLanguage():
+      case _i21.SupportedLanguage():
         return 'SupportedLanguage';
-      case _i21.Greeting():
+      case _i22.Greeting():
         return 'Greeting';
     }
-    className = _i22.Protocol().getClassNameForObject(data);
+    className = _i24.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_idp.$className';
     }
-    className = _i23.Protocol().getClassNameForObject(data);
+    className = _i25.Protocol().getClassNameForObject(data);
     if (className != null) {
       return 'serverpod_auth_core.$className';
     }
@@ -614,25 +647,28 @@ class Protocol extends _i1.SerializationManager {
     if (dataClassName == 'ShoebillTemplateVersionInput') {
       return deserialize<_i17.ShoebillTemplateVersionInput>(data['data']);
     }
+    if (dataClassName == 'AccountInfo') {
+      return deserialize<_i18.AccountInfo>(data['data']);
+    }
     if (dataClassName == 'AiThinkingChunk') {
-      return deserialize<_i18.AiThinkingChunk>(data['data']);
+      return deserialize<_i19.AiThinkingChunk>(data['data']);
     }
     if (dataClassName == 'ShoebillException') {
-      return deserialize<_i19.ShoebillException>(data['data']);
+      return deserialize<_i20.ShoebillException>(data['data']);
     }
     if (dataClassName == 'SupportedLanguage') {
-      return deserialize<_i20.SupportedLanguage>(data['data']);
+      return deserialize<_i21.SupportedLanguage>(data['data']);
     }
     if (dataClassName == 'Greeting') {
-      return deserialize<_i21.Greeting>(data['data']);
+      return deserialize<_i22.Greeting>(data['data']);
     }
     if (dataClassName.startsWith('serverpod_auth_idp.')) {
       data['className'] = dataClassName.substring(19);
-      return _i22.Protocol().deserializeByClassName(data);
+      return _i24.Protocol().deserializeByClassName(data);
     }
     if (dataClassName.startsWith('serverpod_auth_core.')) {
       data['className'] = dataClassName.substring(20);
-      return _i23.Protocol().deserializeByClassName(data);
+      return _i25.Protocol().deserializeByClassName(data);
     }
     return super.deserializeByClassName(data);
   }
@@ -647,10 +683,10 @@ class Protocol extends _i1.SerializationManager {
       return null;
     }
     try {
-      return _i22.Protocol().mapRecordToJson(record);
+      return _i24.Protocol().mapRecordToJson(record);
     } catch (_) {}
     try {
-      return _i23.Protocol().mapRecordToJson(record);
+      return _i25.Protocol().mapRecordToJson(record);
     } catch (_) {}
     throw Exception('Unsupported record type ${record.runtimeType}');
   }
