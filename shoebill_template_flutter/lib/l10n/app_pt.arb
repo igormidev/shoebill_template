@@ -1,0 +1,140 @@
+{
+    "@@locale": "pt",
+
+    "@_AppInfo": {
+        "comment": "Titulo do app e informacoes gerais"
+    },
+    "app_title": "Shoebill Template",
+    "app_subtitle": "Crie e implante seus templates com facilidade",
+
+    "@_LandingPage": {
+        "comment": "Pagina inicial - secao de upload JSON"
+    },
+    "landing_headline": "Crie Seu Template",
+    "landing_subtitle": "Envie seu esquema JSON para comecar",
+    "landing_drag_json": "Arraste seu arquivo JSON aqui",
+    "landing_paste_json": "Clique aqui para colar JSON",
+    "landing_drop_files": "ou solte arquivos aqui",
+    "landing_browse_files": "Procurar arquivos",
+    "landing_invalid_json": "Formato JSON invalido. Por favor, verifique seu arquivo.",
+    "landing_file_uploaded": "Arquivo enviado com sucesso",
+
+    "@_SchemaReviewDialog": {
+        "comment": "Dialogo de revisao do esquema"
+    },
+    "schema_review_title": "Revisar Esquema Gerado",
+    "schema_review_instructions": "Revise e ajuste o esquema gerado. Alterne os campos obrigatorios conforme necessario.",
+    "schema_field_name": "Nome do Campo",
+    "schema_field_type": "Tipo",
+    "schema_field_required": "Obrigatorio",
+    "schema_field_description": "Descricao",
+    "schema_confirm": "Confirmar",
+    "schema_edit": "Editar JSON",
+    "schema_no_fields": "Nenhum campo detectado no esquema",
+    "schema_suggested_prompt": "Prompt Sugerido",
+    "schema_suggested_prompt_hint": "Este prompt sera usado para gerar o template",
+    "schema_type_string": "Texto",
+    "schema_type_integer": "Inteiro",
+    "schema_type_double": "Decimal",
+    "schema_type_boolean": "Booleano",
+    "schema_type_array": "Lista",
+    "schema_type_object": "Objeto",
+    "schema_type_enum": "Enumeracao",
+    "schema_nullable": "Anulavel",
+
+    "@_ChatScreen": {
+        "comment": "Interface de chat"
+    },
+    "chat_input_placeholder": "Digite sua mensagem...",
+    "chat_send": "Enviar",
+    "chat_deploy": "Implantar",
+    "chat_deploy_template": "Implantar Template",
+    "chat_back": "Voltar",
+    "chat_back_accessibility": "Voltar para a tela anterior",
+    "chat_loading": "Processando sua solicitacao...",
+    "chat_thinking": "Pensando...",
+    "chat_error_sending": "Falha ao enviar mensagem. Por favor, tente novamente.",
+    "chat_connection_error": "Erro de conexao. Por favor, verifique sua internet.",
+    "chat_success_deployed": "Template implantado com sucesso!",
+    "chat_retry": "Tentar novamente",
+    "chat_clear_history": "Limpar historico do chat",
+    "chat_clear_confirm": "Tem certeza que deseja limpar o historico do chat?",
+    "chat_empty_state": "Inicie uma conversa para construir seu template",
+    "chat_message_count": "{count, plural, =0{Nenhuma mensagem} =1{1 mensagem} other{{count} mensagens}}",
+    "@chat_message_count": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "@_CommonButtons": {
+        "comment": "Rotulos de botoes comuns"
+    },
+    "button_save": "Salvar",
+    "button_cancel": "Cancelar",
+    "button_delete": "Excluir",
+    "button_confirm": "Confirmar",
+    "button_ok": "OK",
+    "button_close": "Fechar",
+    "button_next": "Proximo",
+    "button_previous": "Anterior",
+    "button_submit": "Enviar",
+    "button_reset": "Redefinir",
+    "button_continue": "Continuar",
+    "button_done": "Concluido",
+    "button_edit": "Editar",
+    "button_copy": "Copiar",
+    "button_share": "Compartilhar",
+
+    "@_LoadingStates": {
+        "comment": "Indicadores de carregamento e estados"
+    },
+    "loading": "Carregando...",
+    "loading_please_wait": "Por favor, aguarde...",
+    "loading_data": "Carregando dados...",
+    "loading_template": "Carregando template...",
+    "refreshing": "Atualizando...",
+
+    "@_ErrorMessages": {
+        "comment": "Mensagens de erro e fallbacks"
+    },
+    "error_generic": "Algo deu errado. Por favor, tente novamente.",
+    "error_network": "Erro de rede. Por favor, verifique sua conexao.",
+    "error_timeout": "A solicitacao expirou. Por favor, tente novamente.",
+    "error_server": "Erro no servidor. Por favor, tente novamente mais tarde.",
+    "error_not_found": "O recurso solicitado nao foi encontrado.",
+    "error_unauthorized": "Voce nao esta autorizado a realizar esta acao.",
+    "error_validation": "Por favor, verifique sua entrada e tente novamente.",
+    "error_empty_field": "Este campo nao pode estar vazio",
+    "error_retry": "Toque para tentar novamente",
+
+    "@_SuccessMessages": {
+        "comment": "Mensagens de sucesso"
+    },
+    "success_saved": "Salvo com sucesso!",
+    "success_deleted": "Excluido com sucesso!",
+    "success_copied": "Copiado para a area de transferencia!",
+    "success_updated": "Atualizado com sucesso!",
+
+    "@_Dialogs": {
+        "comment": "Titulos e mensagens de dialogos"
+    },
+    "dialog_confirm_title": "Confirmar Acao",
+    "dialog_confirm_message": "Tem certeza que deseja continuar?",
+    "dialog_delete_title": "Excluir Item",
+    "dialog_delete_message": "Esta acao nao pode ser desfeita. Tem certeza?",
+    "dialog_discard_title": "Descartar Alteracoes",
+    "dialog_discard_message": "Voce tem alteracoes nao salvas. Deseja descarta-las?",
+
+    "@_Accessibility": {
+        "comment": "Rotulos de acessibilidade"
+    },
+    "accessibility_menu": "Abrir menu",
+    "accessibility_close": "Fechar",
+    "accessibility_expand": "Expandir",
+    "accessibility_collapse": "Recolher",
+    "accessibility_loading": "Carregando conteudo",
+    "accessibility_error": "Ocorreu um erro"
+}

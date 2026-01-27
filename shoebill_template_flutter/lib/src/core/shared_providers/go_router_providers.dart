@@ -3,58 +3,61 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shoebill_template_flutter/src/core/utils/talker.dart';
-import 'package:shoebill_template_flutter/src/states/session/session_providers.dart';
-import 'package:shoebill_template_flutter/src/states/session/session_state.dart';
+import 'package:shoebill_template_flutter/src/features/chat/chat_screen.dart';
+import 'package:shoebill_template_flutter/src/features/landing_page/landing_page_screen.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Route paths for the application.
+abstract class AppRoutes {
+  /// Landing page route - the initial screen where users upload JSON
+  static const String landing = '/';
+
+  /// Chat screen route with session ID parameter
+  /// Use [chatPath] to generate the full path with a session ID
+  static const String chat = '/chat/:sessionId';
+
+  /// Generates the chat path with the given session ID
+  static String chatPath(String sessionId) => '/chat/$sessionId';
+}
+
 /// Notifier for managing GoRouter configuration.
-/// Rebuilds router when session state changes to handle authentication redirects.
 class RouterNotifier extends Notifier<GoRouter> {
   @override
   GoRouter build() {
-    final sessionState = ref.watch(sessionProvider);
-    final haveUser = sessionState.maybeMap(
-      orElse: () => false,
-      logged: (_) => true,
-    );
-    final isLoading = sessionState.maybeMap(
-      orElse: () => false,
-      loading: (_) => true,
-    );
-
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
       observers: <NavigatorObserver>[
         if (kDebugMode) TalkerRouteObserver(talker),
       ],
-      redirect: (context, state) {
-        final path = state.uri.path;
-
-        // Don't redirect while session is still loading
-        if (isLoading) {
-          return null;
-        }
-
-        if (path == '/splash') {
-          return null;
-        }
-        if (path.isEmpty || path == '/') {
-          return '/splash';
-        }
-
-        if (haveUser == false) {
-          if (path == '/auth') {
-            return null;
-          }
-        }
-
-        return null;
-      },
-      // initialLocation: '/scrappable-form',
-      initialLocation: '/splash',
-      routes: [],
+      initialLocation: AppRoutes.landing,
+      routes: [
+        // Landing page - initial route where users upload JSON
+        GoRoute(
+          path: AppRoutes.landing,
+          name: 'landing',
+          builder: (context, state) => const LandingPageScreen(),
+        ),
+        // Chat screen - with session ID parameter for deep linking
+        GoRoute(
+          path: AppRoutes.chat,
+          name: 'chat',
+          builder: (context, state) {
+            final sessionId = state.pathParameters['sessionId'];
+            if (sessionId == null || sessionId.isEmpty) {
+              // Invalid session ID, redirect to landing
+              return const LandingPageScreen();
+            }
+            return ChatScreen(
+              sessionId: sessionId,
+              onBack: () => context.go(AppRoutes.landing),
+            );
+          },
+        ),
+      ],
+      // Handle unknown routes by redirecting to landing page
+      errorBuilder: (context, state) => const LandingPageScreen(),
     );
   }
 }

@@ -1,0 +1,140 @@
+{
+    "@@locale": "en",
+
+    "@_AppInfo": {
+        "comment": "App title and general information"
+    },
+    "app_title": "Shoebill Template",
+    "app_subtitle": "Build and deploy your templates with ease",
+
+    "@_LandingPage": {
+        "comment": "Landing page - JSON upload section"
+    },
+    "landing_headline": "Create Your Template",
+    "landing_subtitle": "Upload your JSON schema to get started",
+    "landing_drag_json": "Drag your JSON file here",
+    "landing_paste_json": "Click here to paste JSON",
+    "landing_drop_files": "or drop files here",
+    "landing_browse_files": "Browse files",
+    "landing_invalid_json": "Invalid JSON format. Please check your file.",
+    "landing_file_uploaded": "File uploaded successfully",
+
+    "@_SchemaReviewDialog": {
+        "comment": "Schema review dialog"
+    },
+    "schema_review_title": "Review Generated Schema",
+    "schema_review_instructions": "Review and adjust the generated schema. Toggle required fields as needed.",
+    "schema_field_name": "Field Name",
+    "schema_field_type": "Type",
+    "schema_field_required": "Required",
+    "schema_field_description": "Description",
+    "schema_confirm": "Confirm",
+    "schema_edit": "Edit JSON",
+    "schema_no_fields": "No fields detected in schema",
+    "schema_suggested_prompt": "Suggested Prompt",
+    "schema_suggested_prompt_hint": "This prompt will be used to generate the template",
+    "schema_type_string": "String",
+    "schema_type_integer": "Integer",
+    "schema_type_double": "Double",
+    "schema_type_boolean": "Boolean",
+    "schema_type_array": "Array",
+    "schema_type_object": "Object",
+    "schema_type_enum": "Enum",
+    "schema_nullable": "Nullable",
+
+    "@_ChatScreen": {
+        "comment": "Chat interface"
+    },
+    "chat_input_placeholder": "Type your message...",
+    "chat_send": "Send",
+    "chat_deploy": "Deploy",
+    "chat_deploy_template": "Deploy Template",
+    "chat_back": "Back",
+    "chat_back_accessibility": "Go back to previous screen",
+    "chat_loading": "Processing your request...",
+    "chat_thinking": "Thinking...",
+    "chat_error_sending": "Failed to send message. Please try again.",
+    "chat_connection_error": "Connection error. Please check your internet.",
+    "chat_success_deployed": "Template deployed successfully!",
+    "chat_retry": "Retry",
+    "chat_clear_history": "Clear chat history",
+    "chat_clear_confirm": "Are you sure you want to clear the chat history?",
+    "chat_empty_state": "Start a conversation to build your template",
+    "chat_message_count": "{count, plural, =0{No messages} =1{1 message} other{{count} messages}}",
+    "@chat_message_count": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "@_CommonButtons": {
+        "comment": "Common button labels"
+    },
+    "button_save": "Save",
+    "button_cancel": "Cancel",
+    "button_delete": "Delete",
+    "button_confirm": "Confirm",
+    "button_ok": "OK",
+    "button_close": "Close",
+    "button_next": "Next",
+    "button_previous": "Previous",
+    "button_submit": "Submit",
+    "button_reset": "Reset",
+    "button_continue": "Continue",
+    "button_done": "Done",
+    "button_edit": "Edit",
+    "button_copy": "Copy",
+    "button_share": "Share",
+
+    "@_LoadingStates": {
+        "comment": "Loading indicators and states"
+    },
+    "loading": "Loading...",
+    "loading_please_wait": "Please wait...",
+    "loading_data": "Loading data...",
+    "loading_template": "Loading template...",
+    "refreshing": "Refreshing...",
+
+    "@_ErrorMessages": {
+        "comment": "Error messages and fallbacks"
+    },
+    "error_generic": "Something went wrong. Please try again.",
+    "error_network": "Network error. Please check your connection.",
+    "error_timeout": "Request timed out. Please try again.",
+    "error_server": "Server error. Please try again later.",
+    "error_not_found": "The requested resource was not found.",
+    "error_unauthorized": "You are not authorized to perform this action.",
+    "error_validation": "Please check your input and try again.",
+    "error_empty_field": "This field cannot be empty",
+    "error_retry": "Tap to retry",
+
+    "@_SuccessMessages": {
+        "comment": "Success messages"
+    },
+    "success_saved": "Saved successfully!",
+    "success_deleted": "Deleted successfully!",
+    "success_copied": "Copied to clipboard!",
+    "success_updated": "Updated successfully!",
+
+    "@_Dialogs": {
+        "comment": "Dialog titles and messages"
+    },
+    "dialog_confirm_title": "Confirm Action",
+    "dialog_confirm_message": "Are you sure you want to proceed?",
+    "dialog_delete_title": "Delete Item",
+    "dialog_delete_message": "This action cannot be undone. Are you sure?",
+    "dialog_discard_title": "Discard Changes",
+    "dialog_discard_message": "You have unsaved changes. Discard them?",
+
+    "@_Accessibility": {
+        "comment": "Accessibility labels"
+    },
+    "accessibility_menu": "Open menu",
+    "accessibility_close": "Close",
+    "accessibility_expand": "Expand",
+    "accessibility_collapse": "Collapse",
+    "accessibility_loading": "Loading content",
+    "accessibility_error": "Error occurred"
+}

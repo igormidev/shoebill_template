@@ -1,6 +1,42 @@
+# Shoebill Template
 
+An AI-powered PDF template generator that transforms JSON data into beautifully formatted PDF documents through intelligent, collaborative template creation.
 
-## 🏗️ Architecture
+## Project Overview
+
+Shoebill Template addresses a common challenge in document generation: creating professional PDF templates from structured data requires significant design and development effort. This application streamlines the process by leveraging AI to automatically generate Jinja2-based HTML/CSS templates that render JSON data into polished PDFs.
+
+Users simply provide sample JSON data, and the AI generates a complete template with proper styling, layout, and formatting. Through an interactive chat interface, users can refine the template in real-time, seeing live PDF previews as changes are made. Once satisfied, templates can be deployed for production use.
+
+## Key Features
+
+- **AI-Powered Template Generation** - Automatically creates Jinja2 HTML/CSS templates from sample JSON data
+- **Real-Time Collaboration** - Interactive chat interface for refining templates with AI assistance
+- **Live PDF Preview** - See rendered PDF output update in real-time as the template evolves
+- **Multi-Language Support** - Generate templates in different languages to support international use cases
+- **Schema Validation** - Automatic validation and review of JSON data structure
+- **Template Versioning** - Track changes and iterate on template designs
+- **Production Deployment** - Deploy finalized templates for integration with other systems
+
+## User Workflow
+
+1. **Upload JSON Data** - Drag and drop or paste sample JSON data that represents your document structure
+2. **Review Schema** - Validate and review the detected JSON schema to ensure proper field mapping
+3. **Chat with AI** - Describe your desired layout, styling, and formatting through natural language
+4. **Preview PDF** - View live PDF renders as the AI generates and refines the template
+5. **Iterate and Refine** - Continue the conversation to adjust styling, add sections, or fix issues
+6. **Deploy Template** - Finalize and deploy the template for production use
+
+## Tech Stack
+
+- **Frontend**: Flutter for cross-platform web application
+- **Backend**: Serverpod for type-safe Dart server infrastructure
+- **Templating**: Jinja2 for flexible HTML/CSS template generation
+- **PDF Rendering**: Server-side PDF generation from HTML templates
+
+---
+
+## Architecture
 
 The application follows clean architecture principles with:
 - **Presentation Layer**: Flutter widgets and screens

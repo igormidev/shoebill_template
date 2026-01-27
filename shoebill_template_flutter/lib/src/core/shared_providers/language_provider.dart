@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shoebill_template_client/shoebill_template_client.dart';
+import 'package:shoebill_template_flutter/gen_l10n/s.dart';
 import 'package:shoebill_template_flutter/src/core/shared_providers/shared_preferences_provider.dart';
 
 const _languageKey = 'selected_language_code';
@@ -114,7 +115,7 @@ Locale _getSystemLocale() {
 
 /// Check if a locale is supported by the app.
 bool _isLocaleSupported(Locale locale) {
-  return AppLocalizations.supportedLocales.any(
+  return S.supportedLocales.any(
     (supported) =>
         supported.languageCode == locale.languageCode ||
         (supported.languageCode == locale.languageCode &&
