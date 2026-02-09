@@ -132,6 +132,79 @@ Required API keys (set in environment or service initialization):
 - ANTHROPIC_API_KEY - For Claude API access
 - OpenRouter API key - For translations and template analysis
 
+## Serverpod 3.2+ Future Calls (New Approach)
+
+Serverpod 3.2 introduced a type-safe future call API. The legacy string-based registration and scheduling methods are deprecated. Here is how future calls work now:
+
+### Creating a Future Call
+
+Extend `FutureCall` and define methods (do **not** override `invoke`):
+
+```dart
+import 'package:serverpod/serverpod.dart';
+
+class ExampleFutureCall extends FutureCall {
+  Future<void> doWork(Session session, String data) async {
+    // Your deferred work here
+  }
+}
+```
+
+**Method requirements:**
+- Must return `Future<void>`
+- First parameter must be `Session`
+- Accepts serializable types (including `List`, `Map`, `Set`, Dart records)
+- Cannot use streaming parameters
+
+### Code Generation & Registration
+
+Run `serverpod generate` — this creates a type-safe interface in `generated/future_calls.dart` and automatically registers future calls when the server starts. No manual `pod.registerFutureCall(...)` needed.
+
+### Scheduling
+
+**With a delay:**
+
+```dart
+await pod.futureCalls
+    .callWithDelay(const Duration(hours: 1))
+    .example
+    .doWork('payload');
+```
+
+**At a specific time:**
+
+```dart
+await pod.futureCalls
+    .callAtTime(DateTime(2026, 1, 1))
+    .example
+    .doWork('payload');
+```
+
+### Identifying & Canceling
+
+```dart
+// Schedule with an identifier
+await pod.futureCalls
+    .callWithDelay(
+      const Duration(hours: 1),
+      identifier: 'campaign-email',
+    )
+    .example
+    .doWork('payload');
+
+// Cancel all calls with that identifier
+await pod.futureCalls.cancel('campaign-email');
+```
+
+### What Changed from the Old Approach
+
+| Old (deprecated) | New (3.2+) |
+|---|---|
+| Override `invoke(Session, T?)` method | Define named methods on `FutureCall` |
+| `pod.registerFutureCall(instance, 'name')` | Auto-registered via `serverpod generate` |
+| `session.serverpod.futureCallWithDelay('name', data, duration)` | `pod.futureCalls.callWithDelay(duration).example.doWork(data)` |
+| String-based identifiers for call names | Type-safe generated API |
+
 ## Important Next Step
 
 **Run `serverpod generate`** to regenerate Dart protocol code from the updated .spy.yaml model definitions. This will resolve compilation issues related to stale generated code.
