@@ -1,6 +1,19 @@
 // Put inside here all constants used through the project
 
 // ============================================================================
+// PASSWORD STORE KEYS
+// ============================================================================
+
+/// Passwords.yaml key for OpenRouter API access.
+const String kOpenRouterApiKeyPasswordKey = 'open_router_service';
+
+/// Passwords.yaml key for Daytona API access.
+const String kDaytonaApiKeyPasswordKey = 'daytona_api_key';
+
+/// Passwords.yaml key for Anthropic API access.
+const String kAnthropicApiKeyPasswordKey = 'anthropic_api_key';
+
+// ============================================================================
 // TRANSLATION CONSTANTS
 // ============================================================================
 

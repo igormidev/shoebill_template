@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter Web WASM (DEBUG-LOCAL)",
+      "type": "dart",
+      "request": "launch",
+      "program": "shoebill_template_flutter/lib/main.dart",
+      "args": [
+        "--wasm",
+        "--dart-define=GOOGLE_SERVER_CLIENT_ID=602145347765-dafncgl6jkbmnc3mf62qk1o0oeic5861.apps.googleusercontent.com",
+        "--web-browser-flag=--disable-web-security"
+      ],
+      "deviceId": "chrome",
+      "env": {
+        "CHROME_EXECUTABLE": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+      }
+    },
+    {
+      "name": "Flutter macOS (DEBUG-LOCAL)",
+      "type": "dart",
+      "request": "launch",
+      "program": "shoebill_template_flutter/lib/main.dart",
+      "args": [
+        "--dart-define=GOOGLE_SERVER_CLIENT_ID=602145347765-dafncgl6jkbmnc3mf62qk1o0oeic5861.apps.googleusercontent.com",
+        "--dart-define=GOOGLE_CLIENT_ID=602145347765-c40u505mg0ct5pqo9pqpiugj3hn82k3i.apps.googleusercontent.com"
+      ],
+      "deviceId": "macos"
+    },
+  ]
+}

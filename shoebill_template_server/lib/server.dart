@@ -7,6 +7,7 @@ import 'package:serverpod_auth_idp_server/providers/email.dart';
 import 'package:shoebill_template_server/src/services/get_locale_of_ip_service.dart';
 import 'package:shoebill_template_server/src/services/pdf_controller.dart';
 import 'package:shoebill_template_server/src/services/ai_services.dart';
+import 'package:shoebill_template_server/src/core/utils/consts.dart';
 import 'package:shoebill_template_server/src/api/pdf_related/pdf_generate_route.dart';
 import 'package:shoebill_template_server/src/api/pdf_related/pdf_preview_route.dart';
 import 'package:shoebill_template_server/src/api/pdf_related/pdf_visualize_route.dart';
@@ -87,15 +88,35 @@ void run(List<String> args) async {
   pod.webServer.addRoute(PdfGenerateEndpoint(), '/pdf/generate');
   pod.webServer.addRoute(PdfPreviewRoute(), '/pdf/preview');
 
-  final openRouterApiKey = pod.getPassword('open_router_service');
-  if (openRouterApiKey == null) throw noOpenAiException;
+  final openRouterApiKey = _getRequiredPassword(
+    pod,
+    kOpenRouterApiKeyPasswordKey,
+  );
+  final daytonaApiKey = _getRequiredPassword(
+    pod,
+    kDaytonaApiKeyPasswordKey,
+  );
+  final anthropicApiKey = _getRequiredPassword(
+    pod,
+    kAnthropicApiKeyPasswordKey,
+  );
+
+  getIt.registerSingleton<String>(
+    daytonaApiKey,
+    instanceName: kDaytonaApiKeyPasswordKey,
+  );
+  getIt.registerSingleton<String>(
+    anthropicApiKey,
+    instanceName: kAnthropicApiKeyPasswordKey,
+  );
 
   // Register singleton for stateless operations (like translations)
   getIt.registerSingleton<IOpenAiService>(OpenAiService(openRouterApiKey));
 
   // Register factory for creating instances with fresh chat history
   getIt.registerFactory<OpenAiServiceFactory>(
-    () => () => OpenAiService(openRouterApiKey),
+    () =>
+        () => OpenAiService(openRouterApiKey),
   );
 
   getIt.registerSingleton<IPdfController>(PdfController());
@@ -129,9 +150,16 @@ void _sendPasswordResetCode(
   session.log('[EmailIdp] Password reset code ($email): $verificationCode');
 }
 
-final noOpenAiException = ShoebillException(
-  title: 'Missing API key',
-  description: 'Open Router Service API key is not set in the passwords configuration.',
-);
-
 late final bool isLocal;
+
+String _getRequiredPassword(Serverpod pod, String key) {
+  final value = pod.getPassword(key);
+  if (value == null || value.trim().isEmpty) {
+    throw ShoebillException(
+      title: 'Missing credential in passwords.yaml',
+      description:
+          'Set "$key" in shoebill_template_server/config/passwords.yaml for the active run mode.',
+    );
+  }
+  return value;
+}

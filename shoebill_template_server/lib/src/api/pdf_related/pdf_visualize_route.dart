@@ -18,8 +18,8 @@ import 'package:shoebill_template_server/src/services/pdf_controller.dart';
 /// 4. Renders the PDF using Jinja2 templates (HTML + CSS from the version input)
 /// 5. Returns the PDF bytes with the correct MIME type
 class PdfVisualizeRoute extends Route with RouteMixin, JinjaPdfRendererMixin {
-  final IPdfController pdfController = getIt<IPdfController>();
-  final IGetLocaleOfIpService getLocaleOfIpService =
+  IPdfController get pdfController => getIt<IPdfController>();
+  IGetLocaleOfIpService get getLocaleOfIpService =>
       getIt<IGetLocaleOfIpService>();
 
   PdfVisualizeRoute() : super(methods: {Method.get});

@@ -13,6 +13,7 @@ emailIdp:
   - startPasswordReset:
   - verifyPasswordResetCode:
   - finishPasswordReset:
+  - hasAccount:
 jwtRefresh:
   - refreshAccessToken:
 account:

@@ -127,10 +127,10 @@ Powerful schema system with validation, translation extraction, and OpenRouter J
 
 ## Configuration
 
-Required API keys (set in environment or service initialization):
-- DAYTONA_API_KEY - For Claude Code sandbox execution
-- ANTHROPIC_API_KEY - For Claude API access
-- OpenRouter API key - For translations and template analysis
+Required API keys (set in `config/passwords.yaml` for your run mode):
+- `daytona_api_key` - For Claude Code sandbox execution
+- `anthropic_api_key` - For Claude API access
+- `open_router_service` - For translations and template analysis
 
 ## Serverpod 3.2+ Future Calls (New Approach)
 

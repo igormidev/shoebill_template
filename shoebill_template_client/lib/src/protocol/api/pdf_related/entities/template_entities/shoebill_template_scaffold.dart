@@ -26,7 +26,7 @@ abstract class ShoebillTemplateScaffold implements _i1.SerializableModel {
     this.versions,
     this.accountId,
     this.account,
-  }) : id = id ?? _i1.Uuid().v7obj(),
+  }) : id = id ?? const _i1.Uuid().v7obj(),
        createdAt = createdAt ?? DateTime.now();
 
   factory ShoebillTemplateScaffold({

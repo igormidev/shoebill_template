@@ -68,8 +68,12 @@ class ChatSessionEndpoint extends Endpoint {
 
   ChatControllerImpl get newChat => ChatControllerImpl(
     daytonaService: DaytonaClaudeCodeService(
-      daytonaApiKey: const String.fromEnvironment('DAYTONA_API_KEY'),
-      anthropicApiKey: const String.fromEnvironment('ANTHROPIC_API_KEY'),
+      daytonaApiKey: GetIt.instance<String>(
+        instanceName: kDaytonaApiKeyPasswordKey,
+      ),
+      anthropicApiKey: GetIt.instance<String>(
+        instanceName: kAnthropicApiKeyPasswordKey,
+      ),
     ),
     reviewerService: TemplateReviewerService(
       openAiService: GetIt.instance<IOpenAiService>(),
@@ -232,13 +236,14 @@ class ChatSessionEndpoint extends Endpoint {
     }
 
     // Find the reference implementation (in the baseline's reference language)
-    final referenceImplementation =
-        await ShoebillTemplateBaselineImplementation.db.findFirstRow(
-      session,
-      where: (impl) =>
-          impl.baselineId.equals(baseline.id) &
-          impl.language.equals(baseline.referenceLanguage),
-    );
+    final referenceImplementation = await ShoebillTemplateBaselineImplementation
+        .db
+        .findFirstRow(
+          session,
+          where: (impl) =>
+              impl.baselineId.equals(baseline.id) &
+              impl.language.equals(baseline.referenceLanguage),
+        );
 
     if (referenceImplementation == null) {
       throw ShoebillException(
@@ -366,14 +371,16 @@ class ChatSessionEndpoint extends Endpoint {
     refreshSession(sessionUUID);
 
     // Stream messages from the chat controller
-    unawaited(_processMessages(
-      controller: controller,
-      currentSession: sessionData.controller,
-      sessionUUID: sessionUUID,
-      message: message,
-      templateState: sessionData.templateState,
-      schemaChange: schemaChange,
-    ));
+    unawaited(
+      _processMessages(
+        controller: controller,
+        currentSession: sessionData.controller,
+        sessionUUID: sessionUUID,
+        message: message,
+        templateState: sessionData.templateState,
+        schemaChange: schemaChange,
+      ),
+    );
 
     return controller.stream;
   }
@@ -434,8 +441,9 @@ class ChatSessionEndpoint extends Endpoint {
     }
 
     // Validate the payload conforms to the new schema
-    final validationError =
-        newSchema.validateJsonFollowsSchemaStructure(parsedPayload);
+    final validationError = newSchema.validateJsonFollowsSchemaStructure(
+      parsedPayload,
+    );
     if (validationError != null) {
       return 'The new example payload does not conform to the new schema: '
           '$validationError';
@@ -505,7 +513,10 @@ class ChatSessionEndpoint extends Endpoint {
     final UuidValue resultId;
 
     if (isNew) {
-      resultId = await _deployNewTemplate(session, templateState: templateState);
+      resultId = await _deployNewTemplate(
+        session,
+        templateState: templateState,
+      );
     } else if (schemaChanged) {
       resultId = await _deployWithSchemaChange(
         session,
@@ -601,8 +612,7 @@ class ChatSessionEndpoint extends Endpoint {
     if (scaffoldId == null) {
       throw ShoebillException(
         title: 'Scaffold ID missing',
-        description:
-            'Cannot update version: scaffold ID not found.',
+        description: 'Cannot update version: scaffold ID not found.',
       );
     }
 
@@ -639,7 +649,8 @@ class ChatSessionEndpoint extends Endpoint {
         referenceLanguage: currentState.referenceLanguage,
         htmlContent: htmlContent ?? currentState.htmlContent,
         cssContent: cssContent ?? currentState.cssContent,
-        referenceStringifiedPayloadJson: referenceStringifiedPayloadJson ??
+        referenceStringifiedPayloadJson:
+            referenceStringifiedPayloadJson ??
             currentState.referenceStringifiedPayloadJson,
       );
     } else if (currentState is NewTemplateState) {
@@ -651,7 +662,8 @@ class ChatSessionEndpoint extends Endpoint {
           referenceLanguage: currentState.referenceLanguage,
           htmlContent: htmlContent,
           cssContent: cssContent,
-          referenceStringifiedPayloadJson: referenceStringifiedPayloadJson ??
+          referenceStringifiedPayloadJson:
+              referenceStringifiedPayloadJson ??
               currentState.referenceStringifiedPayloadJson,
         );
       }
@@ -659,7 +671,8 @@ class ChatSessionEndpoint extends Endpoint {
         pdfContent: currentState.pdfContent,
         schemaDefinition: schemaDefinition ?? currentState.schemaDefinition,
         referenceLanguage: currentState.referenceLanguage,
-        referenceStringifiedPayloadJson: referenceStringifiedPayloadJson ??
+        referenceStringifiedPayloadJson:
+            referenceStringifiedPayloadJson ??
             currentState.referenceStringifiedPayloadJson,
       );
     }

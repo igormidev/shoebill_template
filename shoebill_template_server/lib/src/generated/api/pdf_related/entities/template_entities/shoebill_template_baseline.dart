@@ -28,7 +28,7 @@ abstract class ShoebillTemplateBaseline
     required this.versionId,
     this.version,
     this.implementations,
-  }) : id = id ?? _i1.Uuid().v7obj(),
+  }) : id = id ?? const _i1.Uuid().v7obj(),
        createdAt = createdAt ?? DateTime.now();
 
   factory ShoebillTemplateBaseline({
