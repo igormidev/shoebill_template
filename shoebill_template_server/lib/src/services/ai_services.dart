@@ -239,7 +239,11 @@ class OpenAiService implements IOpenAiService {
       Uri.parse(kOpenRouterApiUrl),
     );
     request.headers.set('Authorization', 'Bearer $_apiKey');
-    request.headers.set('Content-Type', 'application/json');
+    request.headers.contentType = ContentType(
+      'application',
+      'json',
+      charset: 'utf-8',
+    );
     return request;
   }
 
