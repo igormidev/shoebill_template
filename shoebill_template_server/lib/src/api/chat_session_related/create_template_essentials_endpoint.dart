@@ -329,7 +329,15 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
 
     for (final entry in propertiesJson.entries) {
       final key = entry.key;
-      final value = entry.value as Map<String, dynamic>;
+      final rawValue = entry.value;
+      final Map<String, dynamic> value;
+      if (rawValue is String) {
+        // AI returned a shorthand type string (e.g. "name": "string")
+        // instead of a full schema object.
+        value = {'type': rawValue, 'nullable': false};
+      } else {
+        value = rawValue as Map<String, dynamic>;
+      }
       result[key] = _parseSchemaProperty(value);
     }
 
@@ -379,7 +387,13 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
           );
 
         case 'array':
-          final itemsJson = json['items'] as Map<String, dynamic>;
+          final rawItems = json['items'];
+          final Map<String, dynamic> itemsJson;
+          if (rawItems is List) {
+            itemsJson = (rawItems.first) as Map<String, dynamic>;
+          } else {
+            itemsJson = rawItems as Map<String, dynamic>;
+          }
           return SchemaPropertyArray(
             nullable: nullable,
             description: description,
@@ -393,7 +407,19 @@ Be thorough, precise, and creative in your analysis. The quality of the suggeste
           );
 
         case 'structured_object_with_defined_properties':
-          final nestedProperties = json['properties'] as Map<String, dynamic>;
+          final rawProperties = json['properties'];
+          final Map<String, dynamic> nestedProperties;
+          if (rawProperties is List) {
+            nestedProperties = {
+              for (final item in rawProperties.cast<Map<String, dynamic>>())
+                if (item.containsKey('name'))
+                  item['name'] as String: item
+                else
+                  item.keys.first: item[item.keys.first] as Map<String, dynamic>,
+            };
+          } else {
+            nestedProperties = rawProperties as Map<String, dynamic>;
+          }
           return SchemaPropertyStructuredObjectWithDefinedProperties(
             nullable: nullable,
             description: description,

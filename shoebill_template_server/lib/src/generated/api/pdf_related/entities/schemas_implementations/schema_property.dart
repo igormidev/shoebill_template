@@ -42,3 +42,10 @@ sealed class SchemaProperty
     String? description,
   });
 }
+
+// Workaround: Serverpod code generation bug for sealed classes with nullable
+// fields. The generated part files reference _Undefined in copyWith methods,
+// but the generator doesn't emit this class in the sealed parent file.
+// If you run `serverpod generate`, you must re-add this class or run the
+// post_generate.sh script in the project root.
+class _Undefined {}
