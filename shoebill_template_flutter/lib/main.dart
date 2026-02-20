@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shoebill_template_flutter/gen_l10n/s.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shoebill_template_client/shoebill_template_client.dart';
 import 'package:flutter/material.dart';
@@ -94,6 +95,8 @@ class _RouterApp extends ConsumerWidget {
         primarySwatch: Colors.deepPurple,
         useMaterial3: true,
       ),
+      localizationsDelegates: S.localizationsDelegates,
+      supportedLocales: S.supportedLocales,
       routerConfig: router,
     );
   }
