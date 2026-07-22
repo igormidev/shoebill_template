@@ -1,0 +1,13 @@
+class: SiriusTemplateImplementationGateway
+table: sirius_template_implementation_gateway
+fields:
+    id: UuidValue, defaultModel=random_v7
+
+    # The language the pdf was originally created in.
+    referenceLanguage: SupportedLanguage
+
+    createdAt: DateTime, default=now
+
+    version: TemplateSchemaVersion?, relation(name=sirius_schema_version_template_implementation_gateway)
+
+    variants: List<SiriusLanguageVariant>?, relation(name=gateway_to_variants)

@@ -1,0 +1,4 @@
+exception: SiriusException
+fields:
+    title: String
+    description: String

@@ -1,0 +1,4 @@
+class: SchemaDefinition
+table: schema_definitions
+fields:
+    properties: Map<String, SchemaProperty>

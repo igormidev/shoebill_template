@@ -1,0 +1,6 @@
+class: TemplateEngineInput
+table: template_engine_input
+fields:
+    schema: TemplateSchemaVersion?, relation(name=template_version_input_relation)
+    htmlContent: String
+    cssContent: String

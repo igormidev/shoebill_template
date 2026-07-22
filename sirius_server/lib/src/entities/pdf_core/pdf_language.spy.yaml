@@ -1,0 +1,26 @@
+enum: PdfLanguage
+values:
+  - english
+  - simplifiedMandarinChinese          # Simplified (Mainland China)
+  - traditionalChinese                 # Taiwan, Hong Kong
+  - spanish
+  - french
+  - brazilianPortuguese
+  - portugalPortuguese
+  - russian
+  - ukrainian
+  - polish
+  - indonesian
+  - malay
+  - german
+  - dutch
+  - japanese
+  - swahili
+  - turkish
+  - vietnamese
+  - korean
+  - italian
+  - filipino
+  - romanian
+  - swedish
+  - czech

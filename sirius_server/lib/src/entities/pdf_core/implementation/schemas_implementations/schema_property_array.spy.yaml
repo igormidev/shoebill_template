@@ -1,0 +1,4 @@
+class: SchemaPropertyArray
+extends: SchemaProperty
+fields:
+    items: SchemaProperty

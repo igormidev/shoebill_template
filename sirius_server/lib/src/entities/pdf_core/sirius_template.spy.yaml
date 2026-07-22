@@ -1,0 +1,9 @@
+class: SiriusTemplate
+table: sirius_template_scaffolds
+fields:
+    id: UuidValue, defaultModel=random_v7
+    createdAt: DateTime, default=now
+    displayInfo: TemplateDisplayInfo?, relation
+    versions: List<TemplateSchemaVersion>?, relation(name=template_to_schemed_versions)
+    accountId: int?
+    account: AccountInfo?, relation(name=account_templates, field=accountId)

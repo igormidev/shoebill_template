@@ -1,0 +1,3 @@
+- Always use toast instead of bottomsheet
+- Use "serverpod_logging_cli: ^0.1.0"
+- All images should be received as url's in the requests, the prompt should tell user this to the user.

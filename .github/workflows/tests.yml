@@ -1,0 +1,47 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: '3.4.5'
+      SERVERPOD_PASSWORD_database: 'Z4yxjRI46c1PvX38zqfoeVaIxm8gKqSB'
+      SERVERPOD_PASSWORD_redis: 'YB4OPFSs3VqiKRM4GZbgndU9qVTwhugC'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.8'
+
+      - name: Start containers
+        working-directory: sirius_server
+        run: docker compose up --quiet-pull --quiet-build --build -d
+
+      - name: Install dependencies
+        working-directory: sirius_server
+        run: dart pub get
+
+      - name: Install Serverpod CLI
+        working-directory: sirius_server
+        run: dart pub global activate serverpod_cli $VERSION
+
+      - name: Run Serverpod generator
+        working-directory: sirius_server
+        run: serverpod generate
+
+      - name: Run tests
+        working-directory: sirius_server
+        run: dart test
+
+      - name: Stop containers
+        if: always()
+        working-directory: sirius_server
+        run: docker compose down -v

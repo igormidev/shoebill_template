@@ -1,0 +1,14 @@
+class: TemplateSchemaVersion
+table: template_schema_version
+fields:
+    createdAt: DateTime, default=now
+    schema: SchemaDefinition?, relation
+    inputId: int
+    input: TemplateEngineInput?, relation(name=template_version_input_relation, field=inputId)
+    template: SiriusTemplate?, relation(name=template_to_schemed_versions)
+    implementations: List<SiriusTemplateImplementationGateway>?, relation(name=sirius_schema_version_template_implementation_gateway)
+
+indexes:
+    template_input_unique_index:
+        fields: inputId
+        unique: true  

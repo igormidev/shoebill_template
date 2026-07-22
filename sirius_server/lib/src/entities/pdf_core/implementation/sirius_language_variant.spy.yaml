@@ -1,0 +1,7 @@
+class: SiriusLanguageVariant
+table: sirius_language_variant
+fields:
+    stringifiedPayload: String
+    language: SupportedLanguage
+    createdAt: DateTime, default=now
+    gateway: SiriusTemplateImplementationGateway?, relation(name=gateway_to_variants)

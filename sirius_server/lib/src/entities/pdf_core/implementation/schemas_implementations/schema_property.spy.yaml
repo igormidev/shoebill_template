@@ -1,0 +1,5 @@
+class: SchemaProperty
+sealed: true
+fields:
+    nullable: bool
+    description: String?

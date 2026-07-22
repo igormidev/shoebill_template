@@ -1,0 +1,2 @@
+class: SchemaPropertyBoolean
+extends: SchemaProperty
